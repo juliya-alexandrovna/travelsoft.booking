@@ -14,6 +14,11 @@ use travelsoft\booking\adapters\Date;
 class TravelsoftToursOffers extends CBitrixComponent {
 
     /**
+     * @var \travelsoft\booking\adapters\CurrencyConverter
+     */
+    protected $_converter;
+
+    /**
      * @return array
      */
     protected function _getExtFilter(): array {
@@ -57,6 +62,41 @@ class TravelsoftToursOffers extends CBitrixComponent {
     }
 
     /**
+     * @param float $price
+     * @param string $inIso
+     * @return array
+     */
+    protected function _convert(float $price, string $inIso): array {
+
+        $result = array();
+
+        foreach ($this->arParams['SHOW_CURRENCY_ISO'] as $iso) {
+            $result[] = array(
+                'price' => $this->_converter->format($this->_converter->convert($price, $inIso, $iso)),
+                'currency' => $iso
+            );
+        }
+
+        return $result;
+    }
+
+    /**
+     * @param array $data
+     * @return array
+     */
+    protected function _converting(array $data): array {
+
+        $result = array();
+
+        if ($data['price'] > 0) {
+
+            $result = $this->_convert($data['price'], $data['currency']);
+        }
+
+        return $result;
+    }
+
+    /**
      * Обработка входных параметров
      * @throws \Exception
      */
@@ -65,6 +105,11 @@ class TravelsoftToursOffers extends CBitrixComponent {
         if (!\Bitrix\Main\Loader::includeModule('travelsoft.booking')) {
 
             throw new \Exception('Модуль travelsoft.booking не найден');
+        }
+
+        if (!\Bitrix\Main\Loader::includeModule('new.travelsoft.currency')) {
+
+            throw new \Exception('Модуль travelsoft.currency не найден');
         }
 
         $this->arParams['ID'] = array_filter($this->arParams['ID'], function ($id) {
@@ -98,9 +143,12 @@ class TravelsoftToursOffers extends CBitrixComponent {
             $se->setExtFilter($extFilter);
         }
 
-        $this->arResult['COST'] = $se->filterByStopSale()->search()->getCost()->getSource();
+        $this->arResult['COST'] = $se->search()->filterByStopSale()->filterByQuotas(1)->getCost()->getSource();
 
         $this->arResult['COST_PREPARED'] = array();
+
+        $this->_converter = new travelsoft\booking\adapters\CurrencyConverter;
+
         foreach ($this->arResult['COST'] as $id => $arr_sub) {
 
             $this->arResult['COST_PREPARED'][$id] = array(
@@ -108,12 +156,19 @@ class TravelsoftToursOffers extends CBitrixComponent {
                 'dates' => array()
             );
 
-            foreach ($arr_sub as $unix_date => $arr_prices) {
+            foreach ($arr_sub as $timestamp => $arr_prices) {
 
-                $date = date('d.m.Y', $unix_date);
+                $arPrices = array();
+
+                foreach ($arr_prices as $type => $arr_price) {
+
+                    $arPrices[$type] = $this->_converting($arr_price);
+                }
+
+                $date = date('d.m.Y', $timestamp);
                 $this->arResult['COST_PREPARED'][$id]['dates'][$date] = array(
                     'date' => $date,
-                    'prices' => $arr_prices
+                    'prices' => $arPrices
                 );
 
                 usort($this->arResult['COST_PREPARED'][$id]['dates'], function ($d1, $d2) {
@@ -121,7 +176,6 @@ class TravelsoftToursOffers extends CBitrixComponent {
                 });
             }
         }
-
 
         if (!empty($this->arResult['COST_PREPARED'])) {
             $this->arResult['QUOTAS'] = array();
