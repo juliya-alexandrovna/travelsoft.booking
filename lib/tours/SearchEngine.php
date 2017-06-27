@@ -8,7 +8,6 @@ use travelsoft\booking\stores\Quotas;
 use travelsoft\booking\stores\Prices;
 use travelsoft\booking\stores\PriceTypes;
 use travelsoft\booking\adapters\Date;
-use travelsoft\booking\Settings;
 
 /**
  * Класс для поиска туров и расчёта цен
@@ -17,6 +16,16 @@ use travelsoft\booking\Settings;
  * @copyright (c) 2017, travelsoft
  */
 class SearchEngine extends AbstractSearchEngine {
+    
+    /**
+     * @var array 
+     */
+    protected $_dateFilter = null;
+    
+    /**
+     * @var array
+     */
+    protected $_services = null;
     
     /**
      * Производит поиск цен
@@ -31,9 +40,13 @@ class SearchEngine extends AbstractSearchEngine {
         
         if ($toursId) {
             
+            $this->_setDatesFilter();
+            
             $this->_setPreparedPricesData(
                     Prices::get(array('filter' => $this->_getPricesFilter(array_keys($toursId))))
             );
+            
+            $this->_setServices();
         }
         
         return $this;
@@ -46,12 +59,10 @@ class SearchEngine extends AbstractSearchEngine {
      */
     public function filterByStopSale(): self {
 
-        $servicesId = array_keys($this->_prices);
+        if ($this->_services) {
 
-        if ($servicesId) {
-
-            $quotasFilter = $this->_getDatesFilter();
-            $quotasFilter['UF_SERVICE_ID'] = $servicesId;
+            $quotasFilter = $this->_dateFilter;
+            $quotasFilter['UF_SERVICE_ID'] = $this->_services;
             $quotasFilter['UF_STOP'] = 1;
 
             $quotas = Quotas::get(array('filter' => $quotasFilter, 'select' => array('UF_UNIX_DATE', 'UF_SERVICE_ID')));
@@ -75,12 +86,10 @@ class SearchEngine extends AbstractSearchEngine {
      */
     public function filterByQuotas(int $quota): self {
 
-        $servicesId = array_keys($this->_prices);
+        if ($this->_services) {
 
-        if ($servicesId) {
-
-            $quotasFilter = $this->_getDatesFilter();
-            $quotasFilter['UF_SERVICE_ID'] = $servicesId;
+            $quotasFilter = $this->_dateFilter;
+            $quotasFilter['UF_SERVICE_ID'] = $this->_services;
 
             $quotas = Quotas::get(array('filter' => $quotasFilter, 'select' => array('UF_QUOTA', 'UF_UNIX_DATE', 'UF_SERVICE_ID')));
 
@@ -97,43 +106,58 @@ class SearchEngine extends AbstractSearchEngine {
     }
 
     /**
-     * @return array
+     * Устанавливает фильтр для поиска по датам
      */
-    protected function _getDatesFilter(): array {
+    protected function _setDatesFilter() {
 
-        if ($this->_extFilter['><PROPERTY_' . Settings::tourDatePropertyId()]) {
+        if (!empty($this->_extFilter['><UF_DATE']) && is_array($this->_extFilter['><UF_DATE'])) {
             
-            return array('><UF_DATE' => array_map(function ($date) { return Date::create($date); }, $this->_extFilter['><PROPERTY_' . Settings::tourDatePropertyId()]));
+            $this->_dateFilter = array('><UF_DATE' => array_map(function ($date) { return Date::create($date); }, $this->_extFilter['><UF_DATE']));
         }
 
-        if ($this->_extFilter['>PROPERTY_' . Settings::tourDatePropertyId()]) {
+        elseif ($this->_extFilter['>UF_DATE']) {
             
-            return array('>UF_DATE' => Date::create($this->_extFilter['>PROPERTY_' . Settings::tourDatePropertyId()]));
+            $this->_dateFilter = array('>UF_DATE' => Date::create($this->_extFilter['>UF_DATE']));
         }
 
-        if ($this->_extFilter['<PROPERTY_' . Settings::tourDatePropertyId()]) {
+        elseif ($this->_extFilter['<UF_DATE']) {
 
-            return array('<UF_DATE' => Date::create($this->_extFilter['><PROPERTY_' . Settings::tourDatePropertyId()]));
-        }
-        
-        if ($this->_extFilter['>=PROPERTY_' . Settings::tourDatePropertyId()]) {
-
-            return array('>=UF_DATE' => Date::create($this->_extFilter['>=PROPERTY_' . Settings::tourDatePropertyId()]));
-        }
-
-        if ($this->_extFilter['<=PROPERTY_' . Settings::tourDatePropertyId()]) {
-
-            return array('<=UF_DATE' => Date::create($this->_extFilter['<=PROPERTY_' . Settings::tourDatePropertyId()]));
+            $this->_dateFilter = array('<UF_DATE' => Date::create($this->_extFilter['<UF_DATE']));
         }
         
-        if ($this->_extFilter['PROPERTY_' . Settings::tourDatePropertyId()]) {
-        
-            return array('<=UF_DATE' => Date::create($this->_extFilter['<=PROPERTY_' . Settings::tourDatePropertyId()]));
+        elseif ($this->_extFilter['>=UF_DATE']) {
+
+            $this->_dateFilter = array('>=UF_DATE' => Date::create($this->_extFilter['><UF_DATE']));
         }
 
-        return array();
+        elseif ($this->_extFilter['<=UF_DATE']) {
+
+            $this->_dateFilter = array('<=UF_DATE' => Date::create($this->_extFilter['<=UF_DATE']));
+        }
+        
+        else {
+            
+            $this->_dateFilter = array('>UF_DATE' => Date::create(date('d.m.Y', time())));
+        }
     }
-
+    
+    /**
+     * Устанавливает ID туругслуги
+     */
+    protected function _setServices() {
+       
+        $services = array_keys($this->_prices);
+        
+        if (empty($services)) {
+            
+            $this->_services = $services;
+        } else {
+            
+            $this->_services = array(-1);
+        }
+        
+    }
+    
     /**
      * Возвращает фильтр в виде массива для поиска цен
      * @param array $toursId
@@ -141,7 +165,7 @@ class SearchEngine extends AbstractSearchEngine {
      */
     protected function _getPricesFilter(array $toursId): array {
         
-        $pricesFilter = $this->_getDatesFilter();
+        $pricesFilter = $this->_dateFilter;
         $pricesFilter['UF_SERVICE_ID'] = $toursId;
 
         return $pricesFilter;
