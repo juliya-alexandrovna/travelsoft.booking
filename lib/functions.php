@@ -125,35 +125,54 @@ namespace travelsoft\booking {
 
     if (!function_exists("\\travelsoft\\booking\\getToursMinPricesForList")) {
 
-        function getToursMinPricesForList(array $extFilter = array()): array {
-            
+        /**
+         * Возвращает список рассчитанных цен для страницы списка туров
+         * Производит замену параметров (ID и $dateProperty) фильтре поиска для списка туров 
+         * @param array $extFilter
+         * @param string $dateProperty ключ, который содержит даты для поиска
+         * @return array
+         */
+        function getToursMinPricesForList(& $extFilter, string $dateProperty): array {
+
             $searchEngine = new \travelsoft\booking\tours\SearchEngine;
-            if (!empty($extFilter)) {
+            if (is_array($extFilter) && !empty($extFilter)) {
 
-                # производим поиск цен по фильтру
-                $cost = $searchEngine->setExtFilter($extFilter)->search()->filterByStopSale()->getCost();
-            } else {
+                # формирование массива дат для поиска цен
+                if ($extFilter[$dateProperty]) {
 
-                # производим поиск цен с сегоднешнего дня
-                $cost = $searchEngine->setExtFilter(array('>PROPERTY_78' => date('d.m.Y')))->search()->getCost();
+                    $extFilter['><UF_DATE'] = $extFilter[$dateProperty];
+                    unset($extFilter[$dateProperty]);
+                }
+                
+                # фильтр для поиска цен
+                $cost = $searchEngine->setExtFilter($extFilter);
             }
-            
+
+            $cost = $searchEngine->search()->filterByStopSale()->getCost();
+
             # цена за взрослого
             $arSearchAdultsPrices = $cost->forAdults(1)->getMinForTour();
-            
+
             # цена за ребенка
             $arSearchChildrenPrices = $cost->forChildren(1)->getMinForTour();
-            
+
             # дополняем цены ценой за ребенка, если не установлена цена за взрослого
             foreach ($arSearchChildrenPrices as $id => $arr_values) {
-                
+
                 if (!isset($arSearchAdultsPrices[$id])) {
-                    
+
                     $arSearchAdultsPrices[$id] = $arr_values;
                 }
+            }
+
+            $extFilter['ID'] = !empty($arSearchAdultsPrices) ? array_keys($arSearchAdultsPrices) : array(-1);
+            
+            if ($extFilter['><UF_DATE']) {
+                unset($extFilter['><UF_DATE']);
             }
             
             return $arSearchAdultsPrices;
         }
+
     }
 }
