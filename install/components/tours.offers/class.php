@@ -1,7 +1,6 @@
 <?php
 
 use travelsoft\booking\tours\SearchEngine;
-use travelsoft\booking\Settings;
 use travelsoft\booking\stores\Quotas;
 use travelsoft\booking\adapters\Date;
 
@@ -32,7 +31,7 @@ class TravelsoftToursOffers extends CBitrixComponent {
 
         if (is_array($this->arParams['DATES']) && !empty($this->arParams['DATES'])) {
 
-            $extFilter['=PROPERTY_' . Settings::tourDatePropertyId()] = $this->arParams['DATES'];
+            $extFilter['=UF_DATE'] = $this->arParams['DATES'];
         }
 
         if (!empty($GLOBALS[$this->arParams['GLOBAL_FILTER_NAME']])) {
