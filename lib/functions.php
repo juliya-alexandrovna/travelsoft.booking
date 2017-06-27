@@ -143,7 +143,7 @@ namespace travelsoft\booking {
                     $extFilter['><UF_DATE'] = $extFilter[$dateProperty];
                     unset($extFilter[$dateProperty]);
                 }
-                
+
                 # фильтр для поиска цен
                 $cost = $searchEngine->setExtFilter($extFilter);
             }
@@ -166,11 +166,11 @@ namespace travelsoft\booking {
             }
 
             $extFilter['ID'] = !empty($arSearchAdultsPrices) ? array_keys($arSearchAdultsPrices) : array(-1);
-            
+
             if ($extFilter['><UF_DATE']) {
                 unset($extFilter['><UF_DATE']);
             }
-            
+
             return $arSearchAdultsPrices;
         }
 

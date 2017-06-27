@@ -16,17 +16,17 @@ use travelsoft\booking\adapters\Date;
  * @copyright (c) 2017, travelsoft
  */
 class SearchEngine extends AbstractSearchEngine {
-    
+
     /**
      * @var array 
      */
     protected $_dateFilter = null;
-    
+
     /**
      * @var array
      */
     protected $_services = null;
-    
+
     /**
      * Производит поиск цен
      * @return \self
@@ -37,18 +37,18 @@ class SearchEngine extends AbstractSearchEngine {
                     'filter' => $this->_extFilter,
                     'select' => array('ID')
         ));
-        
+
         if ($toursId) {
-            
+
             $this->_setDatesFilter();
-            
+
             $this->_setPreparedPricesData(
                     Prices::get(array('filter' => $this->_getPricesFilter(array_keys($toursId))))
             );
-            
+
             $this->_setServices();
         }
-        
+
         return $this;
     }
 
@@ -111,60 +111,51 @@ class SearchEngine extends AbstractSearchEngine {
     protected function _setDatesFilter() {
 
         if (!empty($this->_extFilter['><UF_DATE']) && is_array($this->_extFilter['><UF_DATE'])) {
-            
-            $this->_dateFilter = array('><UF_DATE' => array_map(function ($date) { return Date::create($date); }, $this->_extFilter['><UF_DATE']));
-        }
 
-        elseif ($this->_extFilter['>UF_DATE']) {
-            
+            $this->_dateFilter = array('><UF_DATE' => array_map(function ($date) {
+                            return Date::create($date);
+                        }, $this->_extFilter['><UF_DATE']));
+        } elseif ($this->_extFilter['>UF_DATE']) {
+
             $this->_dateFilter = array('>UF_DATE' => Date::create($this->_extFilter['>UF_DATE']));
-        }
-
-        elseif ($this->_extFilter['<UF_DATE']) {
+        } elseif ($this->_extFilter['<UF_DATE']) {
 
             $this->_dateFilter = array('<UF_DATE' => Date::create($this->_extFilter['<UF_DATE']));
-        }
-        
-        elseif ($this->_extFilter['>=UF_DATE']) {
+        } elseif ($this->_extFilter['>=UF_DATE']) {
 
             $this->_dateFilter = array('>=UF_DATE' => Date::create($this->_extFilter['><UF_DATE']));
-        }
-
-        elseif ($this->_extFilter['<=UF_DATE']) {
+        } elseif ($this->_extFilter['<=UF_DATE']) {
 
             $this->_dateFilter = array('<=UF_DATE' => Date::create($this->_extFilter['<=UF_DATE']));
-        }
-        
-        else {
-            
+        } else {
+
             $this->_dateFilter = array('>UF_DATE' => Date::create(date('d.m.Y', time())));
         }
     }
-    
+
     /**
      * Устанавливает ID туругслуги
      */
     protected function _setServices() {
-       
+
         $services = array_keys($this->_prices);
-        
+
         if (empty($services)) {
-            
+
             $this->_services = $services;
         } else {
-            
+
             $this->_services = array(-1);
         }
-        
     }
-    
+
     /**
      * Возвращает фильтр в виде массива для поиска цен
      * @param array $toursId
      * @return array
      */
     protected function _getPricesFilter(array $toursId): array {
-        
+
         $pricesFilter = $this->_dateFilter;
         $pricesFilter['UF_SERVICE_ID'] = $toursId;
 
@@ -176,7 +167,7 @@ class SearchEngine extends AbstractSearchEngine {
      * @param array $prices
      */
     protected function _setPreparedPricesData(array $prices) {
-        
+
         $pts = array();
 
         foreach ($prices as $price) {
@@ -191,7 +182,8 @@ class SearchEngine extends AbstractSearchEngine {
             $this->_prices[$price['UF_SERVICE_ID']][$price['UF_UNIX_DATE']][$pts[$price['UF_PRICE_TYPE_ID']]['UF_CODE']] = array(
                 'price' => $price['UF_GROSS'],
                 'currency' => $pts[$price['UF_PRICE_TYPE_ID']]['UF_CURRENCY_ISO']
-            );  
+            );
         }
     }
+
 }
