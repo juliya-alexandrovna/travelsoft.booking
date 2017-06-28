@@ -72,6 +72,15 @@ function processPriceAndQuotasFormRequest(array $request): array {
             }
         }
 
+        if ($req['duration']) {
+            
+            foreach ($req['duration'] as $timestamp => $value) {
+
+                $response['duration'][$timestamp] = _processDuration($timestamp, intVal($value), $dbTour['ID']);
+            }
+            
+        }
+        
         # обработка stop sale
         if ($req['stop_sale']) {
 
@@ -105,6 +114,14 @@ function processPriceAndQuotasFormRequest(array $request): array {
                     foreach ($me['unix_dates'] as $timestamp) {
 
                         $response['quotas'][$timestamp] = _processQuotas($timestamp, intVal($me['quotas']['value']), $dbTour['ID']);
+                    }
+                }
+                
+                if ($me['duration']) {
+
+                    foreach ($me['unix_dates'] as $timestamp) {
+
+                        $response['duration'][$timestamp] = _processDuration($timestamp, intVal($me['duration']['value']), $dbTour['ID']);
                     }
                 }
 
@@ -196,6 +213,55 @@ function _processQuotas(string $timestamp, int $value, int $tourid): array {
 }
 
 /**
+ * Обрабатывает запрос на изменение квот и возвращает результат
+ * @param string $timestamp
+ * @param int $value
+ * @param int $tourid
+ * @return int
+ */
+function _processDuration(string $timestamp, int $value, int $tourid): int {
+
+    $result = 0;
+
+    $dbDuration = current(\travelsoft\booking\stores\Duration::get(array(
+                'filter' => array(
+                    'UF_UNIX_DATE' => $timestamp,
+                    'UF_SERVICE_ID' => $tourid
+                ),
+                'select' => array('ID', 'UF_DURATION')
+    )));
+
+    if ($dbDuration['ID'] > 0) {
+
+        if ($value <= 0) {
+
+            \travelsoft\booking\stores\Duration::delete($dbDuration['ID']);
+            $result = 0;
+            
+        } else {
+
+            \travelsoft\booking\stores\Duration::update($dbDuration['ID'], array('UF_DURATION' => $value));
+            $result = $value;
+        }
+    } else {
+
+        if ($value > 0) {
+
+            $id = \travelsoft\booking\stores\Duration::add(array(
+                        'UF_DURATION' => $value,
+                        'UF_SERVICE_ID' => $tourid,
+                        'UF_UNIX_DATE' => $timestamp,
+                        'UF_DATE' => date('d.m.Y', $timestamp)
+            ));
+
+            $result = $value;
+        }
+    }
+
+    return $result;
+}
+
+/**
  * Обрабатывает запрос на изменение stop sale и возвращает результат
  * @param string $timestamp
  * @param bool $value
@@ -256,7 +322,7 @@ function _processPrices(string $timestamp, int $ptid, float $value, int $tourid)
         if (intVal($value) <= 0) {
 
             \travelsoft\booking\stores\Prices::delete($dbPrice['ID']);
-            $result = null;
+            $result = 0;
         } else {
 
             \travelsoft\booking\stores\Prices::update($dbPrice['ID'], array('UF_GROSS' => $value));
@@ -428,6 +494,7 @@ function getPriceAndQuotasTableAsHtml(array $parameters): string {
         $list->AddHeaders($header);
 
         _setQuotasSoldStopSaleRows($timestamps, $list, $parameters);
+        _setDurationRows($timestamps, $list, $parameters);
         _setPriceTypesRow($timestamps, $list, $parameters);
 
         ob_start();
@@ -499,6 +566,7 @@ function _setPriceTypesRow(array $timestamps, & $list, array $parameters) {
  * Возвращает контент формы массового редактирования
  * @global \CMain $APPLICATION
  * @param array $formElements
+ * @param string $formid
  * @return string
  */
 function _getMassEditPopupFormHtml(array $formElements, string $formid): string {
@@ -547,6 +615,46 @@ function _getMassEditPopupFormHtml(array $formElements, string $formid): string 
     $content .= '</form>';
 
     return $content;
+}
+
+/**
+ * @param array $timestamps
+ * @param type $list
+ * @param array $parameters
+ */
+function _setDurationRows (array $timestamps, & $list, array $parameters) {
+    
+    $durations = array();
+    foreach (\travelsoft\booking\stores\Duration::get(
+            array('filter' => array(
+                    'UF_SERVICE_ID' => $parameters['tourid'], '><UF_DATE' => array(
+                        new \Bitrix\Main\Type\DateTime($parameters['dates'][0]),
+                        new \Bitrix\Main\Type\DateTime($parameters['dates'][count($parameters['dates']) - 1])
+                    )))
+    ) as $duration) {
+        $durations[$duration['UF_UNIX_DATE']] = $duration;
+    }
+
+    $durationRowData = array();
+
+    $formElements = _getMassEditHiddenFormElements($parameters);
+
+    $formElements[] = array(
+        'label' => "Продолжительность (дней)",
+        'element' => 'input',
+        'type' => 'text',
+        'value' => '',
+        'name' => 'prices_and_quotas[mass_edit][duration][value]'
+    );
+
+    $durationRowData["id"] = "<b>Продолжительность (дней)</b><br>[<a href='javascript: CRMUtils.initPopupForm(" . _getMassEditPopupJsonSettings(_getMassEditPopupFormHtml($formElements, 'duration-mass-edit'), 'duration-mass-edit') . ")'>Изменить</a>]";
+
+    foreach ($timestamps as $timestamp) {
+
+        $durationRowData[$timestamp] = $durations[$timestamp]['UF_DURATION'] > 0 ? intVal($durations[$timestamp]['UF_DURATION']) : null;
+    }
+    
+    _setViewField($list->addRow($durationRowData["id"], $durationRowData), $durationRowData, '<input onblur="CRMUtils.triggerPriceAndQuotasFormAjaxSubmit(this);" type="text" name="prices_and_quotas[duration][#key#]" value="#value#" size="3">');
 }
 
 /**
