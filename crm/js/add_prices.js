@@ -376,7 +376,7 @@ $(document).ready(function () {
 
                 for (var uxd in data.quotas) {
 
-                    $('input[name="prices_and_quotas[quotas][' + uxd + ']"]').val(data.quotas[uxd].quota_value > 0 ? data.quotas[uxd].quota_value : 0)
+                    $('input[name="prices_and_quotas[quotas][' + uxd + ']"]').val(data.quotas[uxd].quota_value > 0 ? data.quotas[uxd].quota_value : '')
                     $('#sold-' + uxd).text(data.quotas[uxd].sold_value || 0)
                     $('#on-sale-' + uxd).text(data.quotas[uxd].onsale_value || 0)
                 }
@@ -389,6 +389,14 @@ $(document).ready(function () {
                     $('select[name="prices_and_quotas[stop_sale][' + uxd + ']"]').val(data.stop_sale[uxd] ? 1 : 0)
                 }
             }
+            
+            if (typeof data.duration === 'object') {
+
+                for (var uxd in data.duration) {
+                    
+                    $('input[name="prices_and_quotas[duration][' + uxd + ']"]').val( data.duration[uxd] > 0 ? data.duration[uxd] : '' )
+                }
+            }
 
             if (typeof data.prices === 'object') {
 
@@ -396,7 +404,7 @@ $(document).ready(function () {
 
                     for (uxd in data.prices[ptid]) {
 
-                        $('input[name="prices_and_quotas[prices][' + ptid + '][' + uxd + ']"]').val(data.prices[ptid][uxd] > 0 ? data.prices[ptid][uxd] : 0)
+                        $('input[name="prices_and_quotas[prices][' + ptid + '][' + uxd + ']"]').val(data.prices[ptid][uxd] > 0 ? data.prices[ptid][uxd] : '')
                     }
                 }
             }
