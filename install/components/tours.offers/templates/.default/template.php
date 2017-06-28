@@ -38,7 +38,7 @@ if (empty($arResult['COST_PREPARED'])) {
 
                 <tr>
 
-                    <td data-label="Дата"><?= $arrValues['date'] ?></td>
+                    <td data-label="Дата"><?= $arrValues['date_from'] . ' - ' . $arrValues['date_to'] ?></td>
                     <td data-label="Цена за взрослого">
                         <?
                         $aps = implode('<br>', array_map(function ($item) {
@@ -81,13 +81,13 @@ if (empty($arResult['COST_PREPARED'])) {
                         ?>
                     </td>
                     <td data-label="Свободных мест">
-                        <?= (int) $arResult['QUOTAS'][$ID][$arrValues['date']] ?>
+                        <?= (int) $arrValues['quota'] ?>
                     </td>
                 </tr>
 
-                    <?
-                    }
-                }
-                ?>
+                <?
+            }
+        }
+        ?>
     </tbody>
 </table>

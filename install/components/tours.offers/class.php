@@ -1,8 +1,6 @@
 <?php
 
 use travelsoft\booking\tours\SearchEngine;
-use travelsoft\booking\stores\Quotas;
-use travelsoft\booking\adapters\Date;
 
 /**
  * Класс туристических предложений
@@ -40,24 +38,6 @@ class TravelsoftToursOffers extends CBitrixComponent {
         }
 
         return $extFilter;
-    }
-
-    /**
-     * @return array
-     */
-    protected function _getQuotasFilter(): array {
-
-        $quotasFilter = array('UF_SERVICE_ID' => array_keys($this->arResult['COST_PREPARED']));
-
-        if (is_array($this->arParams['DATES']) && !empty($this->arParams['DATES'])) {
-
-            $quotasFilter['=UF_DATE'] = array_map(function ($date) {
-
-                return Date::create($date);
-            }, $this->arParams['DATES']);
-        }
-
-        return $quotasFilter;
     }
 
     /**
@@ -143,7 +123,7 @@ class TravelsoftToursOffers extends CBitrixComponent {
         }
 
         $this->arResult['COST'] = $se->search()->filterByStopSale()->filterByQuotas(1)->getCost()->getSource();
-
+        
         $this->arResult['COST_PREPARED'] = array();
 
         $this->_converter = new travelsoft\booking\adapters\CurrencyConverter;
@@ -155,37 +135,28 @@ class TravelsoftToursOffers extends CBitrixComponent {
                 'dates' => array()
             );
 
-            foreach ($arr_sub as $timestamp => $arr_prices) {
+            foreach ($arr_sub as $timestamp => $arr_data) {
 
                 $arPrices = array();
-
-                foreach ($arr_prices as $type => $arr_price) {
+                
+                foreach ($arr_data['prices'] as $type => $arr_price) {
 
                     $arPrices[$type] = $this->_converting($arr_price);
                 }
 
                 $date = date('d.m.Y', $timestamp);
                 $this->arResult['COST_PREPARED'][$id]['dates'][$date] = array(
-                    'date' => $date,
+                    'date_from' => $date,
+                    'date_to' => date('d.m.Y', $timestamp + (86400 * ($arr_data['duration'] - 1))),
+                    'quota' => $arr_data['quota'],
+                    'duration' => $arr_data['duration'],
+                    'stop_sale' => $arr_data['stop_sale'],
                     'prices' => $arPrices
                 );
 
                 usort($this->arResult['COST_PREPARED'][$id]['dates'], function ($d1, $d2) {
                     return new DateTime($d1["date"]) > new DateTime($d2["date"]);
                 });
-            }
-        }
-
-        if (!empty($this->arResult['COST_PREPARED'])) {
-            $this->arResult['QUOTAS'] = array();
-            $query = array(
-                'filter' => $this->_getQuotasFilter(),
-                'select' => array('ID', 'UF_QUOTA', 'UF_DATE', 'UF_SERVICE_ID')
-            );
-
-            foreach (Quotas::get($query) as $arQuota) {
-
-                $this->arResult['QUOTAS'][$arQuota['UF_SERVICE_ID']][$arQuota['UF_DATE']->format('d.m.Y')] = $arQuota['UF_QUOTA'];
             }
         }
     }
