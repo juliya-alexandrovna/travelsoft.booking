@@ -18,6 +18,7 @@ $classes = array(
     "travelsoft\\booking\\stores\\Statuses" => "lib/stores/Statuses.php",
     "travelsoft\\booking\\stores\\Tourists" => "lib/stores/Tourists.php",
     "travelsoft\\booking\\stores\\Tours" => "lib/stores/Tours.php",
+    "travelsoft\\booking\\stores\\Duration" => "lib/stores/Duration.php",
     "travelsoft\\booking\\Settings" => "lib/Settings.php",
     "travelsoft\\booking\\EventsHandlers" => "lib/EventsHandlers.php",
     "travelsoft\\booking\\tours\\Cost" => "lib/tours/Cost.php",
