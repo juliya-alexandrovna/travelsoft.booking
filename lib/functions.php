@@ -149,7 +149,7 @@ namespace travelsoft\booking {
             }
 
             $cost = $searchEngine->search()->filterByStopSale()->getCost();
-
+            
             # цена за взрослого
             $arSearchAdultsPrices = $cost->forAdults(1)->getMinForTour();
 
