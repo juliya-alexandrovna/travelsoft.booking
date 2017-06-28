@@ -13,14 +13,6 @@ use Bitrix\Main\Config\Option;
 class Settings {
 
     /**
-     * Возвращает ID свойства "даты заездов" у тура
-     */
-    public static function tourDatePropertyId () : int {
-       
-        return 78;
-    }
-
-    /**
      * Возвращает id таблицы туров
      * @return int
      */
@@ -37,7 +29,16 @@ class Settings {
 
         return (int) self::get("FOOD_IB");
     }
+    
+    /**
+     * Возвращает id таблицы продолжительности услуги
+     * @return int
+     */
+    public static function durationStoreId(): int {
 
+        return (int) self::get("DURATION_HL");
+    }
+    
     /**
      * Возвращает id таблицы питания
      * @return int
