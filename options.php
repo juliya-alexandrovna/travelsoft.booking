@@ -39,6 +39,7 @@ $main_options = array(
         "PRICE_TYPES_HL" => array("DESC" => "Таблица типов цен", "VALUES" => $arHLS),
         "PRICES_HL" => array("DESC" => "Таблица цен", "VALUES" => $arHLS),
         "QUOTAS_HL" => array("DESC" => "Таблица квот", "VALUES" => $arHLS),
+        "DURATION_HL" => array("DESC" => "Таблица продолжительности услуги", "VALUES" => $arHLS),
         "STATUSES_HL" => array("DESC" => "Таблица статусов заказа", "VALUES" => $arHLS),
         "TOURISTS_HL" => array("DESC" => "Таблица туристов", "VALUES" => $arHLS),
         "CRMSETTINGS_HL" => array("DESC" => "Таблица настроек crm", "VALUES" => $arHLS)
