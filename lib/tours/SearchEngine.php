@@ -8,6 +8,7 @@ use travelsoft\booking\stores\Quotas;
 use travelsoft\booking\stores\Prices;
 use travelsoft\booking\stores\PriceTypes;
 use travelsoft\booking\adapters\Date;
+use \travelsoft\booking\stores\Duration;
 
 /**
  * Класс для поиска туров и расчёта цен
@@ -16,16 +17,6 @@ use travelsoft\booking\adapters\Date;
  * @copyright (c) 2017, travelsoft
  */
 class SearchEngine extends AbstractSearchEngine {
-
-    /**
-     * @var array 
-     */
-    protected $_dateFilter = null;
-
-    /**
-     * @var array
-     */
-    protected $_services = null;
 
     /**
      * Производит поиск цен
@@ -40,13 +31,9 @@ class SearchEngine extends AbstractSearchEngine {
 
         if ($toursId) {
 
-            $this->_setDatesFilter();
-
             $this->_setPreparedPricesData(
                     Prices::get(array('filter' => $this->_getPricesFilter(array_keys($toursId))))
             );
-
-            $this->_setServices();
         }
 
         return $this;
@@ -59,19 +46,16 @@ class SearchEngine extends AbstractSearchEngine {
      */
     public function filterByStopSale(): self {
 
-        if ($this->_services) {
+        if ($this->_prices) {
 
-            $quotasFilter = $this->_dateFilter;
-            $quotasFilter['UF_SERVICE_ID'] = $this->_services;
-            $quotasFilter['UF_STOP'] = 1;
+            foreach ($this->_prices as $serviceId => $arServiceData) {
 
-            $quotas = Quotas::get(array('filter' => $quotasFilter, 'select' => array('UF_UNIX_DATE', 'UF_SERVICE_ID')));
+                foreach ($arServiceData as $timestamp => $arData) {
 
-            foreach ($quotas as $arr_quota) {
+                    if ($arData['stop_sale']) {
 
-                if (isset($this->_prices[$arr_quota['UF_SERVICE_ID']][$arr_quota['UF_UNIX_DATE']])) {
-
-                    unset($this->_prices[$arr_quota['UF_SERVICE_ID']][$arr_quota['UF_UNIX_DATE']]);
+                        unset($this->_prices[$serviceId][$timestamp]);
+                    }
                 }
             }
         }
@@ -86,67 +70,21 @@ class SearchEngine extends AbstractSearchEngine {
      */
     public function filterByQuotas(int $quota): self {
 
-        if ($this->_services) {
+        if ($this->_prices) {
 
-            $quotasFilter = $this->_dateFilter;
-            $quotasFilter['UF_SERVICE_ID'] = $this->_services;
+            foreach ($this->_prices as $serviceId => $arServiceData) {
 
-            $quotas = Quotas::get(array('filter' => $quotasFilter, 'select' => array('UF_QUOTA', 'UF_UNIX_DATE', 'UF_SERVICE_ID')));
+                foreach ($arServiceData as $timestamp => $arData) {
 
-            foreach ($quotas as $arr_quota) {
+                    if ($arData['quota'] < $quota) {
 
-                if (isset($this->_prices[$arr_quota['UF_SERVICE_ID']][$arr_quota['UF_UNIX_DATE']]) && $arr_quota['UF_QUOTA'] < $quota) {
-
-                    unset($this->_prices[$arr_quota['UF_SERVICE_ID']][$arr_quota['UF_UNIX_DATE']]);
+                        unset($this->_prices[$serviceId][$timestamp]);
+                    }
                 }
             }
         }
 
         return $this;
-    }
-
-    /**
-     * Устанавливает фильтр для поиска по датам
-     */
-    protected function _setDatesFilter() {
-
-        if (!empty($this->_extFilter['><UF_DATE']) && is_array($this->_extFilter['><UF_DATE'])) {
-
-            $this->_dateFilter = array('><UF_DATE' => array_map(function ($date) {
-                            return Date::create($date);
-                        }, $this->_extFilter['><UF_DATE']));
-        } elseif ($this->_extFilter['>UF_DATE']) {
-
-            $this->_dateFilter = array('>UF_DATE' => Date::create($this->_extFilter['>UF_DATE']));
-        } elseif ($this->_extFilter['<UF_DATE']) {
-
-            $this->_dateFilter = array('<UF_DATE' => Date::create($this->_extFilter['<UF_DATE']));
-        } elseif ($this->_extFilter['>=UF_DATE']) {
-
-            $this->_dateFilter = array('>=UF_DATE' => Date::create($this->_extFilter['><UF_DATE']));
-        } elseif ($this->_extFilter['<=UF_DATE']) {
-
-            $this->_dateFilter = array('<=UF_DATE' => Date::create($this->_extFilter['<=UF_DATE']));
-        } else {
-
-            $this->_dateFilter = array('>UF_DATE' => Date::create(date('d.m.Y', time())));
-        }
-    }
-
-    /**
-     * Устанавливает ID туругслуги
-     */
-    protected function _setServices() {
-
-        $services = array_keys($this->_prices);
-
-        if (empty($services)) {
-
-            $this->_services = $services;
-        } else {
-
-            $this->_services = array(-1);
-        }
     }
 
     /**
@@ -156,7 +94,28 @@ class SearchEngine extends AbstractSearchEngine {
      */
     protected function _getPricesFilter(array $toursId): array {
 
-        $pricesFilter = $this->_dateFilter;
+        if (!empty($this->_extFilter['><UF_DATE']) && is_array($this->_extFilter['><UF_DATE'])) {
+
+            $pricesFilter = array('><UF_DATE' => array_map(function ($date) {
+                            return Date::create($date);
+                        }, $this->_extFilter['><UF_DATE']));
+        } elseif ($this->_extFilter['>UF_DATE']) {
+
+            $pricesFilter = array('>UF_DATE' => Date::create($this->_extFilter['>UF_DATE']));
+        } elseif ($this->_extFilter['<UF_DATE']) {
+
+            $pricesFilter = array('<UF_DATE' => Date::create($this->_extFilter['<UF_DATE']));
+        } elseif ($this->_extFilter['>=UF_DATE']) {
+
+            $pricesFilter = array('>=UF_DATE' => Date::create($this->_extFilter['><UF_DATE']));
+        } elseif ($this->_extFilter['<=UF_DATE']) {
+
+            $pricesFilter = array('<=UF_DATE' => Date::create($this->_extFilter['<=UF_DATE']));
+        } else {
+
+            $pricesFilter = array('>UF_DATE' => Date::create(date('d.m.Y', time())));
+        }
+
         $pricesFilter['UF_SERVICE_ID'] = $toursId;
 
         return $pricesFilter;
@@ -168,21 +127,74 @@ class SearchEngine extends AbstractSearchEngine {
      */
     protected function _setPreparedPricesData(array $prices) {
 
-        $pts = array();
+        if (!empty($prices)) {
 
-        foreach ($prices as $price) {
+            $arDurations = $arQuotas = $arPriceTypes = array();
 
-            if (!isset($pts[$price['UF_PRICE_TYPE_ID']])) {
+            $servicesId = array_map(function ($arPrice) {
+                return $arPrice['UF_SERVICE_ID'];
+            }, $prices);
 
-                $pts[$price['UF_PRICE_TYPE_ID']] = current(PriceTypes::get(array(
-                            'filter' => array('ID' => $price['UF_PRICE_TYPE_ID']),
-                )));
+            if (!empty($servicesId)) {
+
+                $priceTypesId = array_map(function ($arPrice) {
+                    return $arPrice['UF_PRICE_TYPE_ID'];
+                }, $prices);
+
+                if (!empty($priceTypesId)) {
+
+                    $dates = array_map(function ($arPrice) {
+                        return $arPrice['UF_DATE'];
+                    }, $prices);
+
+                    $dbDurations = Duration::get(array(
+                                'filter' => array('UF_DATE' => $dates, 'UF_SERVICE_ID' => $servicesId),
+                                'select' => array('ID', 'UF_UNIX_DATE', 'UF_DURATION', 'UF_SERVICE_ID')
+                    ));
+
+                    foreach ($dbDurations as $arDuration) {
+
+                        $arDurations[$arDuration['UF_SERVICE_ID']][$arDuration['UF_UNIX_DATE']] = $arDuration['UF_DURATION'];
+                    }
+
+                    $dbQuotas = Quotas::get(array(
+                                'filter' => array('UF_DATE' => $dates, 'UF_SERVICE_ID' => $servicesId),
+                                'select' => array('ID', 'UF_UNIX_DATE', 'UF_QUOTA', 'UF_SERVICE_ID', 'UF_STOP')
+                    ));
+
+                    foreach ($dbQuotas as $arQuota) {
+
+                        $arQuotas[$arQuota['UF_SERVICE_ID']][$arQuota['UF_UNIX_DATE']] = array(
+                            'stop_sale' => $arQuota['UF_STOP'],
+                            'quota' => $arQuota['UF_QUOTA']
+                        );
+                    }
+
+                    $arPriceTypes = PriceTypes::get(
+                                    array(
+                                        'filter' => array('ID' => $priceTypesId)
+                                    )
+                    );
+
+                    foreach ($prices as $price) {
+
+                        if (!$this->_prices[$price['UF_SERVICE_ID']][$price['UF_UNIX_DATE']]) {
+
+                            $this->_prices[$price['UF_SERVICE_ID']][$price['UF_UNIX_DATE']] = array(
+                                'duration' => $arDuration[$price['UF_SERVICE_ID']][$price['UF_UNIX_DATE']] >= 1 ? $arDuration[$price['UF_SERVICE_ID']][$price['UF_UNIX_DATE']] : 1,
+                                'quota' => $arQuotas[$price['UF_SERVICE_ID']][$price['UF_UNIX_DATE']]['quota'],
+                                'stop_sale' => $arQuotas[$price['UF_SERVICE_ID']][$price['UF_UNIX_DATE']]['stop_sale'],
+                                'prices' => array()
+                            );
+                        }
+
+                        $this->_prices[$price['UF_SERVICE_ID']][$price['UF_UNIX_DATE']]['prices'][$arPriceTypes[$price['UF_PRICE_TYPE_ID']]['UF_CODE']] = array(
+                            'price' => $price['UF_GROSS'],
+                            'currency' => $arPriceTypes[$price['UF_PRICE_TYPE_ID']]['UF_CURRENCY_ISO']
+                        );
+                    }
+                }
             }
-
-            $this->_prices[$price['UF_SERVICE_ID']][$price['UF_UNIX_DATE']][$pts[$price['UF_PRICE_TYPE_ID']]['UF_CODE']] = array(
-                'price' => $price['UF_GROSS'],
-                'currency' => $pts[$price['UF_PRICE_TYPE_ID']]['UF_CURRENCY_ISO']
-            );
         }
     }
 

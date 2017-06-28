@@ -6,7 +6,7 @@ use travelsoft\booking\abstraction\Cost as AbstractCost;
 use travelsoft\booking\adapters\CurrencyConverter;
 
 /**
- * Класс стоимости туруслуги
+ * Класс расчёта стоимости туруслуги
  *
  * @author dimabresky
  * @copyright (c) 2017, travelsoft
@@ -197,32 +197,35 @@ class Cost extends AbstractCost {
         foreach ($source as $id => $arr_sub) {
             
             $tmp_prices = null;
-            foreach ($arr_sub as $timestamp => $arr_prices) {
+            foreach ($arr_sub as $timestamp => $arServiceData) {
                 
                 $price = 0;
                 $date = date('d.m.Y', $timestamp);
                 
-                if ($this->_query['adults'] > 0 && $arr_prices['adult']['price'] > 0) {
-                    $price = $this->_query['adults'] * $this->_converter->convert((float) $arr_prices['adult']['price'], (string) $arr_prices['adult']['currency']);
+                if ($this->_query['adults'] > 0 && $arServiceData['prices']['adult']['price'] > 0) {
+                    $price = $this->_query['adults'] * $this->_converter->convert((float) $arServiceData['prices']['adult']['price'], (string) $arServiceData['prices']['adult']['currency']);
                 }
 
-                if ($this->_query['children'] > 0 && $arr_prices['children']['price'] > 0) {
-                    $price += $this->_query['children'] * $this->_converter->convert((float) $arr_prices['children']['price'], (string) $arr_prices['children']['currency']);
+                if ($this->_query['children'] > 0 && $arServiceData['prices']['children']['price'] > 0) {
+                    $price += $this->_query['children'] * $this->_converter->convert((float) $arServiceData['prices']['children']['price'], (string) $arServiceData['prices']['children']['currency']);
                 }
 
-                if ($this->_query['adult_tour_service'] && $arr_prices['adult_tour_service']['price'] > 0) {
-                    $price += $this->_converter->convert((float) $arr_prices['adult_tour_service']['price'], (string) $arr_prices['adult_tour_service']['currency']);
+                if ($this->_query['adult_tour_service'] && $arServiceData['prices']['adult_tour_service']['price'] > 0) {
+                    $price += $this->_converter->convert((float) $arServiceData['prices']['adult_tour_service']['price'], (string) $arServiceData['prices']['adult_tour_service']['currency']);
                 }
 
-                if ($this->_query['children_tour_service'] && $arr_prices['children_tour_service']['price'] > 0) {
-                    $price += $this->_converter->convert((float) $arr_prices['children_tour_service']['price'], (string) $arr_prices['children_tour_service']['currency']);
+                if ($this->_query['children_tour_service'] && $arServiceData['prices']['children_tour_service']['price'] > 0) {
+                    $price += $this->_converter->convert((float) $arServiceData['prices']['children_tour_service']['price'], (string) $arServiceData['prices']['children_tour_service']['currency']);
                 }
                 
                 $price = (float)$price;
                 if ($price > 0) {
-                    
+                                        
                     $tmp_prices[$date] = array(
-                        'date' => $date,
+                        'quota' => $arServiceData['quota'],
+                        'duration' => $arServiceData['duration'],
+                        'date_from' => $date,
+                        'date_to' => date('d.m.Y', $timestamp + (86400 * ($duration - 1))),
                         'price_formatted' => $this->_converter->getFormatted($price, $this->_converter->getCurrentCurrencyIso()),
                         'price' => $price,
                         'currency' => $this->_converter->getCurrentCurrencyIso()
@@ -257,15 +260,12 @@ class Cost extends AbstractCost {
 
             $arr_min = array('price' => exp(10));
 
-            foreach ($arr_sub['dates'] as $date => $arr_data) {
+            foreach ($arr_sub['dates'] as $arr_data) {
 
                 if ($arr_min['price'] >= $arr_data['price']) {
-
+                    
+                    $arr_min = $arr_data;
                     $arr_min['id'] = $id;
-                    $arr_min['price'] = $arr_data['price'];
-                    $arr_min['price_formatted'] = $arr_data['price_formatted'];
-                    $arr_min['date'] = $date;
-                    $arr_min['currency'] = $arr_data['currency'];
                 }
             }
 
