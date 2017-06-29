@@ -179,9 +179,9 @@ class SearchEngine extends AbstractSearchEngine {
                     foreach ($prices as $price) {
 
                         if (!$this->_prices[$price['UF_SERVICE_ID']][$price['UF_UNIX_DATE']]) {
-
+                            
                             $this->_prices[$price['UF_SERVICE_ID']][$price['UF_UNIX_DATE']] = array(
-                                'duration' => $arDuration[$price['UF_SERVICE_ID']][$price['UF_UNIX_DATE']] >= 1 ? $arDuration[$price['UF_SERVICE_ID']][$price['UF_UNIX_DATE']] : 1,
+                                'duration' => $arDurations[$price['UF_SERVICE_ID']][$price['UF_UNIX_DATE']] >= 1 ? $arDurations[$price['UF_SERVICE_ID']][$price['UF_UNIX_DATE']] : 1,
                                 'quota' => $arQuotas[$price['UF_SERVICE_ID']][$price['UF_UNIX_DATE']]['quota'],
                                 'stop_sale' => $arQuotas[$price['UF_SERVICE_ID']][$price['UF_UNIX_DATE']]['stop_sale'],
                                 'prices' => array()
