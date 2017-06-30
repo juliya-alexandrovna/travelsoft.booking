@@ -130,11 +130,18 @@ class Cost extends AbstractCost {
 
     /**
      * Прибавлять к расчёту цену по туруслуге для детей
-     * @return array
+     * @param int $children
+     * @return \self
+     * @throws \Exception
      */
-    public function forChildrenTourService(): array {
+    public function forChildrenTourService(int $children) {
 
-        $this->_query['children_tour_service'] = true;
+        if ($children < 0) {
+
+            throw new \Exception(get_called_class() . ': For children tour service enter children count >= 0 ');
+        }
+
+        $this->_query['children_tour_service'] = $children;
 
         return $this;
     }
@@ -143,9 +150,14 @@ class Cost extends AbstractCost {
      * Прибавлять к расчёту цену по туруслуги для детей
      * @return array
      */
-    public function forAdultTourService(): array {
+    public function forAdultTourService(int $adults): array {
 
-        $this->_query['adult_tour_service'] = true;
+        if ($adults < 0) {
+
+            throw new \Exception(get_called_class() . ': For children tour service enter adults count >= 0 ');
+        }
+
+        $this->_query['adult_tour_service'] = $adults;
 
         return $this;
     }
@@ -225,7 +237,7 @@ class Cost extends AbstractCost {
                         'quota' => $arServiceData['quota'],
                         'duration' => $arServiceData['duration'],
                         'date_from' => $date,
-                        'date_to' => date('d.m.Y', $timestamp + (86400 * ($duration - 1))),
+                        'date_to' => date('d.m.Y', $timestamp + (86400 * ($arServiceData['duration'] - 1))),
                         'price_formatted' => $this->_converter->getFormatted($price, $this->_converter->getCurrentCurrencyIso()),
                         'price' => $price,
                         'currency' => $this->_converter->getCurrentCurrencyIso()
@@ -301,8 +313,8 @@ class Cost extends AbstractCost {
             'unix_dates' => null,
             'adults' => 0,
             'children' => 0,
-            'adult_tour_service' => false,
-            'children_tour_service' => false
+            'adult_tour_service' => 0,
+            'children_tour_service' => 0
         );
     }
 
