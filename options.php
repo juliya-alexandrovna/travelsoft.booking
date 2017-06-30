@@ -10,6 +10,36 @@ global $APPLICATION;
 
 $mid = "travelsoft.booking";
 
+function renderOptions($arOptions, $mid) {
+
+    foreach ($arOptions as $name => $arValues) {
+        
+        $cur_opt_val = htmlspecialcharsbx(Bitrix\Main\Config\Option::get($mid, $name));
+        $name = htmlspecialcharsbx($name);
+        
+        $options .= '<tr>';
+        $options .= '<td width="40%">';
+        $options .= '<label for="' . $name . '">' . $arValues['DESC'] . ':</label>';
+        $options .= '</td>';
+        $options .= '<td width="60%">';
+        if ($arValues['TYPE'] == 'select') {
+            
+            $options .= '<select id="' . $name . '" name="' . $name . '">';
+           foreach ($arValues['VALUES'] as $key => $value) {
+                $options .= '<option '.($cur_opt_val == $key ? 'selected' : '').' value="'.$key.'">'.$value.'</option>';
+            }
+            $options .= '</select>';
+            
+        } elseif ($arValues['TYPE'] == 'text') {
+            
+            $options .= '<input type="text" name="'.$name.'" value="'.$cur_opt_val.'">';
+        }
+        $options .= '</td>';
+        $options .= '</tr>';
+    }
+    echo $options;
+}
+
 $dbHLList = Bitrix\Highloadblock\HighloadBlockTable::getList(array(
             "order" => array("ID" => "ASC")
         ))->fetchAll();
@@ -30,6 +60,11 @@ foreach ($dbStatuses as $arStatus) {
     $arStatuses[$arStatus['ID']] = $arStatus['UF_NAME'];
 }
 
+$dbMails = CEventMessage::GetList($by = "site_id", $order = "desc", array('TYPE_ID' => "TRAVELSOFT_BOOKING"));
+while ($arMail = $dbMails->Fetch()) {
+    $arMails[$arMail['ID']] = $arMail['SUBJECT'] . "(" . $arMail['ID'] . ")";
+}
+
 $dbGroupsList = Bitrix\Main\GroupTable::getList(array("select" => array("ID", "NAME")))->fetchAll();
 
 for ($i = 0, $cnt = count($dbGroupsList); $i < $cnt; $i++) {
@@ -38,24 +73,27 @@ for ($i = 0, $cnt = count($dbGroupsList); $i < $cnt; $i++) {
 
 $main_options = array(
     'STORES' => array(
-        "TOURS_IB" => array("DESC" => "Инфоблок туров", "VALUES" => $arIBS),
-        "FOOD_IB" => array("DESC" => "Инфоблок типов питания", "VALUES" => $arIBS),
-        "ORDERS_HL" => array("DESC" => "Таблица заказов", "VALUES" => $arHLS),
-        "CITIZENSHIP_HL" => array("DESC" => "Таблица гражданства", "VALUES" => $arHLS),
-        "PRICE_TYPES_HL" => array("DESC" => "Таблица типов цен", "VALUES" => $arHLS),
-        "PRICES_HL" => array("DESC" => "Таблица цен", "VALUES" => $arHLS),
-        "QUOTAS_HL" => array("DESC" => "Таблица квот", "VALUES" => $arHLS),
-        "DURATION_HL" => array("DESC" => "Таблица продолжительности услуги", "VALUES" => $arHLS),
-        "STATUSES_HL" => array("DESC" => "Таблица статусов заказа", "VALUES" => $arHLS),
-        "TOURISTS_HL" => array("DESC" => "Таблица туристов", "VALUES" => $arHLS),
-        "CRMSETTINGS_HL" => array("DESC" => "Таблица настроек crm", "VALUES" => $arHLS)
+        "TOURS_IB" => array("DESC" => "Инфоблок туров", "VALUES" => $arIBS, 'TYPE' => 'select'),
+        "FOOD_IB" => array("DESC" => "Инфоблок типов питания", "VALUES" => $arIBS, 'TYPE' => 'select'),
+        "ORDERS_HL" => array("DESC" => "Таблица заказов", "VALUES" => $arHLS, 'TYPE' => 'select'),
+        "CITIZENSHIP_HL" => array("DESC" => "Таблица гражданства", "VALUES" => $arHLS, 'TYPE' => 'select'),
+        "PRICE_TYPES_HL" => array("DESC" => "Таблица типов цен", "VALUES" => $arHLS, 'TYPE' => 'select'),
+        "PRICES_HL" => array("DESC" => "Таблица цен", "VALUES" => $arHLS, 'TYPE' => 'select'),
+        "QUOTAS_HL" => array("DESC" => "Таблица квот", "VALUES" => $arHLS, 'TYPE' => 'select'),
+        "DURATION_HL" => array("DESC" => "Таблица продолжительности услуги", "VALUES" => $arHLS, 'TYPE' => 'select'),
+        "STATUSES_HL" => array("DESC" => "Таблица статусов заказа", "VALUES" => $arHLS, 'TYPE' => 'select'),
+        "TOURISTS_HL" => array("DESC" => "Таблица туристов", "VALUES" => $arHLS, 'TYPE' => 'select'),
+        "CRMSETTINGS_HL" => array("DESC" => "Таблица настроек crm", "VALUES" => $arHLS, 'TYPE' => 'select')
     ),
     'USER_GROUPS' => array(
-        'MANAGERS_USER_GROUPS' => array("DESC" => "Группа пользователей для менеджеров", "VALUES" => $arGroups),
-        'AGENTS_USER_GROUPS' => array("DESC" => "Группа пользователей для агентов", "VALUES" => $arGroups),
+        'MANAGERS_USER_GROUPS' => array("DESC" => "Группа пользователей для менеджеров", "VALUES" => $arGroups, 'TYPE' => 'select'),
+        'AGENTS_USER_GROUPS' => array("DESC" => "Группа пользователей для агентов", "VALUES" => $arGroups, 'TYPE' => 'select'),
     ),
     'ORDERS' => array(
-        'STATUS_ID_FOR_ORDER_CREATION' => array('DESC' => "При создании заказа устанавливать статус", "VALUES" => $arStatuses)
+        'STATUS_ID_FOR_ORDER_CREATION' => array('DESC' => "При создании заказа устанавливать статус", "VALUES" => $arStatuses, 'TYPE' => 'select'),
+        'MAIL_ID_FOR_CLIENT_MAKE_ORDER' => array('DESC' => "Письмо клиенту при создании заказа", "VALUES" => $arMails, 'TYPE' => 'select'),
+        'MAIL_ID_FOR_AGENT_MAKE_ORDER' => array('DESC' => "Письмо агенту при создании заказа", "VALUES" => $arMails, 'TYPE' => 'select'),
+        'MAIL_ID_FOR_MANAGER_MAKE_ORDER' => array('DESC' => "Письмо менеджеру при создании заказа", "VALUES" => $arMails, 'TYPE' => 'select'),
     )
 );
 
@@ -105,63 +143,12 @@ $o_tab->Begin();
 
 <form method="post" action="<? echo $APPLICATION->GetCurPage() ?>?mid=<?= urlencode($mid) ?>&amp;lang=<? echo LANGUAGE_ID ?>">
     <?
-    $o_tab->BeginNextTab();
-    foreach ($main_options["STORES"] as $name => $arValues):
-        $cur_opt_val = htmlspecialcharsbx(Bitrix\Main\Config\Option::get($mid, $name));
-        $name = htmlspecialcharsbx($name);
-        ?>
-        <tr>
-            <td width="40%">
-                <label for="<? echo $name ?>"><? echo $arValues['DESC'] ?>:</label>
-            </td>
-            <td width="60%">
-                <select id="<? echo $name ?>" name="<? echo $name ?>">
-                    <? foreach ($arValues['VALUES'] as $key => $value) : ?>
-                        <option <? if ($cur_opt_val == $key) : ?>selected<? endif ?> value="<?= $key ?>"><?= $value ?></option>
-                    <? endforeach ?>
-                </select>
-            </td>
-        </tr>
-    <? endforeach ?>
-    <?
-    $o_tab->BeginNextTab();
-    foreach ($main_options["USER_GROUPS"] as $name => $arValues):
-        $cur_opt_val = htmlspecialcharsbx(Bitrix\Main\Config\Option::get($mid, $name));
-        $name = htmlspecialcharsbx($name);
-        ?>
-        <tr>
-            <td width="40%">
-                <label for="<? echo $name ?>"><? echo $arValues['DESC'] ?>:</label>
-            </td>
-            <td width="60%">
-                <select id="<? echo $name ?>" name="<? echo $name ?>">
-                    <? foreach ($arValues['VALUES'] as $key => $value) : ?>
-                        <option <? if ($cur_opt_val == $key) : ?>selected<? endif ?> value="<?= $key ?>"><?= $value ?></option>
-                    <? endforeach ?>
-                </select>
-            </td>
-        </tr>
-    <? endforeach ?>
-    <?
-    $o_tab->BeginNextTab();
-    foreach ($main_options["ORDERS"] as $name => $arValues):
-        $cur_opt_val = htmlspecialcharsbx(Bitrix\Main\Config\Option::get($mid, $name));
-        $name = htmlspecialcharsbx($name);
-        ?>
-        <tr>
-            <td width="40%">
-                <label for="<? echo $name ?>"><? echo $arValues['DESC'] ?>:</label>
-            </td>
-            <td width="60%">
-                <select id="<? echo $name ?>" name="<? echo $name ?>">
-                    <? foreach ($arValues['VALUES'] as $key => $value) : ?>
-                        <option <? if ($cur_opt_val == $key) : ?>selected<? endif ?> value="<?= $key ?>"><?= $value ?></option>
-                    <? endforeach ?>
-                </select>
-            </td>
-        </tr>
-    <? endforeach ?>
-    <? $o_tab->Buttons(); ?>
+
+    foreach ($main_options as $arOption) {
+        $o_tab->BeginNextTab();
+        renderOptions($arOption, $mid);
+    }
+    $o_tab->Buttons(); ?>
     <input type="submit" name="save" value="Сохранить" title="Сохранить" class="adm-btn-save">
     <input type="submit" name="reset" title="Сбросить" OnClick="return confirm('Сбросить')" value="Сбросить">
     <?= bitrix_sessid_post(); ?>
