@@ -7,6 +7,7 @@ $classes = array(
     "travelsoft\\booking\\abstraction\\SearchEngine" => "lib/abstraction/SearchEngine.php",
     "travelsoft\\booking\\adapters\\Highloadblock" => "lib/adapters/Highloadblock.php",
     "travelsoft\\booking\\adapters\\Iblock" => "lib/adapters/Iblock.php",
+    "travelsoft\\booking\\adapters\\Mail" => "lib/adapters/Mail.php",
     "travelsoft\\booking\\adapters\\CurrencyConverter" => "lib/adapters/CurrencyConverter.php",
     "travelsoft\\booking\\adapters\\Date" => "lib/adapters/Date.php",
     "travelsoft\\booking\\stores\\Citizenship" => "lib/stores/Citizenship.php",
