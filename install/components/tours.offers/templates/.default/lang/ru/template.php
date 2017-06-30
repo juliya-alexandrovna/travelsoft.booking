@@ -1,0 +1,6 @@
+<?php
+$MESS['TOURS_OFFERS_DATE_TITLE'] = 'Дата';
+$MESS['TOURS_OFFERS_PRICE_ADULT_TITLE'] = 'Цена за взрослого';
+$MESS['TOURS_OFFERS_PRICE_CHILDREN_TITLE'] = 'Цена за ребёнка';
+$MESS['TOURS_OFFERS_PRICE_TOURSERVICE_TITLE'] = 'Туруслуга';
+$MESS['TOURS_OFFERS_PLACES_TITLE'] = 'Свободных мест';

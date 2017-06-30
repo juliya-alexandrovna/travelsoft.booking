@@ -2,14 +2,16 @@
 if (!defined("B_PROLOG_INCLUDED") || B_PROLOG_INCLUDED !== true)
     die();
 /**
- * Bitrix vars
- *
- * @var array $arParams
- * @var array $arResult
- * @var CBitrixComponentTemplate $this
  * @global CMain $APPLICATION
  * @global CUser $USER
+ * @var array $arParams
+ * @var array $arResult
+ * @var CatalogSectionComponent $component
+ * @var CBitrixComponentTemplate $this
+ * @var string $templateName
+ * @var string $componentPath
  */
+
 $this->setFrameMode(true);
 
 if (empty($arResult['COST_PREPARED'])) {
@@ -22,11 +24,11 @@ if (empty($arResult['COST_PREPARED'])) {
 
     <thead>
         <tr>
-            <th>Дата</th>
-            <th>Цена за взрослого</th>
-            <th>Цена за ребёнка</th>
-            <th>Туруслуга</th>
-            <th>Свободных мест</th>
+            <th><?= GetMessage('TOURS_OFFERS_DATE_TITLE')?></th>
+            <th><?= GetMessage('TOURS_OFFERS_PRICE_ADULT_TITLE')?></th>
+            <th><?= GetMessage('TOURS_OFFERS_PRICE_CHILDREN_TITLE')?></th>
+            <th><?= GetMessage('TOURS_OFFERS_PRICE_TOURSERVICE_TITLE')?></th>
+            <th><?= GetMessage('TOURS_OFFERS_PLACES_TITLE')?></th>
         </tr>
     </thead>
     <tbody>
@@ -38,8 +40,8 @@ if (empty($arResult['COST_PREPARED'])) {
 
                 <tr>
 
-                    <td data-label="Дата"><?= $arrValues['date_from'] . ' - ' . $arrValues['date_to'] ?></td>
-                    <td data-label="Цена за взрослого">
+                    <td data-label="<?= GetMessage('TOURS_OFFERS_DATE_TITLE')?>"><?= $arrValues['date_from'] . ' - ' . $arrValues['date_to'] ?></td>
+                    <td data-label="<?= GetMessage('TOURS_OFFERS_PRICE_ADULT_TITLE')?>">
                         <?
                         $aps = implode('<br>', array_map(function ($item) {
 
@@ -49,7 +51,7 @@ if (empty($arResult['COST_PREPARED'])) {
                         echo $aps;
                         ?>
                     </td>
-                    <td data-label="Цена за ребёнка">
+                    <td data-label="<?= GetMessage('TOURS_OFFERS_PRICE_CHILDREN_TITLE')?>">
                         <?
                         if (!empty($arrValues['prices']['children'])) {
 
@@ -63,7 +65,7 @@ if (empty($arResult['COST_PREPARED'])) {
                         }
                         ?>
                     </td>
-                    <td data-label="Туруслуга">
+                    <td data-label="<?= GetMessage('TOURS_OFFERS_PRICE_TOURSERVICE_TITLE')?>">
                         <?
                         if (!empty($arrValues['prices']['adult_tour_service'])) {
 
@@ -80,7 +82,7 @@ if (empty($arResult['COST_PREPARED'])) {
                         }
                         ?>
                     </td>
-                    <td data-label="Свободных мест">
+                    <td data-label="<?= GetMessage('TOURS_OFFERS_PLACES_TITLE')?>">
                         <?= (int) $arrValues['quota'] ?>
                     </td>
                 </tr>
