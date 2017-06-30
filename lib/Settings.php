@@ -11,7 +11,36 @@ use Bitrix\Main\Config\Option;
  * @copyright (c) 2017, travelsoft
  */
 class Settings {
-
+    
+    public static function managerEmailForNotification () : string {
+        
+        $email = (string) self::get('MANAGER_EMAIL_FOR_NOTIFICATION');
+        
+        $arPartsEmail = explode('@', $email);
+        
+        if (!strlen($email) || !strlen($arPartsEmail[1])) {
+            
+            $email = (string) Option::get('main', 'email_from');
+        }
+        
+        return $email;
+    }
+    
+    public static function mailIdForClientNotification() : int {
+        
+        return (int)self::get('MAIL_ID_FOR_CLIENT_NOTIFICATION');
+    }
+    
+    public static function mailIdForAgentNotification() : int {
+        
+        return (int)self::get('MAIL_ID_FOR_AGENT_NOTIFICATION');
+    }
+    
+    public static function mailIdForManagerNotification() : int {
+        
+        return (int)self::get('MAIL_ID_FOR_MANAGER_NOTIFICATION');
+    }
+    
     /**
      * Возвращает id статуса заказа при его создании
      * @return int
