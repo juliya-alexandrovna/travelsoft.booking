@@ -13,6 +13,15 @@ use Bitrix\Main\Config\Option;
 class Settings {
 
     /**
+     * Возвращает id статуса заказа при его создании
+     * @return int
+     */
+    public static function defStatus(): int {
+
+        return (int) self::get("STATUS_ID_FOR_ORDER_CREATION");
+    }
+    
+    /**
      * Возвращает id таблицы туров
      * @return int
      */
