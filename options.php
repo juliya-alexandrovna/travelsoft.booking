@@ -4,6 +4,7 @@ if (!$USER->isAdmin())
 
 \Bitrix\Main\Loader::includeModule("highloadblock");
 \Bitrix\Main\Loader::includeModule("iblock");
+\Bitrix\Main\Loader::includeModule("travelsoft.booking");
 
 global $APPLICATION;
 
@@ -22,6 +23,11 @@ $dbIBList = CIBlock::GetList(
 );
 while ($arIB = $dbIBList->Fetch()) {
     $arIBS[$arIB["ID"]] = $arIB["NAME"];
+}
+
+$dbStatuses = travelsoft\booking\stores\Statuses::get();
+foreach ($dbStatuses as $arStatus) {
+    $arStatuses[$arStatus['ID']] = $arStatus['UF_NAME'];
 }
 
 $dbGroupsList = Bitrix\Main\GroupTable::getList(array("select" => array("ID", "NAME")))->fetchAll();
@@ -47,6 +53,9 @@ $main_options = array(
     'USER_GROUPS' => array(
         'MANAGERS_USER_GROUPS' => array("DESC" => "Группа пользователей для менеджеров", "VALUES" => $arGroups),
         'AGENTS_USER_GROUPS' => array("DESC" => "Группа пользователей для агентов", "VALUES" => $arGroups),
+    ),
+    'ORDERS' => array(
+        'STATUS_ID_FOR_ORDER_CREATION' => array('DESC' => "При создании заказа устанавливать статус", "VALUES" => $arStatuses)
     )
 );
 
@@ -63,6 +72,12 @@ $tabs = array(
         "ICON" => "",
         "TITLE" => "Укажите гуппы пользователей"
     ),
+    array(
+        "DIV" => "edit3",
+        "TAB" => "Заказы",
+        "ICON" => "",
+        "TITLE" => "Укажите параметры работы с заказами"
+    )
 );
 
 $o_tab = new CAdminTabControl("TravelsoftTabControl", $tabs);
@@ -111,6 +126,25 @@ $o_tab->Begin();
     <?
     $o_tab->BeginNextTab();
     foreach ($main_options["USER_GROUPS"] as $name => $arValues):
+        $cur_opt_val = htmlspecialcharsbx(Bitrix\Main\Config\Option::get($mid, $name));
+        $name = htmlspecialcharsbx($name);
+        ?>
+        <tr>
+            <td width="40%">
+                <label for="<? echo $name ?>"><? echo $arValues['DESC'] ?>:</label>
+            </td>
+            <td width="60%">
+                <select id="<? echo $name ?>" name="<? echo $name ?>">
+                    <? foreach ($arValues['VALUES'] as $key => $value) : ?>
+                        <option <? if ($cur_opt_val == $key) : ?>selected<? endif ?> value="<?= $key ?>"><?= $value ?></option>
+                    <? endforeach ?>
+                </select>
+            </td>
+        </tr>
+    <? endforeach ?>
+    <?
+    $o_tab->BeginNextTab();
+    foreach ($main_options["ORDERS"] as $name => $arValues):
         $cur_opt_val = htmlspecialcharsbx(Bitrix\Main\Config\Option::get($mid, $name));
         $name = htmlspecialcharsbx($name);
         ?>
