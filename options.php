@@ -87,13 +87,14 @@ $main_options = array(
     ),
     'USER_GROUPS' => array(
         'MANAGERS_USER_GROUPS' => array("DESC" => "Группа пользователей для менеджеров", "VALUES" => $arGroups, 'TYPE' => 'select'),
-        'AGENTS_USER_GROUPS' => array("DESC" => "Группа пользователей для агентов", "VALUES" => $arGroups, 'TYPE' => 'select'),
+        'AGENTS_USER_GROUPS' => array("DESC" => "Группа пользователей для агентов", "VALUES" => $arGroups, 'TYPE' => 'select')
     ),
     'ORDERS' => array(
         'STATUS_ID_FOR_ORDER_CREATION' => array('DESC' => "При создании заказа устанавливать статус", "VALUES" => $arStatuses, 'TYPE' => 'select'),
-        'MAIL_ID_FOR_CLIENT_MAKE_ORDER' => array('DESC' => "Письмо клиенту при создании заказа", "VALUES" => $arMails, 'TYPE' => 'select'),
-        'MAIL_ID_FOR_AGENT_MAKE_ORDER' => array('DESC' => "Письмо агенту при создании заказа", "VALUES" => $arMails, 'TYPE' => 'select'),
-        'MAIL_ID_FOR_MANAGER_MAKE_ORDER' => array('DESC' => "Письмо менеджеру при создании заказа", "VALUES" => $arMails, 'TYPE' => 'select'),
+        'MANAGER_EMAIL_FOR_NOTIFICATION' => array('DESC' => "Email менеджера для приема уведомлений(по-умолчанию берется из настроек главного модуля)", 'VALUES' => '', 'TYPE' => 'text'),
+        'MAIL_ID_FOR_CLIENT_NOTIFICATION' => array('DESC' => "Письмо клиенту при создании заказа", "VALUES" => $arMails, 'TYPE' => 'select'),
+        'MAIL_ID_FOR_AGENT_NOTIFICATION' => array('DESC' => "Письмо агенту при создании заказа", "VALUES" => $arMails, 'TYPE' => 'select'),
+        'MAIL_ID_FOR_MANAGER_NOTIFICATION' => array('DESC' => "Письмо менеджеру при создании заказа", "VALUES" => $arMails, 'TYPE' => 'select')
     )
 );
 
@@ -115,6 +116,12 @@ $tabs = array(
         "TAB" => "Заказы",
         "ICON" => "",
         "TITLE" => "Укажите параметры работы с заказами"
+    ),
+    array(
+        "DIV" => "edit4",
+        "TAB" => "Общие",
+        "ICON" => "",
+        "TITLE" => "Укажите общие параметры модуля"
     )
 );
 
