@@ -159,14 +159,16 @@ class SearchEngine extends AbstractSearchEngine {
 
                     $dbQuotas = Quotas::get(array(
                                 'filter' => array('UF_DATE' => $dates, 'UF_SERVICE_ID' => $servicesId),
-                                'select' => array('ID', 'UF_UNIX_DATE', 'UF_QUOTA', 'UF_SERVICE_ID', 'UF_STOP')
+                                'select' => array('ID', 'UF_UNIX_DATE', 'UF_QUOTA', 'UF_SERVICE_ID', 'UF_STOP', 'UF_SOLD_NUMBER')
                     ));
 
                     foreach ($dbQuotas as $arQuota) {
-
+                        
+                        $value = $arQuota['UF_QUOTA'] - $arQuota['UF_SOLD_NUMBER'];
+                        
                         $arQuotas[$arQuota['UF_SERVICE_ID']][$arQuota['UF_UNIX_DATE']] = array(
                             'stop_sale' => $arQuota['UF_STOP'],
-                            'quota' => $arQuota['UF_QUOTA']
+                            'quota' => $value >= 0 ? $value : 0
                         );
                     }
 
