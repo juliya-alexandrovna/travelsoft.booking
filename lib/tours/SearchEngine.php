@@ -93,8 +93,11 @@ class SearchEngine extends AbstractSearchEngine {
      * @return array
      */
     protected function _getPricesFilter(array $toursId): array {
-
-        if (!empty($this->_extFilter['><UF_DATE']) && is_array($this->_extFilter['><UF_DATE'])) {
+        
+        if ($this->_extFilter['UF_DATE']) {
+            
+            $pricesFilter = array('UF_DATE' => Date::create($this->_extFilter['UF_DATE']));
+        } elseif (!empty($this->_extFilter['><UF_DATE']) && is_array($this->_extFilter['><UF_DATE'])) {
 
             $pricesFilter = array('><UF_DATE' => array_map(function ($date) {
                             return Date::create($date);
