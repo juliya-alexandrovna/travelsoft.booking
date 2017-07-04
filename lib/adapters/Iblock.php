@@ -123,7 +123,15 @@ abstract class Iblock extends Store {
     public static function getById(int $id): array {
 
         $class = get_called_class();
-        return (array) current($class::get(array("filter" => array("ID" => $id))));
+        
+        $result = current($class::get(array("filter" => array("ID" => $id))));
+        if (is_array($result) && !empty($result)) {
+            
+            return $result;
+        } else {
+            
+            return array();
+        }
     }
 
     /**
