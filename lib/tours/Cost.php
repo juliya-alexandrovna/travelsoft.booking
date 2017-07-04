@@ -236,8 +236,8 @@ class Cost extends AbstractCost {
                     $tmp_prices[$date] = array(
                         'quota' => $arServiceData['quota'],
                         'duration' => $arServiceData['duration'],
-                        'date_from' => $date,
-                        'date_to' => date('d.m.Y', $timestamp + (86400 * ($arServiceData['duration'] - 1))),
+                        'date_from' => $arServiceData['date_from'],
+                        'date_to' => $arServiceData['date_to'],
                         'price_formatted' => $this->_converter->getFormatted($price, $this->_converter->getCurrentCurrencyIso()),
                         'price' => $price,
                         'currency' => $this->_converter->getCurrentCurrencyIso()

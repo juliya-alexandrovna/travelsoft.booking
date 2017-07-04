@@ -93,9 +93,9 @@ class SearchEngine extends AbstractSearchEngine {
      * @return array
      */
     protected function _getPricesFilter(array $toursId): array {
-        
+
         if ($this->_extFilter['UF_DATE']) {
-            
+
             $pricesFilter = array('UF_DATE' => Date::create($this->_extFilter['UF_DATE']));
         } elseif (!empty($this->_extFilter['><UF_DATE']) && is_array($this->_extFilter['><UF_DATE'])) {
 
@@ -166,9 +166,9 @@ class SearchEngine extends AbstractSearchEngine {
                     ));
 
                     foreach ($dbQuotas as $arQuota) {
-                        
+
                         $value = $arQuota['UF_QUOTA'] - $arQuota['UF_SOLD_NUMBER'];
-                        
+
                         $arQuotas[$arQuota['UF_SERVICE_ID']][$arQuota['UF_UNIX_DATE']] = array(
                             'stop_sale' => $arQuota['UF_STOP'],
                             'quota' => $value >= 0 ? $value : 0
@@ -185,8 +185,12 @@ class SearchEngine extends AbstractSearchEngine {
 
                         if (!$this->_prices[$price['UF_SERVICE_ID']][$price['UF_UNIX_DATE']]) {
                             
+                            $duration = $arDurations[$price['UF_SERVICE_ID']][$price['UF_UNIX_DATE']] >= 1 ? $arDurations[$price['UF_SERVICE_ID']][$price['UF_UNIX_DATE']] : 1;
+                            
                             $this->_prices[$price['UF_SERVICE_ID']][$price['UF_UNIX_DATE']] = array(
-                                'duration' => $arDurations[$price['UF_SERVICE_ID']][$price['UF_UNIX_DATE']] >= 1 ? $arDurations[$price['UF_SERVICE_ID']][$price['UF_UNIX_DATE']] : 1,
+                                'duration' => $duration,
+                                'date_from' => date('d.m.Y', $price['UF_UNIX_DATE']),
+                                'date_to' => date('d.m.Y', $price['UF_UNIX_DATE'] + (86400 * $duration)),
                                 'quota' => $arQuotas[$price['UF_SERVICE_ID']][$price['UF_UNIX_DATE']]['quota'],
                                 'stop_sale' => $arQuotas[$price['UF_SERVICE_ID']][$price['UF_UNIX_DATE']]['stop_sale'],
                                 'prices' => array()
