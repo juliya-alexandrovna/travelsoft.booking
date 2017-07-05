@@ -18,7 +18,7 @@ class EventsHandlers {
     public static function addGlobalAdminMenuItem(&$arGlobalMenu) {
 
         global $USER;
-//        var_dump(crmAccess());die;
+        
         if (crmAccess()) {
 
             $arGlobalMenu["global_menu_travelsoft_crm"] = array(
