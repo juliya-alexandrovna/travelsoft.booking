@@ -148,9 +148,11 @@ class Cost extends AbstractCost {
 
     /**
      * Прибавлять к расчёту цену по туруслуги для детей
-     * @return array
+     * @param int $adults
+     * @return $this
+     * @throws \Exception
      */
-    public function forAdultTourService(int $adults): array {
+    public function forAdultTourService(int $adults) {
 
         if ($adults < 0) {
 
