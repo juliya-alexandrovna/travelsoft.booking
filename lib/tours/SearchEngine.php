@@ -11,7 +11,7 @@ use travelsoft\booking\adapters\Date;
 use \travelsoft\booking\stores\Duration;
 
 /**
- * Класс для поиска туров и расчёта цен
+ * Класс поиска и расчёта цен
  *
  * @author dimabresky
  * @copyright (c) 2017, travelsoft
