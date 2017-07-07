@@ -6,7 +6,7 @@
 .booking-btn {
     background: #ffb300;
     border: 0;
-    color: #fff;
+    color: #000;
     font-size: 16px;
     padding: 9px 28px;
     border-radius: 0;
@@ -16,7 +16,7 @@
 }
 
 .booking-btn:hover {
-    color: #000;
+    color: #fff;
 }
 
 .popup-content-area, .popup-preloader-area {
