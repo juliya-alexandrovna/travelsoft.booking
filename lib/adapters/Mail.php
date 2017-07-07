@@ -20,54 +20,39 @@ class Mail {
 
     /**
      * Отправка почтового уведомления клиенту при создании заказа
-     * @param int $order_id
-     * @param string $email
-     * @param string $status
+     * @param array $fields
      */
-    public static function sendNewOrderNotificationForClient(int $order_id, string $email, string $status) {
+    public static function sendNewOrderNotificationForClient(array $fields) {
 
         \Bitrix\Main\Mail\Event::send(array_merge(array(
-            "C_FIELDS" => array(
-                "EMAIL_TO" => $email,
-                "STATUS" => $status,
-                "ORDER_ID" => $order_id,
-                "LANG" => LANGUAGE_ID
-            ),
+            "C_FIELDS" => $fields,
             "MESSAGE_ID" => Settings::mailIdForClientNotification()
                         ), self::$_commonMailParameters));
     }
 
     /**
      * Отправка почтового уведомления агенту при создании заказа
-     * @param int $order_id
-     * @param string $email
-     * @param string $status
+     * @param array $fields
      */
-    public static function sendNewOrderNotificationForAgent(int $order_id, string $email, string $status) {
+    public static function sendNewOrderNotificationForAgent(array $fields) {
 
         \Bitrix\Main\Mail\Event::send(array_merge(array(
-            "C_FIELDS" => array(
-                "EMAIL_TO" => $email,
-                "STATUS" => $status,
-                "ORDER_ID" => $order_id,
-                "LANG" => LANGUAGE_ID
-            ),
+            "C_FIELDS" => $fields,
             "MESSAGE_ID" => Settings::mailIdForAgentNotification()
                         ), self::$_commonMailParameters));
     }
 
     /**
      * Отправка почтового уведомления менеджеру при создании заказа
-     * @param int $order_id
+     * @param array $fields
      */
-    public static function sendNewOrderNotificationForManager(int $order_id) {
-
+    public static function sendNewOrderNotificationForManager(array $fields) {
+        
+        $fields["EMAIL_TO"] = Settings::managerEmailForNotification();
+        $fields["LANG"] = LANGUAGE_ID;
+        
         \Bitrix\Main\Mail\Event::send(array_merge(array(
-            "C_FIELDS" => array(
-                "EMAIL_TO" => Settings::managerEmailForNotification(),
-                "ORDER_ID" => $order_id,
-                "LANG" => LANGUAGE_ID
-            ),
+            "C_FIELDS" => $fields,
             "MESSAGE_ID" => Settings::mailIdForManagerNotification()
                         ), self::$_commonMailParameters));
     }
