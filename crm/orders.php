@@ -97,16 +97,16 @@ $list->AddHeaders(array(
         "default" => true
     ),
     array(
-        "id" => "UF_SERVICE_NAME",
-        "content" => "Тур",
-        "sort" => "UF_SERVICE_NAME",
+        "id" => "UF_STATUS_ID",
+        "content" => "Статус брони",
+        "sort" => "UF_STATUS_ID",
         "align" => "center",
         "default" => true
     ),
     array(
-        "id" => "UF_STATUS_ID",
-        "content" => "Статус брони",
-        "sort" => "UF_STATUS_ID",
+        "id" => "UF_SERVICE_NAME",
+        "content" => "Услуги",
+        "sort" => "UF_SERVICE_NAME",
         "align" => "center",
         "default" => true
     ),
@@ -130,13 +130,13 @@ $list->AddHeaders(array(
     ),
     array(
         "id" => "UF_DATE_FROM",
-        "content" => "Дата начала услуги",
+        "content" => "Дата начала",
         "align" => "center",
         "default" => true
     ),
     array(
         "id" => "UF_DATE_TO",
-        "content" => "Дата окончания услуги",
+        "content" => "Дата окончания",
         "align" => "center",
         "default" => true
     ),
@@ -206,7 +206,7 @@ while ($arResult = $dbResult->Fetch()) {
             "ICON" => "edit",
             "DEFAULT" => true,
             "TEXT" => "Изменить",
-            "ACTION" => $list->ActionRedirect("travelsoft_crm_booking_edit.php?ORDER_ID=" . $arResult["ID"])
+            "ACTION" => $list->ActionRedirect("travelsoft_crm_booking_order_edit.php?ORDER_ID=" . $arResult["ID"])
         ),
         array(
             "ICON" => "delete",
@@ -225,6 +225,14 @@ $list->AddFooter(array(
 $list->AddGroupActionTable(Array(
     "delete" => "Удалить"
 ));
+
+
+$list->AddAdminContextMenu(array(array(
+        'TEXT'	=> "Создать заказ",
+        'TITLE'	=> "Создание заказа",
+        'LINK'	=> 'travelsoft_crm_booking_order_edit?lang='.LANG,
+        'ICON'	=> 'btn_new'
+)));
 
 $list->CheckListMode();
 
