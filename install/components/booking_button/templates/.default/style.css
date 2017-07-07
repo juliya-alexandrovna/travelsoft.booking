@@ -1,0 +1,24 @@
+/* 
+    Created on : 27.06.2017, 11:07:42
+    Author     : dimabresky by travelsoft
+*/
+
+.booking-btn {
+    background: #ffb300;
+    border: 0;
+    color: #fff;
+    font-size: 16px;
+    padding: 9px 28px;
+    border-radius: 0;
+    font-weight: 600;
+    display: inline-block;
+    box-shadow: 0 2px 0 0 rgba(255, 179, 0, 0.6);
+}
+
+.booking-btn:hover {
+    color: #000;
+}
+
+.popup-content-area, .popup-preloader-area {
+    padding: 20px;
+}
