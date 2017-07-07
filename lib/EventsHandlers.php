@@ -37,7 +37,7 @@ class EventsHandlers {
                     ),
                     array(
                         "text" => "Список заказов",
-                        "url" => "travelsoft_crm_booking_orders.php?lang=" . LANGUAGE_ID,
+                        "url" => "travelsoft_crm_booking_orders_list.php?lang=" . LANGUAGE_ID,
                         "more_url" => array(),
                         "title" => "Список заказов",
                     ),
