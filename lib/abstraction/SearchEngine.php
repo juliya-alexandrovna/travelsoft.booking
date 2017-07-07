@@ -53,17 +53,4 @@ abstract class SearchEngine {
 
         return $this->_cost;
     }
-
-    protected function _setIntValArray(array $values, string $property, string $errorPart = ': Enter correct values') {
-
-        $this->$property = array_filter($values, function ($value) {
-            return $value > 0;
-        });
-
-        if (empty($this->$property)) {
-
-            throw new Exception(get_called_class() . $errorPart);
-        }
-    }
-
 }
