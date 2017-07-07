@@ -20,35 +20,24 @@ $TABLE_ID = "ORDERS_LIST";
 $sort = new CAdminSorting($TABLE_ID, "ID", "DESC");
 $list = new CAdminList($TABLE_ID, $sort);
 
-if ($list->EditAction()) {
-
-    foreach ($FIELDS as $ID => $arFields) {
-
-        if (!$list->IsUpdated($ID)) {
-
-            continue;
-        }
-        $ID = intVal($ID);
-        if (!empty(Tours::getById($ID))) {
-
-            foreach ($arFields as $key => $value) {
-
-                $arSave[$key] = $value;
-            }
-
-            if (!Tours::update($ID, $arSave)) {
-
-                $list->AddGroupError("Не удалось обновить бронь", $ID);
-            }
-        } else {
-
-            $list->AddGroupError("Не удалось найти бронь", $ID);
+if ($arOrdersId = $list->GroupAction()) {
+    
+    if ($_REQUEST['action_target'] == 'selected') {
+        
+        $arOrdersId = array_keys(Orders::get(array('select' => array('ID'))));
+    }
+    
+    foreach ($arOrdersId as $ID) {
+        
+        switch ($_REQUEST['action']) {
+            
+            case "delete":
+                
+                Orders::delete($ID);
+                
+                break;
         }
     }
-}
-
-if ($list->GroupAction()) {
-    
 }
 
 if ($_REQUEST["by"]) {
@@ -68,7 +57,21 @@ $arServicesId = array_map(function ($arItem) {
 }, $arOrders);
 
 if ($arServicesId) {
-    $arServices = travelsoft\booking\stores\Tours::get(array('filter' => array('ID' => $arServiceId), 'select' => array('ID', 'IBLOCK_ID', 'IBLOCK_CODE')));
+    
+    $arServices = travelsoft\booking\stores\Tours::get(array('filter' => array('ID' => $arServiceId), 'select' => array('ID', 'IBLOCK_ID')));
+    
+    if ($arServices && Bitrix\Main\Loader::includeModule('iblock')) {
+        
+        $arIblocksId = array_map(function ($arItem) {
+            return $arItem['IBLOCK_ID'];
+        }, $arServices);
+                
+        $dbIblocks = CIBlock::GetList(array(), array("ID" => $arIblocksId));
+        while ($arRes = $dbIblocks->Fetch()) {
+            
+            $arIblocks[$arRes['ID']] = $arRes['IBLOCK_TYPE_ID'];
+        }
+    }
 }
 
 $arStatusesId = array_map(function ($arItem) {
@@ -174,9 +177,9 @@ while ($arResult = $dbResult->Fetch()) {
     $row = &$list->AddRow($arResult["ID"], $arResult);
 
     // ССЫЛКА НА ЭЛЕМЕНТ
-    if (isset($arServices[$arResult['UF_SERVICE_ID']])) {
+    if (isset($arServices[$arResult['UF_SERVICE_ID']]) && isset($arIblocks[$arServices[$arResult['UF_SERVICE_ID']]['IBLOCK_ID']])) {
 
-        $row->AddViewField("UF_SERVICE_NAME", '<a target="__blank" href="iblock_element_edit.php?IBLOCK_ID=' . $arServices[$arResult['UF_SERVICE_ID']]['IBLOCK_ID'] . '&type=' . $arServices[$arResult['UF_SERVICE_ID']]['IBLOCK_CODE'] . '&ID=' . $arServices[$arResult['UF_SERVICE_ID']]['ID'] . '&lang=' . LANG . '">' . $arResult["UF_SERVICE_NAME"] . '</a>');
+        $row->AddViewField("UF_SERVICE_NAME", '<a target="__blank" href="iblock_element_edit.php?IBLOCK_ID=' . $arServices[$arResult['UF_SERVICE_ID']]['IBLOCK_ID'] . '&type=' . $arIblocks[$arServices[$arResult['UF_SERVICE_ID']]['IBLOCK_ID']] . '&ID=' . $arServices[$arResult['UF_SERVICE_ID']]['ID'] . '&lang=' . LANG . '">' . $arResult["UF_SERVICE_NAME"] . '</a>');
     }
 
     $CNAME = $arResult['UF_CNAME'] . ' ' . $arResult['UF_CLAST_NAME'];
