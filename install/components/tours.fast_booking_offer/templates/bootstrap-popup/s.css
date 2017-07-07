@@ -1,0 +1,91 @@
+/* 
+    Created on : 04.07.2017, 13:05:20
+    Author     : dimabresky
+*/
+
+.booking-form h2{
+    text-align: center;
+}
+
+.booking-form .border-bottom-grey {
+    border-bottom: 2px solid #E8E8E8;
+    padding-bottom: 5px;
+}
+
+.booking-form .desc-part {
+    margin-bottom: 10px
+}
+
+.booking-form .switches label {
+    border: 1px solid;
+    padding: 10px;
+    cursor: pointer;
+}
+
+.booking-form .switches .active {
+    background-color: #ffb300;
+    color: #fff;
+}
+
+.booking-form .switches {
+    margin-bottom: 10px;
+}
+
+.booking-form .desc-block {
+    margin: 30px 0;
+}
+
+.booking-form .hidden {
+    display: none;
+}
+
+.booking-form .pdt-27 {
+    padding-top: 27px !important;
+}
+
+.booking-form .pdt-10 {
+    padding-top: 10px !important;
+}
+
+.text-center {
+    text-align: center;
+}
+
+.booking-form input:focus,  .booking-form textarea:focus {
+    border-color: #ffb300;
+    box-shadow: 0 0 0 0.1rem rgba(255, 179, 0, 0.6);
+}
+
+.booking-form .booking-btn {
+    background: #ffb300;
+    border: 0;
+    margin-top: 20px;
+    color: #000;
+    font-size: 16px;
+    border-radius: 0;
+    font-weight: 600;
+    display: inline-block;
+    box-shadow: 0 2px 0 0 rgba(255, 179, 0, 0.6);
+}
+
+.booking-form .booking-btn:hover {
+    color: #fff;
+}
+
+.booking-form .error {
+    color: #E22B2B !important;
+    font-size: 11px;
+}
+
+.booking-form div.error {
+    font-size: 14px;
+    margin: 10px 0;
+}
+
+.booking-form .success {
+    color: #01cb68;
+    font-weight: 700;
+    font-size: 14px;
+    max-width: 380px;
+    text-align: center;
+}
