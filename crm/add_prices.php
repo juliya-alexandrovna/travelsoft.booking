@@ -9,7 +9,7 @@ Bitrix\Main\Loader::includeModule("travelsoft.booking");
 $APPLICATION->SetTitle("Цены и наличие мест");
 if (!travelsoft\booking\crmAccess()) {
 
-    $APPLICATION->AuthForm(GetMessage("ACCESS_DENIED"));
+    $APPLICATION->AuthForm('Доступ запрещен');
 }
 
 require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_admin_after.php");
