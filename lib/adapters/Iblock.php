@@ -102,6 +102,7 @@ abstract class Iblock extends Store {
     public static function add(array $arSave): int {
 
         $ob = new \CIBlockElement;
+        $arSave['IBLOCK_ID'] = self::getStoreId();
         return (int) $ob->Add($arSave);
     }
 
