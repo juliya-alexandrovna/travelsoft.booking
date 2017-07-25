@@ -94,7 +94,8 @@ $main_options = array(
         'MANAGER_EMAIL_FOR_NOTIFICATION' => array('DESC' => "Email менеджера для приема уведомлений(по-умолчанию берется из настроек главного модуля)", 'VALUES' => '', 'TYPE' => 'text'),
         'MAIL_ID_FOR_CLIENT_NOTIFICATION' => array('DESC' => "Письмо клиенту при создании заказа", "VALUES" => $arMails, 'TYPE' => 'select'),
         'MAIL_ID_FOR_AGENT_NOTIFICATION' => array('DESC' => "Письмо агенту при создании заказа", "VALUES" => $arMails, 'TYPE' => 'select'),
-        'MAIL_ID_FOR_MANAGER_NOTIFICATION' => array('DESC' => "Письмо менеджеру при создании заказа", "VALUES" => $arMails, 'TYPE' => 'select')
+        'MAIL_ID_FOR_MANAGER_NOTIFICATION' => array('DESC' => "Письмо менеджеру при создании заказа", "VALUES" => $arMails, 'TYPE' => 'select'),
+        'MAIL_ID_FOR_ADMIN_NOTIFICATION' => array('DESC' => "Письмо адмнистратору о регистрации нового агента", "VALUES" => $arMails, 'TYPE' => 'select')
     )
 );
 
