@@ -26,7 +26,7 @@ abstract class Iblock extends Store {
      * @param callable $callback
      * @return array
      */
-    public static function get(array $query = array(), callable $callback = null): array {
+    public static function get(array $query = array(), bool $likeArray = true,callable $callback = null) {
 
         if ($query['filter']) {
 
@@ -51,6 +51,12 @@ abstract class Iblock extends Store {
         }
 
         $dbList = \CIBlockElement::GetList($arOrder, $arFilter, null, $arNav, $arSelect);
+        
+        if (!$likeArray) {
+            
+            return $dbList;
+        }
+        
         $result = array();
         if ($callback) {
 

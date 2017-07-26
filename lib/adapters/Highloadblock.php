@@ -25,12 +25,18 @@ abstract class Highloadblock extends Store {
      * Возвращает полученные данные из хранилища в виде массива
      * @param array $query
      * @param callable $callback
-     * @return array
+     * @return mixed
      */
-    public static function get(array $query = array(), callable $callback = null): array {
+    public static function get(array $query = array(), bool $likeArray = true, callable $callback = null) {
 
         $table = self::getTable();
         $dbList = $table::getList((array) $query);
+        
+        if (!$likeArray) {
+            
+            return $dbList;
+        }
+        
         $result = array();
         if ($callback) {
             while ($res = $dbList->fetch()) {

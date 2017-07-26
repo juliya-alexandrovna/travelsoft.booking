@@ -10,7 +10,7 @@ namespace travelsoft\booking\abstraction;
  */
 abstract class Store {
 
-    abstract public static function get(array $query = array(), callable $callback = null): array;
+    abstract public static function get(array $query = array(), bool $likeArray = true, callable $callback = null);
 
     abstract public static function add(array $arSave): int;
 
