@@ -106,6 +106,9 @@ class TravelsoftToursOffers extends CBitrixComponent {
 
             throw new \Exception('Укажите в какой валюте необходимо выводит цены');
         }
+        
+        $this->arParams['EXCLUDE_STOP_SALE'] = $this->arParams['EXCLUDE_STOP_SALE'] == 'Y';
+        $this->arParams['EXCLUDE_QUOTA'] = $this->arParams['EXCLUDE_QUOTA'] == 'Y';
     }
 
     /**
@@ -121,8 +124,18 @@ class TravelsoftToursOffers extends CBitrixComponent {
 
             $se->setExtFilter($extFilter);
         }
-
-        $this->arResult['COST'] = $se->search()->filterByStopSale()->filterByQuotas(1)->getCost()->getSource();
+        
+        $se->search();
+        
+        if (!$this->arParams['EXCLUDE_STOP_SALE']) {
+            $se->filterByStopSale();
+        }
+        
+        if (!$this->arParams['EXCLUDE_QUOTA']) {
+            $se->filterByQuotas(1);
+        }
+        
+        $this->arResult['COST'] = $se->getCost()->getSource();
         
         $this->arResult['COST_PREPARED'] = array();
 
