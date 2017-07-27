@@ -15,7 +15,7 @@ use travelsoft\booking\stores\Statuses;
  * @author dimabresky
  * @copyright (c) 2017, travelsoft
  */
-class TravelsoftAjaxMakeOrder extends CBitrixComponent {
+class TravelsoftMakeOrder extends CBitrixComponent {
 
     /**
      * @var \travelsoft\booking\tours\Cost 
@@ -31,6 +31,44 @@ class TravelsoftAjaxMakeOrder extends CBitrixComponent {
             'ID' => $this->arParams['OFFER_ID'],
             'UF_DATE' => $this->arParams['DATE']
         );
+    }
+
+    /**
+     * Получение дополнительных полей по предложению
+     * @param string $propertyCode
+     * @return mixed
+     */
+    protected function _getOfferAdditionalField($propertyCode) {
+
+        if ($this->arResult['OFFER']['PROPERTIES'][$propertyCode]['PROPERTY_TYPE'] == 'E') {
+            
+            if ($this->arResult['OFFER']['PROPERTIES'][$propertyCode]['MULTIPLE'] == 'Y') {
+                
+                $arValues = array();
+                foreach ($this->arResult['OFFER']['PROPERTIES'][$propertyCode]['VALUE'] as $val) {
+                    
+                   $arElement = CIBlockElement::GetByID($val)->Fetch(); 
+                   $arValues[] = $arElement['NAME'];
+                }
+                return implode(', ', $arValues);
+                
+            } else {
+                
+                $arElement = CIBlockElement::GetByID($this->arResult['OFFER']['PROPERTIES'][$propertyCode]['VALUE'])->Fetch();
+                return $arElement['NAME'];
+            }
+            
+        } else {
+            
+            if ($this->arResult['OFFER']['PROPERTIES'][$propertyCode]['MULTIPLE'] == 'Y') {
+                
+                return implode(', ', $this->arResult['OFFER']['PROPERTIES'][$propertyCode]['VALUE']);
+            } else {
+                
+                return $this->arResult['OFFER']['PROPERTIES'][$propertyCode]['VALUE'];
+            }
+            
+        }
     }
 
     /**
@@ -71,7 +109,9 @@ class TravelsoftAjaxMakeOrder extends CBitrixComponent {
      * Обработка входных параметров компонента
      */
     public function prepareParameters() {
-
+        
+        dm($GLOBALS);
+        
         if (!Bitrix\Main\Loader::includeModule('travelsoft.booking')) {
 
             throw new \Exception('Модуль travelsoft.booking не найден');
@@ -81,7 +121,7 @@ class TravelsoftAjaxMakeOrder extends CBitrixComponent {
 
         # получаем информацию по предложению
         $this->arResult['OFFER'] = Tours::getById($this->arParams['OFFER_ID']);
-
+        
         if (empty($this->arResult['OFFER'])) {
 
             throw new Exception('Указан несуществующий ID услуги');
@@ -216,7 +256,11 @@ class TravelsoftAjaxMakeOrder extends CBitrixComponent {
                         }
 
                         if (empty($this->arResult['CODE_ERRORS'])) {
-
+                            
+                            if (\Bitrix\Main\Config\Option::get('main', 'captcha_registration') == 'Y') {
+                                OptionTmpChanger::changeOption('main', 'captcha_registration', 'N');
+                            }
+                            
                             $arResult = $GLOBALS['USER']->Register(
                                     $this->arResult['USER_EMAIL'], $this->arResult['USER_NAME'], $this->arResult['USER_LAST_NAME'], $_POST['PASSWORD'], $_POST['CONFIRM_PASSWORD'], $this->arResult['USER_EMAIL']
                             );
@@ -303,26 +347,33 @@ class TravelsoftAjaxMakeOrder extends CBitrixComponent {
                     $arCost = $this->arResult['COST']->forAdults($this->arResult['ADULTS'])->forChildren($this->arResult['CHILDREN'])->forAdultTourService($this->arResult['ADULTS'])->forChildrenTourService($this->arResult['CHILDREN'])->getMinForTours();
 
                     $STATUS_ID = Settings::defStatus();
-
+                    
+                    $DEPPOINT = $this->_getOfferAdditionalField($this->arParams['PROPERTY_POINT_DEPARTURE_CODE']);
+                    
                     # создание заказа
                     $ORDER_ID = Orders::add(array(
-                                'UF_SERVICE_ID' => $this->arResult['OFFER']['ID'],
-                                'UF_USER_ID' => $this->arResult['USER']['ID'],
-                                'UF_STATUS_ID' => $STATUS_ID,
-                                'UF_DATE' => Date::createFromTimetamp(time()),
-                                'UF_COST' => $arCost['price'],
-                                'UF_CURRENCY' => $arCost['currency'],
-                                'UF_DATE_FROM' => $this->arResult['DATE_FROM'],
-                                'UF_DATE_TO' => $this->arResult['DATE_TO'],
-                                'UF_SERVICE_NAME' => $this->arResult['OFFER']['NAME'],
-                                'UF_CPHONE' => $this->arResult['USER_PHONE'] ? $this->arResult['USER_PHONE'] : $this->arResult['USER']['PERSONAL_PHONE'],
-                                'UF_CEMAIL' => $this->arResult['USER_EMAIL'] ? $this->arResult['USER_EMAIL'] : $this->arResult['USER']['EMAIL'],
-                                'UF_CNAME' => $this->arResult['USER_NAME'] ? $this->arResult['USER_NAME'] : $this->arResult['USER']['NAME'],
-                                'UF_CLAST_NAME' => $this->arResult['USER_LAST_NAME'] ? $this->arResult['USER_LAST_NAME'] : $this->arResult['USER']['LAST_NAME'],
-                                'UF_DURATION' => $this->arResult['DURATION'],
-                                'UF_ADULTS' => $this->arResult['ADULTS'],
-                                'UF_CHILDREN' => $this->arResult['CHILDREN'],
-                                'UF_COMMENT' => $this->arResult['USER_COMMENT']
+                        'UF_DEP_CITY' => $DEPPOINT,
+                        'UF_ARR_CITY' => $DEPPOINT,
+                        'UF_HOTEL' => $this->_getOfferAdditionalField($this->arParams['PROPERTY_HOTEL_CODE']),
+                        'UF_FOOD' => $this->_getOfferAdditionalField($this->arParams['PROPERTY_FOOD_CODE']),
+                        'UF_COUNTRY' => $this->_getOfferAdditionalField($this->arParams['PROPERTY_COUNTRY_CODE']),
+                        'UF_SERVICE_ID' => $this->arResult['OFFER']['ID'],
+                        'UF_USER_ID' => $this->arResult['USER']['ID'],
+                        'UF_STATUS_ID' => $STATUS_ID,
+                        'UF_DATE' => Date::createFromTimetamp(time()),
+                        'UF_COST' => $arCost['price'],
+                        'UF_CURRENCY' => $arCost['currency'],
+                        'UF_DATE_FROM' => $this->arResult['DATE_FROM'],
+                        'UF_DATE_TO' => $this->arResult['DATE_TO'],
+                        'UF_SERVICE_NAME' => $this->arResult['OFFER']['NAME'],
+                        'UF_CPHONE' => $this->arResult['USER_PHONE'] ? $this->arResult['USER_PHONE'] : $this->arResult['USER']['PERSONAL_PHONE'],
+                        'UF_CEMAIL' => $this->arResult['USER_EMAIL'] ? $this->arResult['USER_EMAIL'] : $this->arResult['USER']['EMAIL'],
+                        'UF_CNAME' => $this->arResult['USER_NAME'] ? $this->arResult['USER_NAME'] : $this->arResult['USER']['NAME'],
+                        'UF_CLAST_NAME' => $this->arResult['USER_LAST_NAME'] ? $this->arResult['USER_LAST_NAME'] : $this->arResult['USER']['LAST_NAME'],
+                        'UF_DURATION' => $this->arResult['DURATION'],
+                        'UF_ADULTS' => $this->arResult['ADULTS'],
+                        'UF_CHILDREN' => $this->arResult['CHILDREN'],
+                        'UF_COMMENT' => $this->arResult['USER_COMMENT']
                     ));
 
                     if ($ORDER_ID > 0) {
@@ -360,7 +411,9 @@ class TravelsoftAjaxMakeOrder extends CBitrixComponent {
                             "DURATION" => $this->arResult['DURATION'],
                             "ADULTS" => $this->arResult['ADULTS'],
                             "CHILDREN" => $this->arResult['CHILDREN'],
-                            "TOTAL_COST" => $arCost['price_formatted']
+                            "TOTAL_COST" => $arCost['price_formatted'],
+                            "ORDER_LIST_PAGE" => $this->arParams['ORDER_LIST_PAGE'],
+                            "ORDER_DETAIL_PAGE" => str_replace("#ORDER_ID#", $ORDER_ID, $this->arParams['ORDER_DETAIL_PAGE'])
                         );
 
                         # отправка уведомления о новом заказе
@@ -369,7 +422,7 @@ class TravelsoftAjaxMakeOrder extends CBitrixComponent {
 
                         $arUserGroups = $GLOBALS['USER']->GetUserGroup($this->arResult['USER']['ID']);
 
-                        if (in_array(Settings::managersUGroup(), $arUserGroups)) {
+                        if (in_array(Settings::agentsUGroup(), $arUserGroups)) {
                             # агенту
                             Mail::sendNewOrderNotificationForAgent($arEmailFields);
                         } else {
@@ -425,4 +478,15 @@ class TravelsoftAjaxMakeOrder extends CBitrixComponent {
         }
     }
 
+}
+
+/** Класс для временной смены настроек модулей */
+class OptionTmpChanger extends \Bitrix\Main\Config\Option {
+    
+    public static function changeOption (string $module, string $option, string $value) {
+        
+        parent::$options['-'][$module][$option] = $value;
+        
+    } 
+    
 }
