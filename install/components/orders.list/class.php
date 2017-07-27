@@ -53,33 +53,34 @@ class TravelsoftOrdersList extends CBitrixComponent {
 
             $this->arResult["NAV"] = new \Bitrix\Main\UI\PageNavigation("nav-orders-list");
             $this->arResult["NAV"]->allowAllRecords(true)->setPageSize($this->arParams["PAGE_ORDERS_COUNT"])->initFromUri();
-            
+
             $dbOrders = Orders::get(array(
                         'filter' => $arFilter,
                         "count_total" => true,
+                        "order" => array('ID' => 'DESC'),
                         "offset" => $this->arResult["NAV"]->getOffset(),
                         "limit" => $this->arResult["NAV"]->getLimit()
-                    ), false);
-            
+                            ), false);
+
             $converter = new travelsoft\booking\adapters\CurrencyConverter;
-            
+
             while ($arOrder = $dbOrders->fetch()) {
-                
+
                 if ($arOrder['UF_STATUS_ID']) {
 
-                            if (!isset($arOrdersListStatuses[$arOrder['UF_STATUS_ID']])) {
+                    if (!isset($arOrdersListStatuses[$arOrder['UF_STATUS_ID']])) {
 
-                                $arStatus = Statuses::getById($arOrder['UF_STATUS_ID']);
-                                $arOrdersListStatuses[$arStatus['ID']] = $arStatus['UF_NAME'];
-                            }
+                        $arStatus = Statuses::getById($arOrder['UF_STATUS_ID']);
+                        $arOrdersListStatuses[$arStatus['ID']] = $arStatus['UF_NAME'];
+                    }
 
-                            $arOrder['STATUS_NAME'] = $arOrdersListStatuses[$arOrder['UF_STATUS_ID']];
-                        }
-                        
-                        $this->arResult['ORDERS_LIST'][$arOrder['ID']] = $arOrder;
-                        $this->arResult['ORDERS_LIST'][$arOrder['ID']]['COST_FORMATTED'] = $converter->format($arOrder['UF_COST']);
+                    $arOrder['STATUS_NAME'] = $arOrdersListStatuses[$arOrder['UF_STATUS_ID']];
+                }
+
+                $this->arResult['ORDERS_LIST'][$arOrder['ID']] = $arOrder;
+                $this->arResult['ORDERS_LIST'][$arOrder['ID']]['COST_FORMATTED'] = $converter->format($arOrder['UF_COST']);
             }
-            
+
             $this->arResult["NAV"]->setRecordCount($dbOrders->getCount());
 
             $this->IncludeComponentTemplate();
