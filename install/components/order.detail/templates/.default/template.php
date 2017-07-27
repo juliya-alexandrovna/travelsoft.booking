@@ -20,7 +20,7 @@ if (empty($arResult['ORDER'])) {
         <tbody>
             <tr>
                 <td class="order-field-title"><b><?= GetMessage('DETAIL_ORDER_NUMBER') ?></b>:</td>
-                <td data-label="<?= GetMessage('DETAIL_ORDER_NUMBER') ?>"><?= $arResult['ORDER']['ID'] || '-' ?></td>
+                <td data-label="<?= GetMessage('DETAIL_ORDER_NUMBER') ?>"><?= $arResult['ORDER']['ID']?></td>
             </tr>
             <tr>
                 <td class="order-field-title"><b><?= GetMessage('DETAIL_ORDER_NAME') ?></b>:</td>
@@ -89,6 +89,10 @@ if (empty($arResult['ORDER'])) {
             <tr>
                 <td class="order-field-title"><b><?= GetMessage('DETAIL_ORDER_CURRENCY') ?></b>:</td>
                 <td data-label="<?= GetMessage('DETAIL_ORDER_CURRENCY') ?>"><?= $arResult['ORDER']['UF_CURRENCY'] ?></td>
+            </tr>
+            <tr>
+                <td class="order-field-title"><b><?= GetMessage('DETAIL_ORDER_COMMENT') ?></b>:</td>
+                <td data-label="<?= GetMessage('DETAIL_ORDER_COMMENT') ?>"><?= $arResult['ORDER']['UF_COMMENT'] ?></td>
             </tr>
         </tbody>
     </table>

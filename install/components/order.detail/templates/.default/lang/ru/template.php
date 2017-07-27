@@ -19,3 +19,4 @@ $MESS['DETAIL_ORDER_COST'] = 'Стоимость';
 $MESS['DETAIL_ORDER_CURRENCY'] = 'Валюта';
 $MESS['DETAIL_ORDER_STATUS'] = 'Статус';
 $MESS['DETAIL_ORDER_DETAIL'] = 'Подробнее';
+$MESS['DETAIL_ORDER_COMMENT'] = 'Комментарий';
