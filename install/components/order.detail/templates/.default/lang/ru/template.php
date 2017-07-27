@@ -1,0 +1,21 @@
+<?php
+$MESS['DETAIL_ORDER_NUMBER'] = 'Номер заказа';
+$MESS['DETAIL_ORDER_COUNTRY'] = 'Страна';
+$MESS['DETAIL_ORDER_DEP_CITY'] = 'Город отправления';
+$MESS['DETAIL_ORDER_HOTEL'] = 'Размещение';
+$MESS['DETAIL_ORDER_PHONE'] = 'Телефон';
+$MESS['DETAIL_ORDER_ARR_CITY'] = 'Город прибытия';
+$MESS['DETAIL_ORDER_DATE_FROM'] = 'Дата начала';
+$MESS['DETAIL_ORDER_DATE_TO'] = 'Дата окончания';
+$MESS['DETAIL_ORDER_DATE_CREATE'] = 'Дата создание';
+$MESS['DETAIL_ORDER_DATE_COUNTRY'] = 'Дата создание';
+$MESS['DETAIL_ORDER_DURATION'] = 'Дней';
+$MESS['DETAIL_ORDER_FOOD'] = 'Питание';
+$MESS['DETAIL_ORDER_ADULTS'] = 'Взрослых';
+$MESS['DETAIL_ORDER_CHILDREN'] = 'Детей';
+$MESS['DETAIL_ORDER_NAME'] = 'Название';
+$MESS['DETAIL_ORDER_CLIENT'] = 'Клиент';
+$MESS['DETAIL_ORDER_COST'] = 'Стоимость';
+$MESS['DETAIL_ORDER_CURRENCY'] = 'Валюта';
+$MESS['DETAIL_ORDER_STATUS'] = 'Статус';
+$MESS['DETAIL_ORDER_DETAIL'] = 'Подробнее';
