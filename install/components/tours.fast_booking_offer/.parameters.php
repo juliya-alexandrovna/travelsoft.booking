@@ -26,6 +26,35 @@ $arComponentParameters = array(
             "NAME" => "Страница детального просмотра заказа (можно использовать макрос #ORDER_ID#)",
             "TYPE" => "STRING"
         ),
+        "ORDER_LIST_PAGE" => array(
+            "PARENT" => "BASE",
+            "NAME" => "Страница списка заказов",
+            "TYPE" => "STRING"
+        ),
+        "PROPERTY_HOTEL_CODE" => array(
+            "PARENT" => "BASE",
+            "NAME" => "Код свойства размещения инфоблока турпредложения",
+            "TYPE" => "STRING",
+            "DEFAULT" => "HOTEL"
+        ),
+        "PROPERTY_POINT_DEPARTURE_CODE" => array(
+            "PARENT" => "BASE",
+            "NAME" => "Код свойства пункта отправления инфоблока турпредложения",
+            "TYPE" => "STRING",
+            "DEFAULT" => "POINT_DEPARTURE"
+        ),
+        "PROPERTY_COUNTRY_CODE" => array(
+            "PARENT" => "BASE",
+            "NAME" => "Код свойства страны инфоблока турпредложения",
+            "TYPE" => "STRING",
+            "DEFAULT" => "COUNTRY"
+        ),
+        "PROPERTY_FOOD_CODE" => array(
+            "PARENT" => "BASE",
+            "NAME" => "Код свойства питания инфоблока турпредложения",
+            "TYPE" => "STRING",
+            "DEFAULT" => "FOOD"
+        ),
         "CONVERT_IN_CURRENCY_ISO" => array(
             "PARENT" => "BASE",
             "NAME" => 'В какой валюте отображать цену',
