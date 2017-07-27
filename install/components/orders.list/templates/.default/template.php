@@ -50,7 +50,7 @@ if (empty($arResult['ORDERS_LIST'])) {
                 <td data-label="<?= GetMessage('ORDERS_LIST_CHILDREN') ?>"><?= $arOrder['UF_CHILDREN'] ?></td>
                 <td data-label="<?= GetMessage('ORDERS_LIST_NAME') ?>"><?= $arOrder['UF_SERVICE_NAME'] ?></td>
                 <td data-label="<?= GetMessage('ORDERS_LIST_CLIENT') ?>"><?= $arOrder['UF_CNAME'] . ' ' . $arOrder['UF_CLAST_NAME'] ?></td>
-                <td data-label="<?= GetMessage('ORDERS_LIST_COST') ?>"><?= $arOrder['UF_COST'] ?></td>
+                <td data-label="<?= GetMessage('ORDERS_LIST_COST') ?>"><?= $arOrder['COST_FORMATTED'] ?></td>
                 <td data-label="<?= GetMessage('ORDERS_LIST_CURRENCY') ?>"><?= $arOrder['UF_CURRENCY'] ?></td>
                 <td data-label="<?= GetMessage('ORDERS_LIST_STATUS') ?>"><?= $arOrder['STATUS_NAME'] ?></td>
                 <td><a href="<?= str_replace("#ORDER_ID#", $ID, $arParams['DETAIL_PAGE']) ?>" rel="nofollow" class="detail-btn"><?= GetMessage('ORDERS_LIST_DETAIL') ?></a></td>

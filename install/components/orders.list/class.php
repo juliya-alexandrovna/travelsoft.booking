@@ -61,6 +61,8 @@ class TravelsoftOrdersList extends CBitrixComponent {
                         "limit" => $this->arResult["NAV"]->getLimit()
                     ), false);
             
+            $converter = new travelsoft\booking\adapters\CurrencyConverter;
+            
             while ($arOrder = $dbOrders->fetch()) {
                 
                 if ($arOrder['UF_STATUS_ID']) {
@@ -75,6 +77,7 @@ class TravelsoftOrdersList extends CBitrixComponent {
                         }
                         
                         $this->arResult['ORDERS_LIST'][$arOrder['ID']] = $arOrder;
+                        $this->arResult['ORDERS_LIST'][$arOrder['ID']]['COST_FORMATTED'] = $converter->format($arOrder['UF_COST']);
             }
             
             $this->arResult["NAV"]->setRecordCount($dbOrders->getCount());

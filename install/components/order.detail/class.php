@@ -58,6 +58,8 @@ class TravelsoftOrderDetail extends CBitrixComponent {
                 $arStatus = Statuses::getById($this->arResult['ORDER']['UF_STATUS_ID']);
                 $this->arResult['ORDER']['STATUS'] = $arStatus['UF_NAME'];
             }
+            
+            $this->arResult['ORDER']['COST_FORMATTED'] = (new travelsoft\booking\adapters\CurrencyConverter)->format($this->arResult['ORDER']['UF_COST']);
 
             $this->IncludeComponentTemplate();
         } catch (\Exception $e) {

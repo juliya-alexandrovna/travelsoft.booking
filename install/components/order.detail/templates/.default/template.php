@@ -20,7 +20,7 @@ if (empty($arResult['ORDER'])) {
         <tbody>
             <tr>
                 <td class="order-field-title"><b><?= GetMessage('DETAIL_ORDER_NUMBER') ?></b>:</td>
-                <td data-label="<?= GetMessage('DETAIL_ORDER_NUMBER') ?>"><?= $arResult['ORDER']['ID'] ?></td>
+                <td data-label="<?= GetMessage('DETAIL_ORDER_NUMBER') ?>"><?= $arResult['ORDER']['ID'] || '-' ?></td>
             </tr>
             <tr>
                 <td class="order-field-title"><b><?= GetMessage('DETAIL_ORDER_NAME') ?></b>:</td>
@@ -48,7 +48,7 @@ if (empty($arResult['ORDER'])) {
             </tr>
             <tr>
                 <td class="order-field-title"><b><?= GetMessage('DETAIL_ORDER_COUNTRY') ?></b>:</td>
-                <td data-label="<?= GetMessage('DETAIL_ORDER_COUNTRY') ?>"><?= $arResult['ORDER']['UF_COUNTRY'] ?></td>
+                <td data-label="<?= GetMessage('DETAIL_ORDER_COUNTRY') ?>"><?=  $arResult['ORDER']['UF_COUNTRY']?></td>
             </tr>
             <tr>
                 <td class="order-field-title"><b><?= GetMessage('DETAIL_ORDER_DEP_CITY') ?></b>:</td>
@@ -84,7 +84,7 @@ if (empty($arResult['ORDER'])) {
             </tr>
             <tr>
                 <td class="order-field-title"><b><?= GetMessage('DETAIL_ORDER_COST') ?></b>:</td>
-                <td data-label="<?= GetMessage('DETAIL_ORDER_COST') ?>"><?= $arResult['ORDER']['UF_COST'] ?></td>
+                <td data-label="<?= GetMessage('DETAIL_ORDER_COST') ?>"><?= $arResult['ORDER']['COST_FORMATTED'] ?></td>
             </tr>
             <tr>
                 <td class="order-field-title"><b><?= GetMessage('DETAIL_ORDER_CURRENCY') ?></b>:</td>
