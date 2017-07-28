@@ -47,14 +47,36 @@ class Mail {
      * @param array $fields
      */
     public static function sendNewOrderNotificationForManager(array $fields) {
-        
+
         $fields["EMAIL_TO"] = Settings::managerEmailForNotification();
         $fields["LANG"] = LANGUAGE_ID;
-        
+
         \Bitrix\Main\Mail\Event::send(array_merge(array(
             "C_FIELDS" => $fields,
             "MESSAGE_ID" => Settings::mailIdForManagerNotification()
                         ), self::$_commonMailParameters));
+    }
+    
+    /**
+     * Отправка почтового уведомления админу о регистрации нового агента
+     * @param array $fields
+     */
+    public static function sendNewAgentAdminNotification(array $fields) {
+
+        \Bitrix\Main\Mail\Event::send(array_merge(array(
+            "C_FIELDS" => $fields,
+            "MESSAGE_ID" => Settings::mailIdForAdminNotification()
+                        ), self::$_commonMailParameters));
+    }
+
+    /**
+     * Отправка почтового уведомления клиенту с регистрационной информацией
+     * @param array $fields
+     */
+    public static function sendNewClientRegisterInfo(array $fields) {
+
+        $event = new CEvent;
+        $event->SendImmediate("USER_INFO", SITE_ID, $fields);
     }
 
 }
