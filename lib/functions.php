@@ -175,4 +175,17 @@ namespace travelsoft\booking {
         }
 
     }
+    
+    if (!function_exists('\\travelsoft\\booking\\translit')) {
+        
+        /**
+         * Возвращает транслит строки
+         * @param string $string
+         * @return string
+         */
+        function translit (string $string) : string {
+            
+            return (string)\Cutil::translit($string, "ru", array('replace_space' => '-', 'replace_other' => '-'));
+        }
+    }
 }
