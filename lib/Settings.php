@@ -31,6 +31,11 @@ class Settings {
         return (int)self::get('MAIL_ID_FOR_CLIENT_NOTIFICATION');
     }
     
+    public static function mailIdForAdminNotification() : int {
+        
+        return (int)self::get('MAIL_ID_FOR_ADMIN_NOTIFICATION');
+    }
+    
     public static function mailIdForAgentNotification() : int {
         
         return (int)self::get('MAIL_ID_FOR_AGENT_NOTIFICATION');
