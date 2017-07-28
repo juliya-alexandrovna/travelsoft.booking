@@ -5,6 +5,7 @@
 
 /** @global CUser $USER */
 use travelsoft\booking\stores\Orders;
+use Bitrix\Main\Entity\ExpressionField;
 
 require_once($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_admin_before.php");
 
@@ -21,20 +22,20 @@ $sort = new CAdminSorting($TABLE_ID, "ID", "DESC");
 $list = new CAdminList($TABLE_ID, $sort);
 
 if ($arOrdersId = $list->GroupAction()) {
-    
+
     if ($_REQUEST['action_target'] == 'selected') {
-        
+
         $arOrdersId = array_keys(Orders::get(array('select' => array('ID'))));
     }
-    
+
     foreach ($arOrdersId as $ID) {
-        
+
         switch ($_REQUEST['action']) {
-            
+
             case "delete":
-                
+
                 Orders::delete($ID);
-                
+
                 break;
         }
     }
@@ -50,25 +51,65 @@ if ($_REQUEST["order"]) {
     $order = $_REQUEST["order"];
 }
 
-$arOrders = Orders::get(array("order" => array($by => $order)));
+$getParams = array("order" => array($by => $order));
+
+$usePageNavigation = true;
+$navParams = CDBResult::GetNavParams(CAdminResult::GetNavSize(
+                        $TABLE_ID, array('nPageSize' => 20)
+        ));
+
+if ($navParams['SHOW_ALL']) {
+
+    $usePageNavigation = false;
+} else {
+
+    $navParams['PAGEN'] = (int) $navParams['PAGEN'];
+    $navParams['SIZEN'] = (int) $navParams['SIZEN'];
+}
+
+
+if ($usePageNavigation) {
+
+    $totalCount = Orders::get(array('select' => array(new ExpressionField('CNT', 'COUNT(1)'))), false)->fetch();
+
+    $totalCount = (int) $totalCount['CNT'];
+
+    if ($totalCount > 0) {
+
+        $totalPages = ceil($totalCount / $navParams['SIZEN']);
+        if ($navParams['PAGEN'] > $totalPages) {
+
+            $navParams['PAGEN'] = $totalPages;
+        }
+        $getParams['limit'] = $navParams['SIZEN'];
+        $getParams['offset'] = $navParams['SIZEN'] * ($navParams['PAGEN'] - 1);
+    } else {
+
+        $navParams['PAGEN'] = 1;
+        $getParams['limit'] = $navParams['SIZEN'];
+        $getParams['offset'] = 0;
+    }
+}
+
+$arOrders = Orders::get($getParams);
 
 $arServicesId = array_map(function ($arItem) {
     return $arItem['UF_SERVICE_ID'];
 }, $arOrders);
 
 if ($arServicesId) {
-    
+
     $arServices = travelsoft\booking\stores\Tours::get(array('filter' => array('ID' => $arServiceId), 'select' => array('ID', 'IBLOCK_ID')));
-    
+
     if ($arServices && Bitrix\Main\Loader::includeModule('iblock')) {
-        
+
         $arIblocksId = array_map(function ($arItem) {
             return $arItem['IBLOCK_ID'];
         }, $arServices);
-                
+
         $dbIblocks = CIBlock::GetList(array(), array("ID" => $arIblocksId));
         while ($arRes = $dbIblocks->Fetch()) {
-            
+
             $arIblocks[$arRes['ID']] = $arRes['IBLOCK_TYPE_ID'];
         }
     }
@@ -84,7 +125,16 @@ if ($arStatusesId) {
 
 $dbResult = new CAdminResult($arOrders, $TABLE_ID);
 
-$dbResult->NavStart();
+if ($usePageNavigation) {
+
+    $dbResult->NavStart($getParams['limit'], $navParams['SHOW_ALL'], $navParams['PAGEN']);
+    $dbResult->NavRecordCount = $totalCount;
+    $dbResult->NavPageCount = $totalPages;
+    $dbResult->NavPageNomer = $navParams['PAGEN'];
+} else {
+
+    $dbResult->NavStart();
+}
 
 $list->NavText($dbResult->GetNavPrint('Страницы'));
 
@@ -195,7 +245,7 @@ while ($arResult = $dbResult->Fetch()) {
 
         $row->AddViewField("UF_CNAME", $CNAME);
     }
-    
+
     if (isset($arStatuses[$arResult['UF_STATUS_ID']])) {
 
         $row->AddViewField("UF_STATUS_ID", $arStatuses[$arResult['UF_STATUS_ID']]["UF_NAME"]);
@@ -228,10 +278,10 @@ $list->AddGroupActionTable(Array(
 
 
 $list->AddAdminContextMenu(array(array(
-        'TEXT'	=> "Создать заказ",
-        'TITLE'	=> "Создание заказа",
-        'LINK'	=> 'travelsoft_crm_booking_order_edit?lang='.LANG,
-        'ICON'	=> 'btn_new'
+        'TEXT' => "Создать заказ",
+        'TITLE' => "Создание заказа",
+        'LINK' => 'travelsoft_crm_booking_order_edit?lang=' . LANG,
+        'ICON' => 'btn_new'
 )));
 
 $list->CheckListMode();
