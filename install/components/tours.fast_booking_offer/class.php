@@ -110,8 +110,6 @@ class TravelsoftMakeOrder extends CBitrixComponent {
      */
     public function prepareParameters() {
         
-        dm($GLOBALS);
-        
         if (!Bitrix\Main\Loader::includeModule('travelsoft.booking')) {
 
             throw new \Exception('Модуль travelsoft.booking не найден');
