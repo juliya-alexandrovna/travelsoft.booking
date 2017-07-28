@@ -1,8 +1,8 @@
 <?php
 
 $classes = array(
-    "travelsoft\\booking\\abstraction\\Getter" => "lib/abstraction/Getter.php",
     "travelsoft\\booking\\abstraction\\Store" => "lib/abstraction/Store.php",
+    "travelsoft\\booking\\abstraction\\Entity" => "lib/abstraction/Entity.php",
     "travelsoft\\booking\\abstraction\\Cost" => "lib/abstraction/Cost.php",
     "travelsoft\\booking\\abstraction\\SearchEngine" => "lib/abstraction/SearchEngine.php",
     "travelsoft\\booking\\adapters\\Highloadblock" => "lib/adapters/Highloadblock.php",
@@ -20,10 +20,14 @@ $classes = array(
     "travelsoft\\booking\\stores\\Tourists" => "lib/stores/Tourists.php",
     "travelsoft\\booking\\stores\\Tours" => "lib/stores/Tours.php",
     "travelsoft\\booking\\stores\\Duration" => "lib/stores/Duration.php",
+    "travelsoft\\booking\\stores\\Users" => "lib/stores/Users.php",
+    "travelsoft\\booking\\stores\\UserGroups" => "lib/stores/UserGroups.php",
     "travelsoft\\booking\\Settings" => "lib/Settings.php",
     "travelsoft\\booking\\EventsHandlers" => "lib/EventsHandlers.php",
     "travelsoft\\booking\\tours\\Cost" => "lib/tours/Cost.php",
-    "travelsoft\\booking\\tours\\SearchEngine" => "lib/tours/SearchEngine.php"
+    "travelsoft\\booking\\tours\\SearchEngine" => "lib/tours/SearchEngine.php",
+    "travelsoft\\booking\\tours\\Offer" => "lib/tours/Offer.php",
+    "travelsoft\\booking\\tours\\Client" => "lib/Client.php"
 );
 
 if (ADMIN_SECTION === true) {
