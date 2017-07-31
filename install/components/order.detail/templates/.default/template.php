@@ -76,11 +76,11 @@ if (empty($arResult['ORDER'])) {
             </tr>
             <tr>
                 <td class="order-field-title"><b><?= GetMessage('DETAIL_ORDER_CLIENT') ?></b>:</td>
-                <td data-label="<?= GetMessage('DETAIL_ORDER_CLIENT') ?>"><?= $arResult['ORDER']['UF_CNAME'] . ' ' . $arResult['ORDER']['UF_CLAST_NAME']?></td>
+                <td data-label="<?= GetMessage('DETAIL_ORDER_CLIENT') ?>"><?= $arResult['ORDER']['USER_NAME'] . ' ' . $arResult['ORDER']['USER_LAST_NAME']?></td>
             </tr>
             <tr>
                 <td class="order-field-title"><b><?= GetMessage('DETAIL_ORDER_PHONE') ?></b>:</td>
-                <td data-label="<?= GetMessage('DETAIL_ORDER_PHONE') ?>"><?= $arResult['ORDER']['UF_CPHONE'] ?></td>
+                <td data-label="<?= GetMessage('DETAIL_ORDER_PHONE') ?>"><?= $arResult['ORDER']['USER_PHONE'] ?></td>
             </tr>
             <tr>
                 <td class="order-field-title"><b><?= GetMessage('DETAIL_ORDER_COST') ?></b>:</td>
@@ -96,3 +96,4 @@ if (empty($arResult['ORDER'])) {
             </tr>
         </tbody>
     </table>
+    

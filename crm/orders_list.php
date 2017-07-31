@@ -6,6 +6,7 @@
 /** @global CUser $USER */
 use travelsoft\booking\stores\Orders;
 use Bitrix\Main\Entity\ExpressionField;
+use travelsoft\booking\stores\Users;
 
 require_once($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_admin_before.php");
 
@@ -161,13 +162,13 @@ $list->AddHeaders(array(
         "default" => true
     ),
     array(
-        "id" => "UF_CNAME",
+        "id" => "UF_CLIENT_NAME",
         "content" => "Клиент",
         "align" => "center",
         "default" => true
     ),
     array(
-        "id" => "UF_CPHONE",
+        "id" => "UF_CLIENT_PHONE",
         "content" => "Телефон клиента",
         "align" => "center",
         "default" => true
@@ -231,19 +232,36 @@ while ($arResult = $dbResult->Fetch()) {
 
         $row->AddViewField("UF_SERVICE_NAME", '<a target="__blank" href="iblock_element_edit.php?IBLOCK_ID=' . $arServices[$arResult['UF_SERVICE_ID']]['IBLOCK_ID'] . '&type=' . $arIblocks[$arServices[$arResult['UF_SERVICE_ID']]['IBLOCK_ID']] . '&ID=' . $arServices[$arResult['UF_SERVICE_ID']]['ID'] . '&lang=' . LANG . '">' . $arResult["UF_SERVICE_NAME"] . '</a>');
     }
-
-    $CNAME = $arResult['UF_CNAME'] . ' ' . $arResult['UF_CLAST_NAME'];
-
-    if (strlen($arResult['UF_CEMAIL']) > 0) {
-        $CNAME .= '<br>[' . $arResult['UF_CEMAIL'] . ']';
+    
+    if ($arResult['UF_USER_ID']) {
+        
+        $arUser = Users::getById($arResult['UF_USER_ID']);
     }
 
-    if ($arResult['UF_USER_ID']) {
+    if (strlen($arUser['NAME']) > 0) {
+        $CNAME = $arUser['NAME'];
+    }
 
-        $row->AddViewField("UF_CNAME", '<a target="__blank" href="user_edit.php?lang=' . LANG . '&ID=' . $arResult['UF_USER_ID'] . '">' . $CNAME . '</a>');
-    } else {
+    if (strlen($CNAME) > 0) {
 
-        $row->AddViewField("UF_CNAME", $CNAME);
+        if (strlen($arUser['SECOND_NAME']) > 0) {
+            $CNAME .= ' ' . $arUser['SECOND_NAME'];
+        }
+
+        if (strlen($arUser['LAST_NAME']) > 0) {
+            $CNAME .= ' ' . $arUser['LAST_NAME'];
+        }
+
+        if (strlen($arUser['EMAIL']) > 0) {
+            $CNAME .= '[' . $arUser['EMAIL'] . ']';
+        }
+    }
+
+    $row->AddViewField("UF_CLIENT_NAME", '<a target="__blank" href="user_edit.php?lang=' . LANG . '&ID=' . $arResult['UF_USER_ID'] . '">' . $CNAME . '</a>');
+    
+    if ($arUser['PERSONAL_PHONE']) {
+        
+        $row->AddViewField("UF_CLIENT_PHONE", $arUser['PERSONAL_PHONE']);
     }
 
     if (isset($arStatuses[$arResult['UF_STATUS_ID']])) {

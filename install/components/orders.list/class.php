@@ -2,6 +2,7 @@
 
 use travelsoft\booking\stores\Orders;
 use travelsoft\booking\stores\Statuses;
+use travelsoft\booking\stores\Users;
 
 /**
  * Класс списка заказов
@@ -49,7 +50,7 @@ class TravelsoftOrdersList extends CBitrixComponent {
                 $arFilter['UF_USER_ID'] = $GLOBALS['USER']->GetID();
             }
 
-            $arOrdersListStatuses = array();
+            $arOrdersListStatuses = $arUsers = array();
 
             $this->arResult["NAV"] = new \Bitrix\Main\UI\PageNavigation("nav-orders-list");
             $this->arResult["NAV"]->allowAllRecords(true)->setPageSize($this->arParams["PAGE_ORDERS_COUNT"])->initFromUri();
@@ -75,7 +76,23 @@ class TravelsoftOrdersList extends CBitrixComponent {
                     }
 
                     $arOrder['STATUS_NAME'] = $arOrdersListStatuses[$arOrder['UF_STATUS_ID']];
+                    
                 }
+                
+                if ($arOrder['UF_USER_ID'] > 0) {
+                        
+                        if (!$arUsers[$arOrder['UF_USER_ID']]) {
+                            
+                            $arUser = Users::getById($arOrder['UF_USER_ID']);
+                            if ($arUser['ID'] > 0) {
+                                
+                                $arUsers[$arUser['ID']] = $arUser;
+                            }
+                        }
+                        
+                        $arOrder['USER_NAME'] = $arUsers[$arUser['ID']]['NAME'];
+                        $arOrder['USER_LAST_NAME'] = $arUsers[$arUser['ID']]['LAST_NAME'];
+                    }
 
                 $this->arResult['ORDERS_LIST'][$arOrder['ID']] = $arOrder;
                 $this->arResult['ORDERS_LIST'][$arOrder['ID']]['COST_FORMATTED'] = $converter->format($arOrder['UF_COST']);
