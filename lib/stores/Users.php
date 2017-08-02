@@ -1,7 +1,7 @@
 <?php
 namespace travelsoft\booking\stores;
 
-use \travelsoft\currency\interfaces\Store;
+use travelsoft\booking\abstraction\Store;
 
 /**
  * Класс для работы с таблицей пользователей
@@ -56,7 +56,7 @@ class Users extends Store {
             $arParameters['NAV_PARAMS']['nPageSize'] = $query['limit'];
         }
         
-        $dbList = CUser::GetList($by, $order, $arFilter, $arParameters);
+        $dbList = $GLOBALS['USER']->GetList($by, $order, $arFilter, $arParameters);
         
         if (!$likeArray) {
             

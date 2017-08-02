@@ -26,16 +26,15 @@ $classes = array(
     "travelsoft\\booking\\EventsHandlers" => "lib/EventsHandlers.php",
     "travelsoft\\booking\\tours\\Cost" => "lib/tours/Cost.php",
     "travelsoft\\booking\\tours\\SearchEngine" => "lib/tours/SearchEngine.php",
-    "travelsoft\\booking\\tours\\Offer" => "lib/tours/Offer.php",
-    "travelsoft\\booking\\tours\\Client" => "lib/Client.php"
+    "travelsoft\\booking\\Utils" => 'lib/Utils.php'
 );
 
 if (ADMIN_SECTION === true) {
 
-    $classes["travelsoft\\booking\\stores\crm\Settings"] = "lib/stores/crm/Settings.php";
-    require_once 'lib/crm_functions.php';
+    $classes["travelsoft\\booking\\crm\\stores\\Settings"] = "lib/crm/stores/Settings.php";
+    $classes["travelsoft\\booking\\crm\\Utils"] = "lib/crm/Utils.php";
 }
 
 CModule::AddAutoloadClasses("travelsoft.booking", $classes);
 
-require_once 'lib/functions.php';
+require_once 'lib/Utils.php';

@@ -7,7 +7,7 @@ require_once($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_ad
 Bitrix\Main\Loader::includeModule("travelsoft.booking");
 
 $APPLICATION->SetTitle("Цены и наличие мест");
-if (!travelsoft\booking\crmAccess()) {
+if (!\travelsoft\booking\crm\Utils::access()) {
 
     $APPLICATION->AuthForm('Доступ запрещен');
 }
@@ -26,29 +26,29 @@ $APPLICATION->AddHeadString("<script src='/local/modules/travelsoft.booking/crm/
 
 $settings = array();
 $errors = array();
-$userSettings = \travelsoft\booking\stores\crm\Settings::get();
+$userSettings = \travelsoft\booking\crm\stores\Settings::get();
 
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && check_bitrix_sessid()) {
 
     # обработка запроса формы настроек
-    $settingsFormResponse = \travelsoft\booking\crm\processSettingsFromRequest((array) $_POST['settings'], $userSettings);
+    $settingsFormResponse = \travelsoft\booking\crm\Utils::processSettingsFromRequest((array) $_POST['settings'], $userSettings);
 
     if (!empty($settingsFormResponse)) {
 
-        travelsoft\booking\crm\sendJsonResponse(Bitrix\Main\Web\Json::encode($settingsFormResponse));
+        travelsoft\booking\crm\Utils::sendJsonResponse(Bitrix\Main\Web\Json::encode($settingsFormResponse));
     }
 
     # обработка запроса на сохранение цен и квот
-    $priceAndQuotasFormResponse = travelsoft\booking\crm\processPriceAndQuotasFormRequest((array) $_POST['prices_and_quotas']);
+    $priceAndQuotasFormResponse = travelsoft\booking\crm\Utils::processPriceAndQuotasFormRequest((array) $_POST['prices_and_quotas']);
 
     if (!empty($priceAndQuotasFormResponse)) {
 
-        travelsoft\booking\crm\sendJsonResponse(Bitrix\Main\Web\Json::encode($priceAndQuotasFormResponse));
+        travelsoft\booking\crm\Utils::sendJsonResponse(Bitrix\Main\Web\Json::encode($priceAndQuotasFormResponse));
     }
 }
 
-$preparedUserSettings = travelsoft\booking\crm\getPreparedUserSettings($userSettings);
+$preparedUserSettings = travelsoft\booking\crm\Utils::getPreparedUserSettings($userSettings);
 
 $tabControl = new \CAdminTabControl("tabControl", array(array("DIV" => "edit1", "TAB" => "$$$", "ICON" => "main_user_edit", "TITLE" => "")));
 $tabControl->Begin();

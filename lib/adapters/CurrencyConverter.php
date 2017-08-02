@@ -17,7 +17,7 @@ class CurrencyConverter {
 
     public function __construct() {
         
-        if (!\Bitrix\Main\Loader::includeModule('travelsoft.currency')) {
+        if (!\Bitrix\Main\Loader::includeModule('new.travelsoft.currency')) {
             
             throw new \Exception(get_called_class() . ': Module travelsoft.currency not found');
         }
@@ -78,6 +78,23 @@ class CurrencyConverter {
     public function format (float $price) : string {
         
         return $this->_converter->formatFloatValue($price);
+    }
+    
+    /**
+     * Возвращает список доступных валют
+     * @return array
+     */
+    public function getListOfCurrency () : array {
+        
+        $arCurrencies = \travelsoft\currency\stores\Currencies::get();
+        
+        $arResult = array();
+        foreach ($arCurrencies as $arCurrency) {
+            
+            $arResult[] = $arCurrency['UF_ISO'];
+        }
+        
+        return $arResult;
     }
     
 }

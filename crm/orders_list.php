@@ -12,7 +12,7 @@ require_once($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_ad
 
 Bitrix\Main\Loader::includeModule("travelsoft.booking");
 
-if (!travelsoft\booking\crmAccess()) {
+if (!\travelsoft\booking\crm\Utils::access()) {
 
     $APPLICATION->AuthForm('Доступ запрещен');
 }

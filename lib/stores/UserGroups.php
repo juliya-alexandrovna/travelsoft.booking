@@ -2,8 +2,8 @@
 
 namespace travelsoft\booking\stores;
 
-use travelsoft\currency\interfaces\Store;
-use Bitrix\Main\GroupTable;
+use travelsoft\booking\abstraction\Store;
+use Bitrix\Main\UserGroupTable;
 
 /**
  * Класс для работы с таблицей групп пользователей
@@ -22,7 +22,7 @@ class UserGroups extends Store{
     public static function get(array $query = array(), bool $likeArray = true, callable $callback = null) {
 
         
-        $dbList = GroupTable::getList($query);
+        $dbList = UserGroupTable::getList($query);
         
         if (!$likeArray) {
             
@@ -56,7 +56,7 @@ class UserGroups extends Store{
      */
     public static function update(int $id, array $arUpdate): bool {
         
-        return boolval(GroupTable::update($id, $arUpdate));
+        return boolval(UserGroupTable::update($id, $arUpdate));
     }
 
     /**
@@ -66,7 +66,7 @@ class UserGroups extends Store{
      */
     public static function add(array $arSave): int {
 
-        return (int) GroupTable::add($arSave);
+        return (int) UserGroupTable::add($arSave);
     }
 
     /**
@@ -74,7 +74,7 @@ class UserGroups extends Store{
      * @param int $id
      */
     public static function delete(int $id): bool {
-        return boolval(GroupTable::delete($id));
+        return boolval(UserGroupTable::delete($id));
     }
 
     /**

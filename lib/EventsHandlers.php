@@ -19,7 +19,7 @@ class EventsHandlers {
 
         global $USER;
         
-        if (crmAccess()) {
+        if (crm\Utils::access()) {
 
             $arGlobalMenu["global_menu_travelsoft_crm"] = array(
                 "menu_id" => "travelsoft_booking_crm",
