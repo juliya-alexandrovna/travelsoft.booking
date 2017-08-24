@@ -75,7 +75,7 @@ class Mail {
      */
     public static function sendNewClientRegisterInfo(array $fields) {
 
-        $event = new CEvent;
+        $event = new \CEvent;
         $event->SendImmediate("USER_INFO", SITE_ID, $fields);
     }
 

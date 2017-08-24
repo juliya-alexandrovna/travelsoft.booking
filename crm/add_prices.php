@@ -2,15 +2,9 @@
 /** @global CMain $APPLICATION */
 /** @global CDatabase $DB */
 /** @global CUser $USER */
-require_once($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_admin_before.php");
-
-Bitrix\Main\Loader::includeModule("travelsoft.booking");
+require_once 'header.php';
 
 $APPLICATION->SetTitle("Цены и наличие мест");
-if (!\travelsoft\booking\crm\Utils::access()) {
-
-    $APPLICATION->AuthForm('Доступ запрещен');
-}
 
 require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_admin_after.php");
 

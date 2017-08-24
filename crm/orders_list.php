@@ -1,26 +1,21 @@
 <?
-
 /** @global CMain $APPLICATION */
 /** @global CDatabase $DB */
 
 /** @global CUser $USER */
 use travelsoft\booking\stores\Orders;
 use Bitrix\Main\Entity\ExpressionField;
-use travelsoft\booking\stores\Users;
 
-require_once($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_admin_before.php");
+require_once 'header.php';
 
-Bitrix\Main\Loader::includeModule("travelsoft.booking");
+$APPLICATION->AddHeadString("<link rel='stylesheet' href='/local/modules/travelsoft.booking/crm/css/orders-list.css'>");
+$APPLICATION->AddHeadString("<script src='/local/modules/travelsoft.booking/crm/js/plugins/jquery-3.2.1.min.js'></script>");
+$APPLICATION->AddHeadString("<script src='/local/modules/travelsoft.booking/crm/js/crm.js?v=b'></script>");
+$APPLICATION->AddHeadString("<script src='/local/modules/travelsoft.booking/crm/js/orders_list.js?v=am'></script>");
 
-if (!\travelsoft\booking\crm\Utils::access()) {
 
-    $APPLICATION->AuthForm('Доступ запрещен');
-}
-
-$TABLE_ID = "ORDERS_LIST";
-
-$sort = new CAdminSorting($TABLE_ID, "ID", "DESC");
-$list = new CAdminList($TABLE_ID, $sort);
+$sort = new CAdminSorting(\travelsoft\booking\crm\Utils::ORDERS_TABLE_ID, "ID", "DESC");
+$list = new CAdminList(\travelsoft\booking\crm\Utils::ORDERS_TABLE_ID, $sort);
 
 if ($arOrdersId = $list->GroupAction()) {
 
@@ -56,18 +51,11 @@ $getParams = array("order" => array($by => $order));
 
 $usePageNavigation = true;
 $navParams = CDBResult::GetNavParams(CAdminResult::GetNavSize(
-                        $TABLE_ID, array('nPageSize' => 20)
+                        \travelsoft\booking\crm\Utils::ORDERS_TABLE_ID, array('nPageSize' => 20)
         ));
 
-if ($navParams['SHOW_ALL']) {
-
-    $usePageNavigation = false;
-} else {
-
-    $navParams['PAGEN'] = (int) $navParams['PAGEN'];
-    $navParams['SIZEN'] = (int) $navParams['SIZEN'];
-}
-
+$navParams['PAGEN'] = (int) $navParams['PAGEN'];
+$navParams['SIZEN'] = (int) $navParams['SIZEN'];
 
 if ($usePageNavigation) {
 
@@ -94,28 +82,6 @@ if ($usePageNavigation) {
 
 $arOrders = Orders::get($getParams);
 
-$arServicesId = array_map(function ($arItem) {
-    return $arItem['UF_SERVICE_ID'];
-}, $arOrders);
-
-if ($arServicesId) {
-
-    $arServices = travelsoft\booking\stores\Tours::get(array('filter' => array('ID' => $arServiceId), 'select' => array('ID', 'IBLOCK_ID')));
-
-    if ($arServices && Bitrix\Main\Loader::includeModule('iblock')) {
-
-        $arIblocksId = array_map(function ($arItem) {
-            return $arItem['IBLOCK_ID'];
-        }, $arServices);
-
-        $dbIblocks = CIBlock::GetList(array(), array("ID" => $arIblocksId));
-        while ($arRes = $dbIblocks->Fetch()) {
-
-            $arIblocks[$arRes['ID']] = $arRes['IBLOCK_TYPE_ID'];
-        }
-    }
-}
-
 $arStatusesId = array_map(function ($arItem) {
     return $arItem['UF_STATUS_ID'];
 }, $arOrders);
@@ -124,7 +90,7 @@ if ($arStatusesId) {
     $arStatuses = travelsoft\booking\stores\Statuses::get(array('filter' => array('ID' => $arStatusesId), 'select' => array('ID', 'UF_NAME')));
 }
 
-$dbResult = new CAdminResult($arOrders, $TABLE_ID);
+$dbResult = new CAdminResult($arOrders, \travelsoft\booking\crm\Utils::ORDERS_TABLE_ID);
 
 if ($usePageNavigation) {
 
@@ -139,149 +105,13 @@ if ($usePageNavigation) {
 
 $list->NavText($dbResult->GetNavPrint('Страницы'));
 
-$list->AddHeaders(array(
-    array(
-        "id" => "ID",
-        "content" => "Номер брони",
-        "sort" => "ID",
-        "align" => "center",
-        "default" => true
-    ),
-    array(
-        "id" => "UF_STATUS_ID",
-        "content" => "Статус брони",
-        "sort" => "UF_STATUS_ID",
-        "align" => "center",
-        "default" => true
-    ),
-    array(
-        "id" => "UF_SERVICE_NAME",
-        "content" => "Услуги",
-        "sort" => "UF_SERVICE_NAME",
-        "align" => "center",
-        "default" => true
-    ),
-    array(
-        "id" => "UF_CLIENT_NAME",
-        "content" => "Клиент",
-        "align" => "center",
-        "default" => true
-    ),
-    array(
-        "id" => "UF_CLIENT_PHONE",
-        "content" => "Телефон клиента",
-        "align" => "center",
-        "default" => true
-    ),
-    array(
-        "id" => "UF_DATE",
-        "content" => "Дата создания брони",
-        "align" => "center",
-        "default" => true
-    ),
-    array(
-        "id" => "UF_DATE_FROM",
-        "content" => "Дата начала",
-        "align" => "center",
-        "default" => true
-    ),
-    array(
-        "id" => "UF_DATE_TO",
-        "content" => "Дата окончания",
-        "align" => "center",
-        "default" => true
-    ),
-    array(
-        "id" => "UF_DURATION",
-        "content" => "Продолжительность (дней)",
-        "align" => "center",
-        "default" => true
-    ),
-    array(
-        "id" => "UF_ADULTS",
-        "content" => "Количество взрослых",
-        "align" => "center",
-        "default" => true
-    ),
-    array(
-        "id" => "UF_CHILDREN",
-        "content" => "Количество детей",
-        "align" => "center",
-        "default" => true
-    ),
-    array(
-        "id" => "UF_COST",
-        "content" => "Стоимость",
-        "align" => "center",
-        "default" => true
-    ),
-    array(
-        "id" => "UF_CURRENCY",
-        "content" => "Валюта",
-        "align" => "center",
-        "default" => true
-    )
-));
+$list->AddHeaders(\travelsoft\booking\crm\Utils::getOrdersTableHeaders());
 
-while ($arResult = $dbResult->Fetch()) {
+while ($arOrder = $dbResult->Fetch()) {
 
-    $row = &$list->AddRow($arResult["ID"], $arResult);
-
-    // ССЫЛКА НА ЭЛЕМЕНТ
-    if (isset($arServices[$arResult['UF_SERVICE_ID']]) && isset($arIblocks[$arServices[$arResult['UF_SERVICE_ID']]['IBLOCK_ID']])) {
-
-        $row->AddViewField("UF_SERVICE_NAME", '<a target="__blank" href="iblock_element_edit.php?IBLOCK_ID=' . $arServices[$arResult['UF_SERVICE_ID']]['IBLOCK_ID'] . '&type=' . $arIblocks[$arServices[$arResult['UF_SERVICE_ID']]['IBLOCK_ID']] . '&ID=' . $arServices[$arResult['UF_SERVICE_ID']]['ID'] . '&lang=' . LANG . '">' . $arResult["UF_SERVICE_NAME"] . '</a>');
-    }
-    
-    if ($arResult['UF_USER_ID']) {
-        
-        $arUser = Users::getById($arResult['UF_USER_ID']);
-    }
-
-    if (strlen($arUser['NAME']) > 0) {
-        $CNAME = $arUser['NAME'];
-    }
-
-    if (strlen($CNAME) > 0) {
-
-        if (strlen($arUser['SECOND_NAME']) > 0) {
-            $CNAME .= ' ' . $arUser['SECOND_NAME'];
-        }
-
-        if (strlen($arUser['LAST_NAME']) > 0) {
-            $CNAME .= ' ' . $arUser['LAST_NAME'];
-        }
-
-        if (strlen($arUser['EMAIL']) > 0) {
-            $CNAME .= '[' . $arUser['EMAIL'] . ']';
-        }
-    }
-
-    $row->AddViewField("UF_CLIENT_NAME", '<a target="__blank" href="user_edit.php?lang=' . LANG . '&ID=' . $arResult['UF_USER_ID'] . '">' . $CNAME . '</a>');
-    
-    if ($arUser['PERSONAL_PHONE']) {
-        
-        $row->AddViewField("UF_CLIENT_PHONE", $arUser['PERSONAL_PHONE']);
-    }
-
-    if (isset($arStatuses[$arResult['UF_STATUS_ID']])) {
-
-        $row->AddViewField("UF_STATUS_ID", $arStatuses[$arResult['UF_STATUS_ID']]["UF_NAME"]);
-    }
-
-    $row->AddActions(array(
-        array(
-            "ICON" => "edit",
-            "DEFAULT" => true,
-            "TEXT" => "Изменить",
-            "ACTION" => $list->ActionRedirect("travelsoft_crm_booking_order_edit.php?ORDER_ID=" . $arResult["ID"])
-        ),
-        array(
-            "ICON" => "delete",
-            "DEFAULT" => true,
-            "TEXT" => "Удалить",
-            "ACTION" => "if(confirm('Действительно хотите удалить бронь')) " . $list->ActionDoGroup($arResult["ID"], "delete")
-        )
+    \travelsoft\booking\crm\Utils::prepareRowForOrdersTable($list->AddRow($arOrder["ID"], $arOrder), array(
+        'STATUSES' => $arStatuses,
+        'ORDER' => $arOrder
     ));
 }
 
@@ -298,7 +128,7 @@ $list->AddGroupActionTable(Array(
 $list->AddAdminContextMenu(array(array(
         'TEXT' => "Создать заказ",
         'TITLE' => "Создание заказа",
-        'LINK' => 'travelsoft_crm_booking_order_edit?lang=' . LANG,
+        'LINK' => 'travelsoft_crm_booking_order_edit.php?lang=' . LANG,
         'ICON' => 'btn_new'
 )));
 
@@ -307,7 +137,18 @@ $list->CheckListMode();
 $APPLICATION->SetTitle("Список заказов");
 
 require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_admin_after.php");
-
+?>
+<script>
+    CRM.config.table_id = "<?= \travelsoft\booking\crm\Utils::ORDERS_TABLE_ID ?>";
+    CRM.config.sessid = "<?= bitrix_sessid() ?>";
+    CRM.config.last_id = "<?= \travelsoft\booking\crm\Utils::getOrderLastId(); ?>";
+    CRM.config.notifyIcon = "/local/templates/travelsoft/images/logo.png";
+    CRM.config.notifyTitle = 'Новый заказ';
+    CRM.config.notifyBody = '';
+    CRM.config.notifySound = '/local/modules/travelsoft.booking/crm/audio/notify.mp3';
+    CRM.config.time_interval = 60000;
+</script>
+<?
 $list->DisplayList();
 
 require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/epilog_admin.php");

@@ -1,0 +1,12 @@
+/* 
+    Created on : 15.08.2017, 17:36:51
+    Author     : dimabresky
+*/
+
+.new-order-label {
+    background: lightgreen;
+    padding: 5px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+

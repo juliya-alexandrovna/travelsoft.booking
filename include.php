@@ -21,7 +21,6 @@ $classes = array(
     "travelsoft\\booking\\stores\\Tours" => "lib/stores/Tours.php",
     "travelsoft\\booking\\stores\\Duration" => "lib/stores/Duration.php",
     "travelsoft\\booking\\stores\\Users" => "lib/stores/Users.php",
-    "travelsoft\\booking\\stores\\UserGroups" => "lib/stores/UserGroups.php",
     "travelsoft\\booking\\Settings" => "lib/Settings.php",
     "travelsoft\\booking\\EventsHandlers" => "lib/EventsHandlers.php",
     "travelsoft\\booking\\tours\\Cost" => "lib/tours/Cost.php",

@@ -56,6 +56,15 @@ class Settings {
     }
     
     /**
+     * Возвращает id статуса заказа для аннуляции
+     * @return int
+     */
+    public static function cancellationStatus(): int {
+
+        return (int) self::get("STATUS_ID_FOR_ORDER_CANCELLATION");
+    }
+    
+    /**
      * Возвращает id таблицы туров
      * @return int
      */
@@ -80,15 +89,6 @@ class Settings {
     public static function durationStoreId(): int {
 
         return (int) self::get("DURATION_HL");
-    }
-    
-    /**
-     * Возвращает id таблицы питания
-     * @return int
-     */
-    public static function citizenshipStoreId(): int {
-
-        return (int) self::get("CITIZENSHIP_HL");
     }
 
     /**
@@ -161,6 +161,15 @@ class Settings {
     public static function agentsUGroup(): int {
 
         return (int) self::get("AGENTS_USER_GROUPS");
+    }
+    
+    /**
+     * Возвращает id группы пользователей для клиентов
+     * @return int
+     */
+    public static function clientsUGroup(): int {
+
+        return (int) self::get("CLIENTS_USER_GROUPS");
     }
 
     /**

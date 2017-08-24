@@ -4,48 +4,6 @@
     Author     : dimabresky
 */
 
-.order-field-title {
-    width: 190px !important;
-    text-align: right;
-}
-
-.order-info, .order-info td {
-    border: none !important;
-    border-collapse: collapse !important;
-}
-
-@media (max-width: 460px) {
-    .order-field-title { display: none !important; }
-    .order-info {
-        border: 0;
-    }
-    .order-info thead {
-        display: none;
-    }
-    .order-info tr {
-        margin-bottom: 10px;
-        display: block;
-        border-bottom: 2px solid #a0a0a0;
-    }
-    .order-info td {
-        min-height: 57px;
-        display: block;
-        text-align: right;
-        font-size: 13px;
-        border: 0;
-        border-bottom: 1px dotted #a0a0a0;
-        width: 100%;
-    }
-    .order-info td:last-child {
-        border-bottom: 0;
-    }
-    .order-info td:before {
-        content: attr(data-label);
-        float: left;
-        text-transform: uppercase;
-        font-weight: bold;
-        display: block;
-        padding: 0 8px;
-        background: #eee;
-    }
+#tourists-info-block {
+    margin-bottom: 20px;
 }

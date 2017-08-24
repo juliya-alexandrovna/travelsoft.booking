@@ -1,9 +1,10 @@
 <?
+
 /** @global CMain $APPLICATION */
 /** @global CDatabase $DB */
 
 /** @global CUser $USER */
-use travelsoft\booking\stores\Orders;
+use travelsoft\booking\stores\Users;
 use travelsoft\booking\crm\Utils;
 
 require_once 'header.php';
@@ -11,8 +12,8 @@ require_once 'header.php';
 $APPLICATION->AddHeadString("<link rel='stylesheet' href='/local/modules/travelsoft.booking/crm/css/select2.min.css'>");
 $APPLICATION->AddHeadString("<script src='/local/modules/travelsoft.booking/crm/js/plugins/jquery-3.2.1.min.js'></script>");
 $APPLICATION->AddHeadString("<script src='/local/modules/travelsoft.booking/crm/js/plugins/select2.full.min.js'></script>");
-$APPLICATION->AddHeadString("<script src='/local/modules/travelsoft.booking/crm/js/lib.js?v=aa'></script>");
-$APPLICATION->AddHeadString("<script src='/local/modules/travelsoft.booking/crm/js/order_edit.js?v=O'></script>");
+$APPLICATION->AddHeadString("<script src='/local/modules/travelsoft.booking/crm/js/lib.js?v=a'></script>");
+$APPLICATION->AddHeadString("<script src='/local/modules/travelsoft.booking/crm/js/order_edit.js?v=X'></script>");
 ?>
 
 <style>
@@ -22,48 +23,59 @@ $APPLICATION->AddHeadString("<script src='/local/modules/travelsoft.booking/crm/
 </style>
 
 <?
+
 try {
 
     $ID = intVal($_REQUEST['ID']);
-    
-    $title = 'Создание заказа';
+
+    $title = 'Добавление клиента';
     if ($ID > 0) {
 
-        $arOrder = Orders::getById($ID);
+        $arUser = current(Users::get(array('filter' => array('ID' => $ID), 'select' => array('UF_*'))));
 
-        if (!$arOrder['ID']) {
+        if (!$arUser['ID']) {
 
-            throw new Exception('Бронь с ID="' . $ID . '" не найдена');
+            throw new Exception('Клиент с ID="' . $ID . '" не найдена');
         }
-        
-        $title = 'Редактирование заказа #' . $arOrder['ID'];
+
+        $title = 'Редактирование клиента #' . $arUser['ID'];
     }
-    
+
     $APPLICATION->SetTitle($title);
-    
-    $arResult = Utils::processingOrderEditForm();
-    
+
+    $arResult = Utils::processingClientEditForm();
+
     require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_admin_after.php");
-    
+
     if (!empty($arResult['errors'])) {
-        
+
         CAdminMessage::ShowMessage(array(
-            "MESSAGE"=> implode('<br>', $arResult['errors']),
-            "TYPE"=>"ERROR"
-         ));
+            "MESSAGE" => implode('<br>', $arResult['errors']),
+            "TYPE" => "ERROR"
+        ));
     }
-    
+
     Utils::showEditForm(array(
         'action' => $APPLICATION->GetCurPageParam(),
-        'name' => 'order_form',
-        'id' => 'order_form',
+        'name' => 'client_form',
+        'id' => 'client_form',
         'tabs' => array(
             array(
-                "DIV" => "ORDER", 
-                "TAB" => 'Заказ', 
-                "TITLE" => 'Информация по заказу', 
-                'content' => Utils::getEditOrderFieldsContent((array)$arOrder))
+                "DIV" => "PERSONAL_DATA",
+                "TAB" => 'Личные данные',
+                'content' => Utils::getClientEditFieldsContent($arUser, 'PERSONAL_DATA')
             ),
+            array(
+                "DIV" => "PASSPORT_DATA",
+                "TAB" => 'Паспортные данные',
+                'content' => Utils::getClientEditFieldsContent($arUser, 'PASSPORT_DATA')
+            ),
+            array(
+                "DIV" => "COMPANY_DATA",
+                "TAB" => 'Реквизиты компании',
+                'content' => Utils::getClientEditFieldsContent($arUser, 'COMPANY_DATA')
+            )
+        ),
         'buttons' => array(
             array(
                 'class' => 'adm-btn-save',

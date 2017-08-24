@@ -41,33 +41,30 @@ class TravelsoftMakeOrder extends CBitrixComponent {
     protected function _getOfferAdditionalField($propertyCode) {
 
         if ($this->arResult['OFFER']['PROPERTIES'][$propertyCode]['PROPERTY_TYPE'] == 'E') {
-            
+
             if ($this->arResult['OFFER']['PROPERTIES'][$propertyCode]['MULTIPLE'] == 'Y') {
-                
+
                 $arValues = array();
                 foreach ($this->arResult['OFFER']['PROPERTIES'][$propertyCode]['VALUE'] as $val) {
-                    
-                   $arElement = CIBlockElement::GetByID($val)->Fetch(); 
-                   $arValues[] = $arElement['NAME'];
+
+                    $arElement = CIBlockElement::GetByID($val)->Fetch();
+                    $arValues[] = $arElement['NAME'];
                 }
                 return implode(', ', $arValues);
-                
             } else {
-                
+
                 $arElement = CIBlockElement::GetByID($this->arResult['OFFER']['PROPERTIES'][$propertyCode]['VALUE'])->Fetch();
                 return $arElement['NAME'];
             }
-            
         } else {
-            
+
             if ($this->arResult['OFFER']['PROPERTIES'][$propertyCode]['MULTIPLE'] == 'Y') {
-                
+
                 return implode(', ', $this->arResult['OFFER']['PROPERTIES'][$propertyCode]['VALUE']);
             } else {
-                
+
                 return $this->arResult['OFFER']['PROPERTIES'][$propertyCode]['VALUE'];
             }
-            
         }
     }
 
@@ -109,7 +106,7 @@ class TravelsoftMakeOrder extends CBitrixComponent {
      * Обработка входных параметров компонента
      */
     public function prepareParameters() {
-        
+
         if (!Bitrix\Main\Loader::includeModule('travelsoft.booking')) {
 
             throw new \Exception('Модуль travelsoft.booking не найден');
@@ -119,7 +116,7 @@ class TravelsoftMakeOrder extends CBitrixComponent {
 
         # получаем информацию по предложению
         $this->arResult['OFFER'] = Tours::getById($this->arParams['OFFER_ID']);
-        
+
         if (empty($this->arResult['OFFER'])) {
 
             throw new Exception('Указан несуществующий ID услуги');
@@ -164,11 +161,14 @@ class TravelsoftMakeOrder extends CBitrixComponent {
                     $this->arResult['ADULT_PRICE'], $this->arParams['CONVERT_IN_CURRENCY_ISO']
             );
 
-            $this->arResult['ADULT_TOUR_SERVICE_PRICE'] = $currencyConveter->convert($arCostSource['prices']['adult_tour_service']['price'], $arCostSource['prices']['adult_tour_service']['currency'], $this->arParams['CONVERT_IN_CURRENCY_ISO']);
+            if ($arCostSource['prices']['adult_tour_service']['price'] > 0) {
+                $this->arResult['ADULT_TOUR_SERVICE_PRICE'] = $currencyConveter->convert($arCostSource['prices']['adult_tour_service']['price'], (string) $arCostSource['prices']['adult_tour_service']['currency'], $this->arParams['CONVERT_IN_CURRENCY_ISO']);
 
-            $this->arResult['ADULT_TOUR_SERVICE_PRICE_FORMATTED'] = $currencyConveter->getFormatted(
-                    $this->arResult['ADULT_TOUR_SERVICE_PRICE'], $this->arParams['CONVERT_IN_CURRENCY_ISO']
-            );
+
+                $this->arResult['ADULT_TOUR_SERVICE_PRICE_FORMATTED'] = $currencyConveter->getFormatted(
+                        $this->arResult['ADULT_TOUR_SERVICE_PRICE'], $this->arParams['CONVERT_IN_CURRENCY_ISO']
+                );
+            }
         }
 
         if ($arCostSource['prices']['children']['price'] > 0) {
@@ -179,11 +179,13 @@ class TravelsoftMakeOrder extends CBitrixComponent {
                     $this->arResult['CHILDREN_PRICE'], $this->arParams['CONVERT_IN_CURRENCY_ISO']
             );
 
-            $this->arResult['CHILDREN_TOUR_SERVICE_PRICE'] = $currencyConveter->convert($arCostSource['prices']['children_tour_service']['price'], $arCostSource['prices']['children_tour_service']['currency'], $this->arParams['CONVERT_IN_CURRENCY_ISO']);
+            if ($arCostSource['prices']['children_tour_service']['price'] > 0) {
+                $this->arResult['CHILDREN_TOUR_SERVICE_PRICE'] = $currencyConveter->convert($arCostSource['prices']['children_tour_service']['price'], $arCostSource['prices']['children_tour_service']['currency'], $this->arParams['CONVERT_IN_CURRENCY_ISO']);
 
-            $this->arResult['CHILDREN_TOUR_SERVICE_PRICE_FORMATTED'] = $currencyConveter->getFormatted(
-                    $this->arResult['CHILDREN_TOUR_SERVICE_PRICE'], $this->arParams['CONVERT_IN_CURRENCY_ISO']
-            );
+                $this->arResult['CHILDREN_TOUR_SERVICE_PRICE_FORMATTED'] = $currencyConveter->getFormatted(
+                        $this->arResult['CHILDREN_TOUR_SERVICE_PRICE'], $this->arParams['CONVERT_IN_CURRENCY_ISO']
+                );
+            }
         }
 
         $this->arResult['IS_AUTH_USER'] = $GLOBALS['USER']->IsAuthorized();
@@ -254,11 +256,11 @@ class TravelsoftMakeOrder extends CBitrixComponent {
                         }
 
                         if (empty($this->arResult['CODE_ERRORS'])) {
-                            
+
                             if (\Bitrix\Main\Config\Option::get('main', 'captcha_registration') == 'Y') {
                                 OptionTmpChanger::changeOption('main', 'captcha_registration', 'N');
                             }
-                            
+
                             $arResult = $GLOBALS['USER']->Register(
                                     $this->arResult['USER_EMAIL'], $this->arResult['USER_NAME'], $this->arResult['USER_LAST_NAME'], $_POST['PASSWORD'], $_POST['CONFIRM_PASSWORD'], $this->arResult['USER_EMAIL']
                             );
@@ -345,53 +347,36 @@ class TravelsoftMakeOrder extends CBitrixComponent {
                     $arCost = $this->arResult['COST']->forAdults($this->arResult['ADULTS'])->forChildren($this->arResult['CHILDREN'])->forAdultTourService($this->arResult['ADULTS'])->forChildrenTourService($this->arResult['CHILDREN'])->getMinForTours();
 
                     $STATUS_ID = Settings::defStatus();
-                    
+
                     $DEPPOINT = $this->_getOfferAdditionalField($this->arParams['PROPERTY_POINT_DEPARTURE_CODE']);
-                    
+
                     # создание заказа
                     $ORDER_ID = Orders::add(array(
-                        'UF_DEP_CITY' => $DEPPOINT,
-                        'UF_ARR_CITY' => $DEPPOINT,
-                        'UF_HOTEL' => $this->_getOfferAdditionalField($this->arParams['PROPERTY_HOTEL_CODE']),
-                        'UF_FOOD' => $this->_getOfferAdditionalField($this->arParams['PROPERTY_FOOD_CODE']),
-                        'UF_COUNTRY' => $this->_getOfferAdditionalField($this->arParams['PROPERTY_COUNTRY_CODE']),
-                        'UF_SERVICE_ID' => $this->arResult['OFFER']['ID'],
-                        'UF_USER_ID' => $this->arResult['USER']['ID'],
-                        'UF_STATUS_ID' => $STATUS_ID,
-                        'UF_DATE' => Date::createFromTimetamp(time()),
-                        'UF_COST' => $arCost['price'],
-                        'UF_CURRENCY' => $arCost['currency'],
-                        'UF_DATE_FROM' => $this->arResult['DATE_FROM'],
-                        'UF_DATE_TO' => $this->arResult['DATE_TO'],
-                        'UF_SERVICE_NAME' => $this->arResult['OFFER']['NAME'],
-                        'UF_CPHONE' => $this->arResult['USER_PHONE'] ? $this->arResult['USER_PHONE'] : $this->arResult['USER']['PERSONAL_PHONE'],
-                        'UF_CEMAIL' => $this->arResult['USER_EMAIL'] ? $this->arResult['USER_EMAIL'] : $this->arResult['USER']['EMAIL'],
-                        'UF_CNAME' => $this->arResult['USER_NAME'] ? $this->arResult['USER_NAME'] : $this->arResult['USER']['NAME'],
-                        'UF_CLAST_NAME' => $this->arResult['USER_LAST_NAME'] ? $this->arResult['USER_LAST_NAME'] : $this->arResult['USER']['LAST_NAME'],
-                        'UF_DURATION' => $this->arResult['DURATION'],
-                        'UF_ADULTS' => $this->arResult['ADULTS'],
-                        'UF_CHILDREN' => $this->arResult['CHILDREN'],
-                        'UF_COMMENT' => $this->arResult['USER_COMMENT']
+                                'UF_DEP_CITY' => $DEPPOINT,
+                                'UF_ARR_CITY' => $DEPPOINT,
+                                'UF_HOTEL' => $this->_getOfferAdditionalField($this->arParams['PROPERTY_HOTEL_CODE']),
+                                'UF_FOOD' => $this->_getOfferAdditionalField($this->arParams['PROPERTY_FOOD_CODE']),
+                                'UF_COUNTRY' => $this->_getOfferAdditionalField($this->arParams['PROPERTY_COUNTRY_CODE']),
+                                'UF_SERVICE_TYPE' => $this->_getOfferAdditionalField($this->arParams['PROPERTY_TYPE_CODE']),
+                                'UF_SERVICE_ID' => $this->arResult['OFFER']['ID'],
+                                'UF_USER_ID' => $this->arResult['USER']['ID'],
+                                'UF_STATUS_ID' => $STATUS_ID,
+                                'UF_DATE' => Date::createFromTimetamp(time()),
+                                'UF_COST' => $arCost['price'],
+                                'UF_CURRENCY' => $arCost['currency'],
+                                'UF_DATE_FROM' => $this->arResult['DATE_FROM'],
+                                'UF_DATE_TO' => $this->arResult['DATE_TO'],
+                                'UF_SERVICE_NAME' => $this->arResult['OFFER']['NAME'],
+                                'UF_DURATION' => $this->arResult['DURATION'],
+                                'UF_ADULTS' => $this->arResult['ADULTS'],
+                                'UF_CHILDREN' => $this->arResult['CHILDREN'],
+                                'UF_COMMENT' => $this->arResult['USER_COMMENT']
                     ));
 
                     if ($ORDER_ID > 0) {
 
-                        # увеличиваем количество проданных
-                        $arQuota = current(Quotas::get(array(
-                                    'filter' => array(
-                                        'UF_SERVICE_ID' => $this->arResult['OFFER']['ID'],
-                                        'UF_DATE' => Date::create($arCost['date_from'])
-                                    ),
-                                    'select' => array(
-                                        'ID', 'UF_SOLD_NUMBER', 'UF_QUOTA'
-                                    )
-                        )));
-
-                        $value = $arQuota['UF_SOLD_NUMBER'] + $PEOPLE;
-
-                        Quotas::update($arQuota['ID'], array(
-                            'UF_SOLD_NUMBER' => $value
-                        ));
+                        \travelsoft\booking\Utils::increaseNumberOfSold(
+                                $this->arResult['OFFER']['ID'], $arCost['date_from'], $PEOPLE);
 
                         $arStatus = Statuses::getById($STATUS_ID);
 
@@ -480,11 +465,10 @@ class TravelsoftMakeOrder extends CBitrixComponent {
 
 /** Класс для временной смены настроек модулей */
 class OptionTmpChanger extends \Bitrix\Main\Config\Option {
-    
-    public static function changeOption (string $module, string $option, string $value) {
-        
+
+    public static function changeOption(string $module, string $option, string $value) {
+
         parent::$options['-'][$module][$option] = $value;
-        
-    } 
-    
+    }
+
 }

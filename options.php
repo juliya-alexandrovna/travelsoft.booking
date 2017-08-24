@@ -76,7 +76,6 @@ $main_options = array(
         "TOURS_IB" => array("DESC" => "Инфоблок туров", "VALUES" => $arIBS, 'TYPE' => 'select'),
         "FOOD_IB" => array("DESC" => "Инфоблок типов питания", "VALUES" => $arIBS, 'TYPE' => 'select'),
         "ORDERS_HL" => array("DESC" => "Таблица заказов", "VALUES" => $arHLS, 'TYPE' => 'select'),
-        "CITIZENSHIP_HL" => array("DESC" => "Таблица гражданства", "VALUES" => $arHLS, 'TYPE' => 'select'),
         "PRICE_TYPES_HL" => array("DESC" => "Таблица типов цен", "VALUES" => $arHLS, 'TYPE' => 'select'),
         "PRICES_HL" => array("DESC" => "Таблица цен", "VALUES" => $arHLS, 'TYPE' => 'select'),
         "QUOTAS_HL" => array("DESC" => "Таблица квот", "VALUES" => $arHLS, 'TYPE' => 'select'),
@@ -87,10 +86,12 @@ $main_options = array(
     ),
     'USER_GROUPS' => array(
         'MANAGERS_USER_GROUPS' => array("DESC" => "Группа пользователей для менеджеров", "VALUES" => $arGroups, 'TYPE' => 'select'),
-        'AGENTS_USER_GROUPS' => array("DESC" => "Группа пользователей для агентов", "VALUES" => $arGroups, 'TYPE' => 'select')
+        'AGENTS_USER_GROUPS' => array("DESC" => "Группа пользователей для агентов", "VALUES" => $arGroups, 'TYPE' => 'select'),
+        'CLIENTS_USER_GROUPS' => array("DESC" => "Группа пользователей для клиентов", "VALUES" => $arGroups, 'TYPE' => 'select')
     ),
     'ORDERS' => array(
         'STATUS_ID_FOR_ORDER_CREATION' => array('DESC' => "При создании заказа устанавливать статус", "VALUES" => $arStatuses, 'TYPE' => 'select'),
+        'STATUS_ID_FOR_ORDER_CANCELLATION' => array('DESC' => "Статус аннуляции заказа", "VALUES" => $arStatuses, 'TYPE' => 'select'),
         'MANAGER_EMAIL_FOR_NOTIFICATION' => array('DESC' => "Email менеджера для приема уведомлений(по-умолчанию берется из настроек главного модуля)", 'VALUES' => '', 'TYPE' => 'text'),
         'MAIL_ID_FOR_CLIENT_NOTIFICATION' => array('DESC' => "Письмо клиенту при создании заказа", "VALUES" => $arMails, 'TYPE' => 'select'),
         'MAIL_ID_FOR_AGENT_NOTIFICATION' => array('DESC' => "Письмо агенту при создании заказа", "VALUES" => $arMails, 'TYPE' => 'select'),

@@ -55,6 +55,12 @@ $arComponentParameters = array(
             "TYPE" => "STRING",
             "DEFAULT" => "FOOD"
         ),
+        "PROPERTY_TYPE_CODE" => array(
+            "PARENT" => "BASE",
+            "NAME" => "Код свойства типа услуги инфоблока турпредложения",
+            "TYPE" => "STRING",
+            "DEFAULT" => "TOURTYPE"
+        ),
         "CONVERT_IN_CURRENCY_ISO" => array(
             "PARENT" => "BASE",
             "NAME" => 'В какой валюте отображать цену',
