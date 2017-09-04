@@ -1771,7 +1771,7 @@ class Utils {
                 "ICON" => "edit",
                 "DEFAULT" => true,
                 "TEXT" => "Изменить",
-                "ACTION" => 'BX.adminPanel.Redirect([], travelsoft_crm_booking_order_edit.php?ID="' . $arData['ORDER']["ID"] . '", event);'
+                "ACTION" => 'BX.adminPanel.Redirect([], "travelsoft_crm_booking_order_edit.php?ID=' . $arData['ORDER']["ID"] . '", event);'
             ),
             array(
                 "ICON" => "delete",
