@@ -127,4 +127,45 @@ class Users extends Store {
             return array();
         }
     }
+    
+    /**
+     * Возвращает полное имя пользователя по входным полям
+     * @param array $fields
+     * @return string
+     */
+    public static function getFullUserNameByFields (array $fields): string {
+        
+        $userName = "";
+        if (strlen($fields['NAME']) > 0) {
+            $userName = $fields['NAME'];
+        }
+
+        if (strlen($userName) > 0) {
+
+            if (strlen($fields['SECOND_NAME']) > 0) {
+                $userName .= ' ' . $fields['SECOND_NAME'];
+            }
+
+            if (strlen($fields['LAST_NAME']) > 0) {
+                $userName .= ' ' . $fields['LAST_NAME'];
+            }
+        }
+        
+        return $userName;
+    }
+    
+    /**
+     * Возвращает полное имя пользователя с email по входным полям
+     * @param array $fields
+     * @return string
+     */
+    public static function getFullUserNameWithEmailByFields (array $fields): string {
+        
+        $userName = self::getFullUserNameByFields($fields);
+        if (strlen($userName) > 0 && strlen($fields['EMAIL']) > 0) {
+            $userName .= '[' . $fields['EMAIL'] . ']';
+        }
+        
+        return $userName;
+    }
 }

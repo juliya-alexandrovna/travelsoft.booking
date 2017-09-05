@@ -72,6 +72,15 @@ class Settings {
 
         return (int) self::get("TOURS_IB");
     }
+    
+    /**
+     * Возвращает id таблицы касс
+     * @return int
+     */
+    public static function cashDesksStoreId(): int {
+
+        return (int) self::get("CASH_DESKS_HL");
+    }
 
     /**
      * Возвращает id таблицы типов питания
@@ -116,6 +125,24 @@ class Settings {
     public static function pricesStoreId(): int {
 
         return (int) self::get("PRICES_HL");
+    }
+    
+    /**
+     * Возвращает id таблицы типов оплаты
+     * @return int
+     */
+    public static function paymentsTypesStoreId(): int {
+
+        return (int) self::get("PAYMENTS_TYPES_HL");
+    }
+    
+    /**
+     * Возвращает id таблицы истории оплаты
+     * @return int
+     */
+    public static function paymentHistoryStoreId(): int {
+
+        return (int) self::get("PAYMENT_HISTORY_HL");
     }
 
     /**

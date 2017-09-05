@@ -2,6 +2,8 @@
 
 namespace travelsoft\booking;
 
+use travelsoft\booking\crm\Settings;
+
 /**
  * Класс методов обработки событий
  *
@@ -31,33 +33,45 @@ class EventsHandlers {
                 "items" => array(
                     array(
                         "text" => "Цены и наличие мест",
-                        "url" => "travelsoft_crm_booking_add_prices.php?lang=" . LANGUAGE_ID,
+                        "url" => Settings::ADD_PRICES_URL . "?lang=" . LANGUAGE_ID,
                         "more_url" => array(),
                         "title" => "Цены и наличие мест",
                     ),
                     array(
                         "text" => "Список заказов",
-                        "url" => "travelsoft_crm_booking_orders_list.php?lang=" . LANGUAGE_ID,
-                        "more_url" => array('travelsoft_crm_booking_order_edit.php'),
+                        "url" => Settings::ORDERS_LIST_URL . "?lang=" . LANGUAGE_ID,
+                        "more_url" => array(Settings::ORDER_EDIT_URL),
                         "title" => "Список заказов",
                     ),
                     array(
                         "text" => "Клиенты",
-                        "url" => "travelsoft_crm_booking_clients_list.php?lang=" . LANGUAGE_ID,
-                        "more_url" => array('travelsoft_crm_booking_client_edit.php'),
+                        "url" => Settings::CLIENTS_LIST_URL . "?lang=" . LANGUAGE_ID,
+                        "more_url" => array(Settings::CLIENT_EDIT_URL),
                         "title" => "Клиенты",
                     ),
                     array(
                         "text" => "Туристы",
-                        "url" => "travelsoft_crm_booking_tourists_list.php?lang=" . LANGUAGE_ID,
-                        "more_url" => array('travelsoft_crm_booking_tourist_edit.php'),
+                        "url" => Settings::TOURISTS_LIST_URL . "?lang=" . LANGUAGE_ID,
+                        "more_url" => array(Settings::TOURIST_EDIT_URL),
                         "title" => "Туристы",
                     ),
                     array(
                         "text" => "Документы",
-                        "url" => "travelsoft_crm_booking_documents.php?lang=" . LANGUAGE_ID,
+                        "url" => Settings::DOCUMENTS_URL . "?lang=" . LANGUAGE_ID,
                         "more_url" => array(),
                         "title" => "Документы",
+                    ),
+                    array(
+                        "text" => "Кассы",
+                        "url" => Settings::CASH_DESKS_LIST_URL . "?lang=" . LANGUAGE_ID,
+                        "more_url" => array(Settings::CASH_DESK_EDIT_URL),
+                        "title" => "Кассы",
+                    ),
+                    array(
+                        "text" => "Типы оплаты",
+                        "url" => Settings::PAYMENTS_TYPES_LIST_URL . "?lang=" . LANGUAGE_ID,
+                        "more_url" => array(Settings::PAYMENT_TYPE_EDIT_URL),
+                        "title" => "Типы оплаты",
                     )
                 )
             );

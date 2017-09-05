@@ -10,6 +10,7 @@ use travelsoft\booking\stores\Tourists;
 use travelsoft\booking\Settings;
 use travelsoft\booking\adapters\Mail;
 use travelsoft\booking\stores\Tours;
+use travelsoft\booking\crm\Settings as CRMSettings;
 use travelsoft\booking\Utils as SharedUtils;
 
 /*
@@ -17,11 +18,6 @@ use travelsoft\booking\Utils as SharedUtils;
  */
 
 class Utils {
-
-    /**
-     * ID таблицы списка заказов
-     */
-    const ORDERS_TABLE_ID = "ORDERS_LIST";
 
     /**
      * Определяет права доступа к CRM
@@ -921,7 +917,7 @@ class Utils {
 
         global $USER_FIELD_MANAGER;
 
-        $url = 'travelsoft_crm_booking_orders_list.php?lang=' . LANGUAGE_ID;
+        $url = CRMSettings::ORDERS_LIST_URL . '?lang=' . LANGUAGE_ID;
 
         if (strlen($_POST['CANCEL']) > 0) {
 
@@ -1325,7 +1321,7 @@ class Utils {
      */
     public static function processingClientEditForm(bool $useRedirectIfOk = true): array {
 
-        $url = 'travelsoft_crm_booking_clients_list.php?lang=' . LANGUAGE_ID;
+        $url = CRMSettings::CLIENTS_LIST_URL . '?lang=' . LANGUAGE_ID;
 
         if (strlen($_POST['CANCEL']) > 0) {
 
@@ -1517,7 +1513,7 @@ class Utils {
                                 $arUserField['EDIT_FORM_LABEL'], '<input type="text" value="' . $value . '" name="' . $arUserField['FIELD_NAME'] . '">', true);
                 continue;
             }
-
+            $arUserField['ENTITY_VALUE_ID'] = 2;
             $content .= $USER_FIELD_MANAGER->GetEditFormHtml($isFormRequest, $_POST[$arUserField['FIELD_NAME']], $arUserField);
         }
 
@@ -1534,7 +1530,7 @@ class Utils {
 
         global $USER_FIELD_MANAGER;
 
-        $url = 'travelsoft_crm_booking_tourists_list.php?lang=' . LANGUAGE_ID;
+        $url = CRMSettings::TOURISTS_LIST_URL . '?lang=' . LANGUAGE_ID;
 
         if (strlen($_POST['CANCEL']) > 0) {
 
@@ -1725,30 +1721,12 @@ class Utils {
             }
         }
 
-        $row->AddViewField("ID", $newOrderLabel . '<a target="__blank" href="travelsoft_crm_booking_order_edit.php?ID=' . $arData['ORDER']['ID'] . '&lang=' . LANG . '">' . $arData['ORDER']["ID"] . '</a>');
+        $row->AddViewField("ID", $newOrderLabel . '<a target="__blank" href="' . CRMSettings::ORDER_EDIT_URL . '?ID=' . $arData['ORDER']['ID'] . '&lang=' . LANG . '">' . $arData['ORDER']["ID"] . '</a>');
 
         if ($arData['ORDER']['UF_USER_ID']) {
 
             $arUser = Users::getById($arData['ORDER']['UF_USER_ID']);
-        }
-
-        if (strlen($arUser['NAME']) > 0) {
-            $CNAME = $arUser['NAME'];
-        }
-
-        if (strlen($CNAME) > 0) {
-
-            if (strlen($arUser['SECOND_NAME']) > 0) {
-                $CNAME .= ' ' . $arUser['SECOND_NAME'];
-            }
-
-            if (strlen($arUser['LAST_NAME']) > 0) {
-                $CNAME .= ' ' . $arUser['LAST_NAME'];
-            }
-
-            if (strlen($arUser['EMAIL']) > 0) {
-                $CNAME .= '[' . $arUser['EMAIL'] . ']';
-            }
+            $CNAME = Users::getFullUserNameWithEmailByFields((array) $arUser);
         }
 
         $isAgent = "Нет";
@@ -1759,7 +1737,7 @@ class Utils {
 
         $row->AddViewField('CLIENT_IS_AGENT', $isAgent);
 
-        $row->AddViewField("UF_CLIENT_NAME", '<a target="__blank" href="travelsoft_crm_booking_client_edit.php?lang=' . LANG . '&ID=' . $arData['ORDER']['UF_USER_ID'] . '">' . $CNAME . '</a>');
+        $row->AddViewField("UF_CLIENT_NAME", '<a target="__blank" href="' . CRMSettings::CLIENT_EDIT_URL . '?lang=' . LANG . '&ID=' . $arData['ORDER']['UF_USER_ID'] . '">' . $CNAME . '</a>');
 
         if ($arUser['PERSONAL_PHONE']) {
 
@@ -1771,13 +1749,13 @@ class Utils {
                 "ICON" => "edit",
                 "DEFAULT" => true,
                 "TEXT" => "Изменить",
-                "ACTION" => 'BX.adminPanel.Redirect([], "travelsoft_crm_booking_order_edit.php?ID=' . $arData['ORDER']["ID"] . '", event);'
+                "ACTION" => 'BX.adminPanel.Redirect([], "' . CRMSettings::ORDER_EDIT_URL . '?ID=' . $arData['ORDER']["ID"] . '", event);'
             ),
             array(
                 "ICON" => "delete",
                 "DEFAULT" => true,
                 "TEXT" => "Удалить",
-                "ACTION" => "if(confirm('Действительно хотите удалить бронь')) GetAdminList('/bitrix/admin/travelsoft_crm_booking_orders_list.php?ID=" . $arData['ORDER']['ID'] . "&action_button=delete&lang=" . LANGUAGE_ID . "&sessid=" . bitrix_sessid() . "');"
+                "ACTION" => "if(confirm('Действительно хотите удалить бронь')) GetAdminList('/bitrix/admin/" . CRMSettings::ORDER_EDIT_URL . "?ID=" . $arData['ORDER']['ID'] . "&action_button=delete&lang=" . LANGUAGE_ID . "&sessid=" . bitrix_sessid() . "');"
             )
         ));
     }
@@ -1791,6 +1769,172 @@ class Utils {
         return intVal($result['MAX_ID']);
     }
 
+    /**
+     * Возвращает HTML полей для формы редактирования кассы
+     * @param array $data
+     * @return string
+     */
+    public static function getCashDeskEditFieldsContent(array $data = null): string {
+
+        global $USER_FIELD_MANAGER;
+
+        $arUserFields = $USER_FIELD_MANAGER->getUserFieldsWithReadyData("HLBLOCK_" . Settings::cashDesksStoreId(), $data, LANGUAGE_ID);
+
+        $isFormRequest = self::isEditFormRequest();
+
+        $content = '';
+
+        foreach ($arUserFields as $arUserField) {
+
+            if (key_exists($arUserField['FIELD_NAME'], $_POST)) {
+
+                $arUserField['VALUE'] = $_POST[$arUserField['FIELD_NAME']];
+            }
+
+            if ($arUserField['FIELD_NAME'] == 'UF_CREATER') {
+                if ($arUserField['VALUE'] > 0) {
+
+                    $content .= self::getEditFieldHtml(
+                                    $arUserField['EDIT_FORM_LABEL'] . ":", Users::getFullUserNameWithEmailByFields(Users::getById($arUserField['VALUE'])));
+                }
+                continue;
+            }
+
+
+            $content .= $USER_FIELD_MANAGER->GetEditFormHtml($isFormRequest, $_POST[$arUserField['FIELD_NAME']], $arUserField);
+        }
+
+        return $content;
+    }
+
+    /**
+     * Возвращает результат обработки формы добавления/редактирования касс
+     * @global \travelsoft\booking\crm\type $USER_FIELD_MANAGER
+     * @return array
+     */
+    public static function processingCashDeskEditForm(): array {
+
+        global $USER_FIELD_MANAGER;
+
+        $url = CRMSettings::CASH_DESKS_LIST_URL . '?lang=' . LANGUAGE_ID;
+
+        if (strlen($_POST['CANCEL']) > 0) {
+
+            LocalRedirect($url);
+        }
+
+        $arErrors = array();
+
+        if (self::isEditFormRequest()) {
+
+            $data = array();
+
+            $USER_FIELD_MANAGER->EditFormAddFields('HLBLOCK_' . Settings::cashDesksStoreId(), $data);
+
+            self::_stringLessThenTwo($data['UF_NAME'], 'Название', $arErrors);
+
+            if (empty($arErrors)) {
+
+                if ($_REQUEST['ID'] > 0) {
+
+                    $ID = intval($_REQUEST['ID']);
+                    $data['UF_CREATER'] = $GLOBALS['USER']->GetID();
+                    $result = \travelsoft\booking\crm\stores\CashDesks::update($ID, $data);
+                } else {
+
+                    $result = \travelsoft\booking\crm\stores\CashDesks::add($data);
+                }
+
+                if ($result) {
+
+                    LocalRedirect($url);
+                }
+            }
+        }
+
+
+        return array('errors' => $arErrors, 'result' => $result);
+    }
+    
+    /**
+     * Возвращает HTML полей для формы редактирования типа оплаты
+     * @param array $data
+     * @return string
+     */
+    public static function getPaymentsTypesEditFieldsContent (array $data) : string {
+        
+        global $USER_FIELD_MANAGER;
+
+        $arUserFields = $USER_FIELD_MANAGER->getUserFieldsWithReadyData("HLBLOCK_" . Settings::paymentsTypesStoreId(), $data, LANGUAGE_ID);
+
+        $isFormRequest = self::isEditFormRequest();
+
+        $content = '';
+
+        foreach ($arUserFields as $arUserField) {
+
+            if (key_exists($arUserField['FIELD_NAME'], $_POST)) {
+
+                $arUserField['VALUE'] = $_POST[$arUserField['FIELD_NAME']];
+            }
+            
+            if ($arUserField['FIELD_NAME'] == 'UF_PAYMENT_HANDLER') {
+                continue;
+            }
+            $arUserField['ENTITY_VALUE_ID'] = 2;
+            $content .= $USER_FIELD_MANAGER->GetEditFormHtml($isFormRequest, $_POST[$arUserField['FIELD_NAME']], $arUserField);
+        }
+
+        return $content;
+    }
+    
+    /**
+     * Возвращает результат обработки формы добавления/редактирования типа оплаты
+     * @global \travelsoft\booking\crm\type $USER_FIELD_MANAGER
+     * @return type
+     */
+    public static function processingPaymentTypeEditForm () {
+        
+        global $USER_FIELD_MANAGER;
+
+        $url = CRMSettings::PAYMENTS_TYPES_LIST_URL . '?lang=' . LANGUAGE_ID;
+
+        if (strlen($_POST['CANCEL']) > 0) {
+
+            LocalRedirect($url);
+        }
+
+        $arErrors = array();
+
+        if (self::isEditFormRequest()) {
+            $data = array();
+
+            $USER_FIELD_MANAGER->EditFormAddFields('HLBLOCK_' . Settings::paymentsTypesStoreId(), $data);
+
+            self::_stringLessThenTwo($data['UF_NAME'], 'Название', $arErrors);
+
+            if (empty($arErrors)) {
+
+                if ($_REQUEST['ID'] > 0) {
+
+                    $ID = intval($_REQUEST['ID']);
+                    $result = \travelsoft\booking\stores\PaymentsTypes::update($ID, $data);
+                } else {
+
+                    $result = \travelsoft\booking\stores\PaymentsTypes::add($data);
+                }
+
+                if ($result) {
+
+                    LocalRedirect($url);
+                }
+            }
+        }
+
+
+        return array('errors' => $arErrors, 'result' => $result);
+    }
+    
     /**
      * Строка >= 2 символов ?
      * @param string $value

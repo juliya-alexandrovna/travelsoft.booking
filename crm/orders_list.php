@@ -5,6 +5,7 @@
 /** @global CUser $USER */
 use travelsoft\booking\stores\Orders;
 use Bitrix\Main\Entity\ExpressionField;
+use travelsoft\booking\crm\Settings;
 
 require_once 'header.php';
 
@@ -14,8 +15,8 @@ $APPLICATION->AddHeadString("<script src='/local/modules/travelsoft.booking/crm/
 $APPLICATION->AddHeadString("<script src='/local/modules/travelsoft.booking/crm/js/orders_list.js?v=am'></script>");
 
 
-$sort = new CAdminSorting(\travelsoft\booking\crm\Utils::ORDERS_TABLE_ID, "ID", "DESC");
-$list = new CAdminList(\travelsoft\booking\crm\Utils::ORDERS_TABLE_ID, $sort);
+$sort = new CAdminSorting(Settings::ORDERS_HTML_TABLE_ID, "ID", "DESC");
+$list = new CAdminList(Settings::ORDERS_HTML_TABLE_ID, $sort);
 
 if ($arOrdersId = $list->GroupAction()) {
 
@@ -51,7 +52,7 @@ $getParams = array("order" => array($by => $order));
 
 $usePageNavigation = true;
 $navParams = CDBResult::GetNavParams(CAdminResult::GetNavSize(
-                        \travelsoft\booking\crm\Utils::ORDERS_TABLE_ID, array('nPageSize' => 20)
+                        Settings::ORDERS_HTML_TABLE_ID, array('nPageSize' => 20)
         ));
 
 $navParams['PAGEN'] = (int) $navParams['PAGEN'];
@@ -90,7 +91,7 @@ if ($arStatusesId) {
     $arStatuses = travelsoft\booking\stores\Statuses::get(array('filter' => array('ID' => $arStatusesId), 'select' => array('ID', 'UF_NAME')));
 }
 
-$dbResult = new CAdminResult($arOrders, \travelsoft\booking\crm\Utils::ORDERS_TABLE_ID);
+$dbResult = new CAdminResult($arOrders, Settings::ORDERS_HTML_TABLE_ID);
 
 if ($usePageNavigation) {
 
@@ -139,7 +140,7 @@ $APPLICATION->SetTitle("Список заказов");
 require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_admin_after.php");
 ?>
 <script>
-    CRM.config.table_id = "<?= \travelsoft\booking\crm\Utils::ORDERS_TABLE_ID ?>";
+    CRM.config.table_id = "<?= \travelsoft\booking\crm\Settings::ORDERS_HTML_TABLE_ID ?>";
     CRM.config.sessid = "<?= bitrix_sessid() ?>";
     CRM.config.last_id = "<?= \travelsoft\booking\crm\Utils::getOrderLastId(); ?>";
     CRM.config.notifyIcon = "/local/templates/travelsoft/images/logo.png";
