@@ -26,6 +26,11 @@ class Settings {
     const PAYMENTS_TYPES_HTML_TABLE_ID = 'PAYMENTS_TYPES_TABLE';
     
     /**
+     * ID таблицы истории оплаты
+     */
+    const PAYMENT_HISTORY_HTML_TABLE_ID = 'PAYMENT_HISTORY_TABLE';
+    
+    /**
      * Url страницы добавления цен
      */
     const ADD_PRICES_URL = 'travelsoft_crm_booking_add_prices.php';
@@ -48,7 +53,7 @@ class Settings {
     /**
      * Url страницы редактирования клиента
      */
-    const CLIENT_EDIT_URL = 'travelsoft_crm_booking_clients_edit.php';
+    const CLIENT_EDIT_URL = 'travelsoft_crm_booking_client_edit.php';
     
     /**
      * Url страницы списка туристов
@@ -84,4 +89,14 @@ class Settings {
      * Url страницы списка типов платежей
      */
     const PAYMENT_TYPE_EDIT_URL = 'travelsoft_crm_booking_payment_type_edit.php';
+    
+    /**
+     * Url страницы списка истории платежей
+     */
+    const PAYMENT_HISTORY_LIST_URL = 'travelsoft_crm_booking_payment_history_list.php';
+    
+    /**
+     * Url страницы добавления/редактирования истории платежей
+     */
+    const PAYMENT_HISTORY_EDIT_URL = 'travelsoft_crm_booking_payment_history_edit.php';
 }

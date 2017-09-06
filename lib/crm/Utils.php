@@ -1346,8 +1346,9 @@ class Utils {
                     }
 
                     if ($arFieldData['required']) {
-
-                        call_user_func_array(array(self, $arFieldData['validator']), array($_POST[$fieldName], $fieldName, $arErrors));
+                        
+                        $validator = $arFieldData['validator'];
+                        self::$validator($_POST[$fieldName], $arFieldData['title'], $arErrors);
                     }
 
                     $arSave[$fieldName] = $_POST[$fieldName];
@@ -1786,11 +1787,6 @@ class Utils {
 
         foreach ($arUserFields as $arUserField) {
 
-            if (key_exists($arUserField['FIELD_NAME'], $_POST)) {
-
-                $arUserField['VALUE'] = $_POST[$arUserField['FIELD_NAME']];
-            }
-
             if ($arUserField['FIELD_NAME'] == 'UF_CREATER') {
                 if ($arUserField['VALUE'] > 0) {
 
@@ -1838,10 +1834,10 @@ class Utils {
                 if ($_REQUEST['ID'] > 0) {
 
                     $ID = intval($_REQUEST['ID']);
-                    $data['UF_CREATER'] = $GLOBALS['USER']->GetID();
                     $result = \travelsoft\booking\crm\stores\CashDesks::update($ID, $data);
                 } else {
-
+                    
+                    $data['UF_CREATER'] = $GLOBALS['USER']->GetID();
                     $result = \travelsoft\booking\crm\stores\CashDesks::add($data);
                 }
 
@@ -1855,14 +1851,14 @@ class Utils {
 
         return array('errors' => $arErrors, 'result' => $result);
     }
-    
+
     /**
      * Возвращает HTML полей для формы редактирования типа оплаты
      * @param array $data
      * @return string
      */
-    public static function getPaymentsTypesEditFieldsContent (array $data) : string {
-        
+    public static function getPaymentsTypesEditFieldsContent(array $data): string {
+
         global $USER_FIELD_MANAGER;
 
         $arUserFields = $USER_FIELD_MANAGER->getUserFieldsWithReadyData("HLBLOCK_" . Settings::paymentsTypesStoreId(), $data, LANGUAGE_ID);
@@ -1873,11 +1869,6 @@ class Utils {
 
         foreach ($arUserFields as $arUserField) {
 
-            if (key_exists($arUserField['FIELD_NAME'], $_POST)) {
-
-                $arUserField['VALUE'] = $_POST[$arUserField['FIELD_NAME']];
-            }
-            
             if ($arUserField['FIELD_NAME'] == 'UF_PAYMENT_HANDLER') {
                 continue;
             }
@@ -1887,14 +1878,14 @@ class Utils {
 
         return $content;
     }
-    
+
     /**
      * Возвращает результат обработки формы добавления/редактирования типа оплаты
      * @global \travelsoft\booking\crm\type $USER_FIELD_MANAGER
      * @return type
      */
-    public static function processingPaymentTypeEditForm () {
-        
+    public static function processingPaymentTypeEditForm() {
+
         global $USER_FIELD_MANAGER;
 
         $url = CRMSettings::PAYMENTS_TYPES_LIST_URL . '?lang=' . LANGUAGE_ID;
@@ -1934,14 +1925,285 @@ class Utils {
 
         return array('errors' => $arErrors, 'result' => $result);
     }
+
+    /**
+     * Возвращает HTML полей для формы редактирования истории платежей
+     * @global \travelsoft\booking\crm\type $USER_FIELD_MANAGER
+     * @param array $data
+     * @return string
+     */
+    public static function getPaymentHistoryEditFieldsContent(array $data): string {
+
+        global $USER_FIELD_MANAGER;
+
+        $arUserFields = $USER_FIELD_MANAGER->getUserFieldsWithReadyData("HLBLOCK_" . Settings::paymentHistoryStoreId(), $data, LANGUAGE_ID);
+
+        $isFormRequest = self::isEditFormRequest();
+
+        $content = '';
+
+        $getPreparedSelectData = function (array $arData) {
+
+            $result = array();
+            foreach ($arData as $data) {
+
+                $result['values'][] = $data['ID'];
+                $result['titles'][] = $data['UF_NAME'];
+            }
+
+            return $result;
+        };
+
+        foreach ($arUserFields as $arUserField) {
+
+            if (key_exists($arUserField['FIELD_NAME'], $_POST)) {
+
+                $arUserField['VALUE'] = $_POST[$arUserField['FIELD_NAME']];
+            }
+
+            switch ($arUserField['FIELD_NAME']) {
+
+                case "UF_PRICE":
+                    
+                    $content .= self::_getInputHtml(array(
+                                'name' => $arUserField['FIELD_NAME'],
+                                'current_value' => $arUserField['VALUE'],
+                                'required' => true,
+                                'type' => 'text',
+                                'label' => $arUserField['EDIT_FORM_LABEL']
+                    ));
+
+                    break;
+
+                case 'UF_CURRENCY':
+
+                    $converter = new CurrencyConverter;
+                    $arCurrencies = $converter->getListOfCurrency();
+
+                    $content .= self::_getSelectHtml(array(
+                                'name' => $arUserField['FIELD_NAME'],
+                                'values' => $arCurrencies,
+                                'titles' => $arCurrencies,
+                                'current_value' => $arUserField['VALUE'],
+                                'label' => $arUserField['EDIT_FORM_LABEL']
+                    ));
+
+                    break;
+
+                case "UF_CASH_DESK_ID":
+
+                    $arSelectData = $getPreparedSelectData(
+                            stores\CashDesks::get(
+                                    array('filter' => array('UF_ACTIVE' => true), 'select' => array('ID', 'UF_NAME'))));
+
+                    $content .= self::_getSelectHtml(array(
+                        'id' => 'select-of-cash-desk',
+                                'name' => $arUserField['FIELD_NAME'],
+                                'values' => $arSelectData['values'],
+                                'titles' => $arSelectData['titles'],
+                                'current_value' => $arUserField['VALUE'],
+                                'required' => true,
+                                'label' => $arUserField['EDIT_FORM_LABEL']
+                    ));
+
+                    break;
+
+                case "UF_PAYMENT_TYPE_ID":
+
+                    $arSelectData = $getPreparedSelectData(
+                            \travelsoft\booking\stores\PaymentsTypes::get(
+                                    array('filter' => array('UF_ACTIVE' => true), 'select' => array('ID', 'UF_NAME'))));
+
+                    $content .= self::_getSelectHtml(array(
+                                'name' => $arUserField['FIELD_NAME'],
+                                'values' => $arSelectData['values'],
+                                'titles' => $arSelectData['titles'],
+                                'current_value' => $arUserField['VALUE'],
+                                'required' => true,
+                                'label' => $arUserField['EDIT_FORM_LABEL']
+                    ));
+
+                    break;
+
+                case "UF_ORDER_ID":
+
+                    $values = array_keys(\travelsoft\booking\stores\Orders::get(array('select' => array('ID'))));
+                    $content .= self::_getSelectHtml(array(
+                                'name' => $arUserField['FIELD_NAME'],
+                                'id' => 'select-of-orders',
+                                'values' => $values,
+                                'titles' => $values,
+                                'required' => true,
+                                'current_value' => $arUserField['VALUE'],
+                                'label' => $arUserField['EDIT_FORM_LABEL']
+                    ));
+
+                    break;
+
+                case "UF_CREATER":
+                    
+                    if ($arUserField['VALUE'] > 0) {
+                        
+                        $content .= self::getEditFieldHtml(
+                                $arUserField['EDIT_FORM_LABEL'] . ':', Users::getFullUserNameWithEmailByFields(Users::getById($arUserField['VALUE'])));
+                    }
+                    break;
+                case "UF_DATE_CREATE":
+                    
+                    if ($arUserField['VALUE'] > 0) {
+                        
+                        $content .= self::getEditFieldHtml(
+                                $arUserField['EDIT_FORM_LABEL'] . ':', $arUserField['VALUE']);
+                    }
+                    break;
+                case "UF_COURSE_ID":
+                    break;
+
+                default:
+                    $content .= $USER_FIELD_MANAGER->GetEditFormHtml($isFormRequest, $_POST[$arUserField['FIELD_NAME']], $arUserField);
+            }
+        }
+
+        return $content;
+    }
     
+    public static function processingPaymentHistoryEditForm () {
+        
+        
+        global $USER_FIELD_MANAGER;
+
+        $url = CRMSettings::PAYMENT_HISTORY_LIST_URL . '?lang=' . LANGUAGE_ID;
+
+        if (strlen($_POST['CANCEL']) > 0) {
+
+            LocalRedirect($url);
+        }
+
+        $arErrors = array();
+
+        if (self::isEditFormRequest()) {
+            $data = array();
+
+            $USER_FIELD_MANAGER->EditFormAddFields('HLBLOCK_' . Settings::paymentHistoryStoreId(), $data);
+
+            if ($data['UF_PRICE'] <= 0) {
+                
+                $arErrors[] = 'Укажите внесенную сумму'; 
+            }
+            
+            $conveter = new CurrencyConverter;
+            
+            if (!in_array($data['UF_CURRENCY'], $conveter->getListOfCurrency())) {
+                
+                $arErrors[] = 'Укажите валюту';
+            }
+            
+            if ($data['UF_CASH_DESK_ID'] <= 0) {
+                
+                $arErrors[] = 'Укажите кассу';
+            }
+            
+            if ($data['UF_PAYMENT_TYPE_ID'] <= 0) {
+                
+                $arErrors[] = 'Укажите тип платежа';
+            }
+            
+            if ($data['UF_ORDER_ID'] <= 0) {
+                
+                $arErrors[] = 'Укажите номер путевки';
+            }
+            
+            if (empty($arErrors)) {
+
+                if ($_REQUEST['ID'] > 0) {
+
+                    $ID = intval($_REQUEST['ID']);
+                    
+                    $result = stores\PaymentHistory::update($ID, $data);
+                } else {
+                    
+                    $data['UF_COURSE_ID'] = $conveter->getCurrentCourseId();
+                    $data['UF_CREATER'] = $GLOBALS['USER']->GetID();
+                    $data['UF_DATE_CREATE'] = date('d.m.Y H:i:s');
+                    $result = stores\PaymentHistory::add($data);
+                }
+
+                if ($result) {
+
+                    LocalRedirect($url);
+                }
+            }
+        }
+
+
+        return array('errors' => $arErrors, 'result' => $result);
+    }
+    
+    public static function _getInputHtml(array $parameters): string {
+
+        $input = '<input ' . self::_getHtmlAttrs($parameters) . ' type="' . $parameters['type'] . '" value="' . $parameters['current_value'] . '">';
+        return self::getEditFieldHtml($parameters['label'] . ':', $input, boolval($parameters['required']), boolval($parameters['hide']));
+    }
+
+    /**
+     * Возвращает html select
+     * @param array $parameters
+     * @return string
+     */
+    public static function _getSelectHtml(array $parameters): string {
+
+        $select = '<select ' . self::_getHtmlAttrs($parameters) . '>';
+        foreach ($parameters['values'] as $key => $value) {
+
+            $select .= '<option ' . ($parameters['current_value'] == $value ? 'selected=""' : '') . ' value="' . $value . '">' . $parameters['titles'][$key] . '</option>';
+        }
+        $select .= '</select>';
+
+        return self::getEditFieldHtml($parameters['label'] . ':', $select, boolval($parameters['required']), boolval($parameters['hide']));
+    }
+
+    /**
+     * Возвращает html аттрибуты в виде строки
+     * @param array $parameters
+     * @return string
+     */
+    public static function _getHtmlAttrs(array $parameters): string {
+
+        $name = '';
+        if (strlen($parameters['name']) > 0) {
+            $name = 'name="' . $parameters['name'] . '"';
+        }
+
+        $id = '';
+        if (strlen($parameters['id']) > 0) {
+            $id = 'id="' . $parameters['id'] . '"';
+        }
+
+        $data = '';
+        if (is_array($parameters['data']) && !empty($parameters['data'])) {
+
+            foreach ($parameters['data'] as $dataName => $value) {
+
+                $data .= ' data-' . $dataName . '="' . $value . '"';
+            }
+        }
+
+        $class = '';
+        if (is_array($parameters['class']) && !empty($parameters['class'])) {
+
+            $class = 'class="' . implode(" ", $parameters['class']) . '"';
+        }
+
+        return implode(' ', array($name, $id, $class, $data));
+    }
+
     /**
      * Строка >= 2 символов ?
      * @param string $value
      * @param string $fieldName
      * @param array $arErrors
      */
-    protected static function _stringLessThenTwo(string $value, string $fieldName, array &$arErrors) {
+    public static function _stringLessThenTwo(string $value, string $fieldName, array &$arErrors) {
 
         if (strlen($value) < 2) {
 
@@ -1955,7 +2217,7 @@ class Utils {
      * @param string $fieldName
      * @param array $arErrors
      */
-    protected static function _checkPhone(string $value, string $fieldName, array &$arErrors) {
+    public static function _checkPhone(string $value, string $fieldName, array &$arErrors) {
 
         if (preg_match('#^\+?[0-9]{5,}$#', $value) !== 1) {
 
@@ -1969,7 +2231,7 @@ class Utils {
      * @param mixed string $fieldName
      * @param array $arErrors
      */
-    protected static function _checkEmail(string $value, string $fieldName, array &$arErrors) {
+    public static function _checkEmail(string $value, string $fieldName, array &$arErrors) {
 
         if (!check_email($value)) {
 
@@ -1983,7 +2245,7 @@ class Utils {
      * @param int $userId
      * @param array $arErrors
      */
-    protected static function _checkEmailOnUniq(string $value, int $userId = null, array &$arErrors) {
+    public static function _checkEmailOnUniq(string $value, int $userId = null, array &$arErrors) {
 
         $arUsers = Users::get(array('filter' => array('EMAIL' => $value, "!ID" => $userId), 'select' => array('ID')));
 

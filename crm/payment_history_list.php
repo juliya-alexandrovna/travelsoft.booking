@@ -3,29 +3,33 @@
 /** @global CDatabase $DB */
 
 /** @global CUser $USER */
+use travelsoft\booking\crm\stores\PaymentHistory;
 use travelsoft\booking\stores\PaymentsTypes;
+use travelsoft\booking\crm\stores\CashDesks;
+use travelsoft\booking\stores\Orders;
+use travelsoft\booking\stores\Users;
 use Bitrix\Main\Entity\ExpressionField;
 use travelsoft\booking\crm\Settings;
 
 require_once 'header.php';
 
-$sort = new CAdminSorting(Settings::PAYMENTS_TYPES_HTML_TABLE_ID, "ID", "DESC");
-$list = new CAdminList(Settings::PAYMENTS_TYPES_HTML_TABLE_ID, $sort);
+$sort = new CAdminSorting(Settings::PAYMENT_HISTORY_HTML_TABLE_ID, "ID", "DESC");
+$list = new CAdminList(Settings::PAYMENT_HISTORY_HTML_TABLE_ID, $sort);
 
-if ($arPayentTypesId = $list->GroupAction()) {
+if ($arPaymentId = $list->GroupAction()) {
 
     if ($_REQUEST['action_target'] == 'selected') {
 
-        $arPayentTypesId = array_keys(PaymentsTypes::get(array('select' => array('ID'))));
+        $arPaymentId = array_keys(PaymentHistory::get(array('select' => array('ID'))));
     }
 
-    foreach ($arPayentTypesId as $ID) {
+    foreach ($arPaymentId as $ID) {
 
         switch ($_REQUEST['action']) {
 
             case "delete":
 
-                PaymentsTypes::delete($ID);
+                PaymentHistory::delete($ID);
 
                 break;
         }
@@ -46,7 +50,7 @@ $getParams = array("order" => array($by => $order));
 
 $usePageNavigation = true;
 $navParams = CDBResult::GetNavParams(CAdminResult::GetNavSize(
-Settings::PAYMENTS_TYPES_HTML_TABLE_ID, array('nPageSize' => 20)
+Settings::PAYMENT_HISTORY_HTML_TABLE_ID, array('nPageSize' => 20)
         ));
 
 $navParams['PAGEN'] = (int) $navParams['PAGEN'];
@@ -54,7 +58,7 @@ $navParams['SIZEN'] = (int) $navParams['SIZEN'];
 
 if ($usePageNavigation) {
 
-    $totalCount = PaymentsTypes::get(array('select' => array(new ExpressionField('CNT', 'COUNT(1)'))), false)->fetch();
+    $totalCount = PaymentHistory::get(array('select' => array(new ExpressionField('CNT', 'COUNT(1)'))), false)->fetch();
 
     $totalCount = (int) $totalCount['CNT'];
 
@@ -75,9 +79,36 @@ if ($usePageNavigation) {
     }
 }
 
-$arPayentTypes = PaymentsTypes::get($getParams);
+$arPaymentElementHistories = PaymentHistory::get($getParams);
 
-$dbResult = new CAdminResult($arPayentTypes, Settings::PAYMENTS_TYPES_HTML_TABLE_ID);
+// linked cash desks
+$arCashDesksId = array_filter(array_map(function ($arItem) {return (int)$arItem['UF_CASH_DESK_ID'];}, $arPaymentElementHistories), function ($item) {
+    return $item > 0;
+});
+
+if (!empty($arCashDesksId)) {
+    $arCashDesks = CashDesks::get(array('filter' => $arCashDesksId, 'select' => array("ID", "UF_NAME")));
+}
+
+// linked payments types
+$arPaymentsTypesId = array_filter(array_map(function ($arItem) {return (int)$arItem['UF_PAYMENT_TYPE_ID'];}, $arPaymentElementHistories), function ($item) {
+    return $item > 0;
+});
+
+if (!empty($arPaymentsTypesId)) {
+    $arPaymentsTypes = PaymentsTypes::get(array('filter' => $arPaymentsTypesId, 'select' => array("ID", "UF_NAME")));
+}
+
+// linked creaters
+$arCreatersId = array_filter(array_map(function ($arItem) {return (int)$arItem['UF_CREATER'];}, $arPaymentElementHistories), function ($item) {
+    return $item > 0;
+});
+
+if (!empty($arCreatersId)) {
+    $arCreaters = Users::get(array('filter' => array('ID' => implode('|', $arCreatersId)), 'select' => array('ID','NAME', 'LAST_NAME', 'SECOND_NAME', 'EMAIL')));
+}
+
+$dbResult = new CAdminResult($arPaymentElementHistories, Settings::PAYMENT_HISTORY_HTML_TABLE_ID);
 
 if ($usePageNavigation) {
 
@@ -101,47 +132,89 @@ $list->AddHeaders(array(
         "default" => true
     ),
     array(
-        "id" => "UF_NAME",
-        "content" => "Название",
-        "sort" => "UF_NAME",
+        "id" => "UF_PRICE",
+        "content" => "Сумма",
+        "sort" => "UF_PRICE",
         "align" => "center",
         "default" => true
     ),
     array(
-        "id" => "UF_ACTIVE",
-        "content" => "Активность",
-        "sort" => "UF_ACTIVE",
+        "id" => "UF_CURRENCY",
+        "content" => "Валюта",
+        "sort" => "UF_CURRENCY",
         "align" => "center",
         "default" => true
     ),
     array(
-        "id" => "UF_SHOW_FOR_USER",
-        "content" => "Показывать пользователю в качетве варианта оплаты",
-        "sort" => "UF_SHOW_FOR_USER",
+        "id" => "UF_CASH_DESK_ID",
+        "content" => "Касса",
+        "sort" => "UF_CASH_DESK_ID",
+        "align" => "center",
+        "default" => true
+    ),
+    array(
+        "id" => "UF_PAYMENT_TYPE_ID",
+        "content" => "Тип платежа",
+        "sort" => "UF_PAYMENT_TYPE_ID",
+        "align" => "center",
+        "default" => true
+    ),
+    array(
+        "id" => "UF_ORDER_ID",
+        "content" => "Номер путевки",
+        "sort" => "UF_ORDER_ID",
+        "align" => "center",
+        "default" => true
+    ),
+    array(
+        "id" => "UF_CREATER",
+        "content" => "Создатель",
+        "sort" => "UF_CREATER",
+        "align" => "center",
+        "default" => true
+    ),
+    array(
+        "id" => "UF_DATE_CREATE",
+        "content" => "Дата создания",
+        "sort" => "UF_DATE_CREATE",
         "align" => "center",
         "default" => true
     )
 ));
 
-while ($arPayentType = $dbResult->Fetch()) {
-
-    $row = &$list->AddRow($arPayentType["ID"], $arPayentType);
+while ($arPaymentElementHistory = $dbResult->Fetch()) {
     
-    $row->AddViewField('UF_ACTIVE', $arPayentType['UF_ACTIVE'] == 1 ? "Да" : "Нет");
-    $row->AddViewField('UF_SHOW_FOR_USER', $arPayentType['UF_SHOW_FOR_USER'] == 1 ? "Да" : "Нет");
+    $row = &$list->AddRow($arPaymentElementHistory["ID"], $arPaymentElementHistory);
+    
+    $row->AddViewField('UF_ORDER_ID', '<a target="__blank" href="'.Settings::ORDER_EDIT_URL.'?ID='.$arPaymentElementHistory['UF_ORDER_ID'].'">'.$arPaymentElementHistory['UF_ORDER_ID'].'</a>');
+    $row->AddViewField('ID', '<a href="'.Settings::PAYMENT_HISTORY_EDIT_URL.'?ID='.$arPaymentElementHistory['ID'].'">'.$arPaymentElementHistory['ID'].'</a>');
+    
+    if (isset($arCashDesks[$arPaymentElementHistory['UF_CASH_DESK_ID']])) {
+        $row->AddViewField("UF_CASH_DESK_ID", $arCashDesks[$arPaymentElementHistory['UF_CASH_DESK_ID']]['UF_NAME']);
+    }
+    
+    if (isset($arPaymentsTypes[$arPaymentElementHistory['UF_PAYMENT_TYPE_ID']])) {
+        $row->AddViewField("UF_PAYMENT_TYPE_ID", $arPaymentsTypes[$arPaymentElementHistory['UF_PAYMENT_TYPE_ID']]['UF_NAME']);
+    }
+    
+    if (isset($arCreaters[$arPaymentElementHistory['UF_CREATER']])) {
+        $row->AddViewField("UF_CREATER", Users::getFullUserNameWithEmailByFields($arCreaters[$arPaymentElementHistory['UF_CREATER']]));
+    }
+    
+    
     
     $row->AddActions(array(
         array(
             "ICON" => "edit",
             "DEFAULT" => true,
             "TEXT" => "Изменить",
-            "ACTION" => 'BX.adminPanel.Redirect([], "'.Settings::PAYMENT_TYPE_EDIT_URL.'?ID=' . $arPayentType["ID"] . '", event);'
+            "ACTION" => 'BX.adminPanel.Redirect([], "'.Settings::PAYMENT_HISTORY_EDIT_URL.'?ID=' . $arPaymentElementHistory["ID"] . '", event);'
         ),
         array(
             "ICON" => "delete",
             "DEFAULT" => true,
             "TEXT" => "Удалить",
-            "ACTION" => "if(confirm('Действительно хотите удалить тип оплаты')) " . $list->ActionDoGroup($arPayentType["ID"], "delete")
+            "ACTION" => "if(confirm('Действительно хотите удалить элемент истории платежа')) " . $list->ActionDoGroup($arPaymentElementHistory["ID"], "delete")
         )
     ));
 }
@@ -157,15 +230,15 @@ $list->AddGroupActionTable(Array(
 
 
 $list->AddAdminContextMenu(array(array(
-        'TEXT' => "Создать тип оплаты",
-        'TITLE' => "Создание типа оплаты",
-        'LINK' => Settings::PAYMENT_TYPE_EDIT_URL . '?lang=' . LANG,
+        'TEXT' => "Создать элемент истории платежа",
+        'TITLE' => "Создание элемента истории платежа",
+        'LINK' => Settings::PAYMENT_HISTORY_EDIT_URL . '?lang=' . LANG,
         'ICON' => 'btn_new'
 )));
 
 $list->CheckListMode();
 
-$APPLICATION->SetTitle("Типы оплаты");
+$APPLICATION->SetTitle("История платежей");
 
 require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_admin_after.php");
 

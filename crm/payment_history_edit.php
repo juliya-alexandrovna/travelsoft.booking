@@ -3,172 +3,85 @@
 /** @global CDatabase $DB */
 
 /** @global CUser $USER */
-use travelsoft\booking\stores\PaymentsTypes;
-use Bitrix\Main\Entity\ExpressionField;
-use travelsoft\booking\crm\Settings;
 
 require_once 'header.php';
 
-$sort = new CAdminSorting(Settings::PAYMENTS_TYPES_HTML_TABLE_ID, "ID", "DESC");
-$list = new CAdminList(Settings::PAYMENTS_TYPES_HTML_TABLE_ID, $sort);
+use travelsoft\booking\crm\Utils;
+?>
 
-if ($arPayentTypesId = $list->GroupAction()) {
-
-    if ($_REQUEST['action_target'] == 'selected') {
-
-        $arPayentTypesId = array_keys(PaymentsTypes::get(array('select' => array('ID'))));
+<style>
+    img[src="/bitrix/js/main/core/images/hint.gif"] {
+        display: none;
     }
+</style>
 
-    foreach ($arPayentTypesId as $ID) {
+<?
 
-        switch ($_REQUEST['action']) {
+$APPLICATION->AddHeadString("<link rel='stylesheet' href='/local/modules/travelsoft.booking/crm/css/select2.min.css'>");
+$APPLICATION->AddHeadString("<script src='/local/modules/travelsoft.booking/crm/js/plugins/jquery-3.2.1.min.js'></script>");
+$APPLICATION->AddHeadString("<script src='/local/modules/travelsoft.booking/crm/js/plugins/select2.full.min.js'></script>");
+$APPLICATION->AddHeadString("<script src='/local/modules/travelsoft.booking/crm/js/payment_history_edit.js?v=a'></script>");
 
-            case "delete":
+try {
 
-                PaymentsTypes::delete($ID);
+    $ID = intVal($_REQUEST['ID']);
 
-                break;
+    $title = 'Добавление элемента истории платежа';
+    if ($ID > 0) {
+
+        $arPaymentHistory = travelsoft\booking\crm\stores\PaymentHistory::getById($ID);
+
+        if (!$arPaymentHistory['ID']) {
+
+            throw new Exception('Элемент истории платежа с ID="' . $ID . '" не найден');
         }
+
+        $title = 'Редактирование элемента истории платежа #' . $arPaymentHistory['ID'];
     }
-}
 
-if ($_REQUEST["by"]) {
+    $APPLICATION->SetTitle($title);
 
-    $by = $_REQUEST["by"];
-}
+    $arResult = Utils::processingPaymentHistoryEditForm();
 
-if ($_REQUEST["order"]) {
+    require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_admin_after.php");
 
-    $order = $_REQUEST["order"];
-}
+    if (!empty($arResult['errors'])) {
 
-$getParams = array("order" => array($by => $order));
-
-$usePageNavigation = true;
-$navParams = CDBResult::GetNavParams(CAdminResult::GetNavSize(
-Settings::PAYMENTS_TYPES_HTML_TABLE_ID, array('nPageSize' => 20)
+        CAdminMessage::ShowMessage(array(
+            "MESSAGE" => implode('<br>', $arResult['errors']),
+            "TYPE" => "ERROR"
         ));
-
-$navParams['PAGEN'] = (int) $navParams['PAGEN'];
-$navParams['SIZEN'] = (int) $navParams['SIZEN'];
-
-if ($usePageNavigation) {
-
-    $totalCount = PaymentsTypes::get(array('select' => array(new ExpressionField('CNT', 'COUNT(1)'))), false)->fetch();
-
-    $totalCount = (int) $totalCount['CNT'];
-
-    if ($totalCount > 0) {
-
-        $totalPages = ceil($totalCount / $navParams['SIZEN']);
-        if ($navParams['PAGEN'] > $totalPages) {
-
-            $navParams['PAGEN'] = $totalPages;
-        }
-        $getParams['limit'] = $navParams['SIZEN'];
-        $getParams['offset'] = $navParams['SIZEN'] * ($navParams['PAGEN'] - 1);
-    } else {
-
-        $navParams['PAGEN'] = 1;
-        $getParams['limit'] = $navParams['SIZEN'];
-        $getParams['offset'] = 0;
     }
-}
 
-$arPayentTypes = PaymentsTypes::get($getParams);
-
-$dbResult = new CAdminResult($arPayentTypes, Settings::PAYMENTS_TYPES_HTML_TABLE_ID);
-
-if ($usePageNavigation) {
-
-    $dbResult->NavStart($getParams['limit'], $navParams['SHOW_ALL'], $navParams['PAGEN']);
-    $dbResult->NavRecordCount = $totalCount;
-    $dbResult->NavPageCount = $totalPages;
-    $dbResult->NavPageNomer = $navParams['PAGEN'];
-} else {
-
-    $dbResult->NavStart();
-}
-
-$list->NavText($dbResult->GetNavPrint('Страницы'));
-
-$list->AddHeaders(array(
-    array(
-        "id" => "ID",
-        "content" => "ID",
-        "sort" => "ID",
-        "align" => "center",
-        "default" => true
-    ),
-    array(
-        "id" => "UF_NAME",
-        "content" => "Название",
-        "sort" => "UF_NAME",
-        "align" => "center",
-        "default" => true
-    ),
-    array(
-        "id" => "UF_ACTIVE",
-        "content" => "Активность",
-        "sort" => "UF_ACTIVE",
-        "align" => "center",
-        "default" => true
-    ),
-    array(
-        "id" => "UF_SHOW_FOR_USER",
-        "content" => "Показывать пользователю в качетве варианта оплаты",
-        "sort" => "UF_SHOW_FOR_USER",
-        "align" => "center",
-        "default" => true
-    )
-));
-
-while ($arPayentType = $dbResult->Fetch()) {
-
-    $row = &$list->AddRow($arPayentType["ID"], $arPayentType);
-    
-    $row->AddViewField('UF_ACTIVE', $arPayentType['UF_ACTIVE'] == 1 ? "Да" : "Нет");
-    $row->AddViewField('UF_SHOW_FOR_USER', $arPayentType['UF_SHOW_FOR_USER'] == 1 ? "Да" : "Нет");
-    
-    $row->AddActions(array(
-        array(
-            "ICON" => "edit",
-            "DEFAULT" => true,
-            "TEXT" => "Изменить",
-            "ACTION" => 'BX.adminPanel.Redirect([], "'.Settings::PAYMENT_TYPE_EDIT_URL.'?ID=' . $arPayentType["ID"] . '", event);'
+    Utils::showEditForm(array(
+        'action' => $APPLICATION->GetCurPageParam(),
+        'name' => 'payment_history_form',
+        'id' => 'payment_history_form',
+        'tabs' => array(
+            array(
+                "DIV" => "PAYMENT_HISTORY_FORM",
+                "TAB" => 'Элемент истории платежа',
+                'content' => Utils::getPaymentHistoryEditFieldsContent((array)$arPaymentHistory)
+            )
         ),
-        array(
-            "ICON" => "delete",
-            "DEFAULT" => true,
-            "TEXT" => "Удалить",
-            "ACTION" => "if(confirm('Действительно хотите удалить тип оплаты')) " . $list->ActionDoGroup($arPayentType["ID"], "delete")
+        'buttons' => array(
+            array(
+                'class' => 'adm-btn-save',
+                'name' => 'SAVE',
+                'value' => 'Сохранить'
+            ),
+            array(
+                'name' => 'CANCEL',
+                'value' => 'Отменить'
+            )
         )
     ));
+    
+} catch (Exception $e) {
+
+    require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_admin_after.php");
+    CAdminMessage::ShowMessage(array('MESSAGE' => $e->getMessage(), 'TYPE' => 'ERROR'));
 }
 
-$list->AddFooter(array(
-    array("title" => "Количество элементов", "value" => $dbResult->SelectedRowsCount()),
-    array("counter" => true, "title" => "Количество выбранных элементов", "value" => 0)
-));
-
-$list->AddGroupActionTable(Array(
-    "delete" => "Удалить"
-));
-
-
-$list->AddAdminContextMenu(array(array(
-        'TEXT' => "Создать тип оплаты",
-        'TITLE' => "Создание типа оплаты",
-        'LINK' => Settings::PAYMENT_TYPE_EDIT_URL . '?lang=' . LANG,
-        'ICON' => 'btn_new'
-)));
-
-$list->CheckListMode();
-
-$APPLICATION->SetTitle("Типы оплаты");
-
-require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_admin_after.php");
-
-$list->DisplayList();
-
 require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/epilog_admin.php");
+?>

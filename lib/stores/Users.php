@@ -49,6 +49,10 @@ class Users extends Store {
                     $arParameters['FIELDS'][] = $field;
                 }
             }
+            
+            if (!in_array('ID', $arParameters['FIELDS'])) {
+                $arParameters['FIELDS'][] = 'ID';
+            }
         }
         
         if ($query['limit']) {

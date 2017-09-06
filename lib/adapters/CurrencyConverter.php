@@ -97,4 +97,12 @@ class CurrencyConverter {
         return $arResult;
     }
     
+    /**
+     * Возвращает текущий id курса в системе
+     * @return int
+     */
+    public function getCurrentCourseId () : int {
+        
+        return \travelsoft\currency\Settings::currentCourseId();
+    }
 }

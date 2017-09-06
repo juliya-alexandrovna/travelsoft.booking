@@ -62,6 +62,12 @@ class EventsHandlers {
                         "title" => "Документы",
                     ),
                     array(
+                        "text" => "История платежей",
+                        "url" => Settings::PAYMENT_HISTORY_LIST_URL . "?lang=" . LANGUAGE_ID,
+                        "more_url" => array(Settings::PAYMENT_HISTORY_EDIT_URL),
+                        "title" => "История платежей",
+                    ),
+                    array(
                         "text" => "Кассы",
                         "url" => Settings::CASH_DESKS_LIST_URL . "?lang=" . LANGUAGE_ID,
                         "more_url" => array(Settings::CASH_DESK_EDIT_URL),

@@ -34,9 +34,8 @@ if (ADMIN_SECTION === true) {
     $classes["travelsoft\\booking\\crm\\stores\\Settings"] = "lib/crm/stores/Settings.php";
     $classes["travelsoft\\booking\\crm\\Utils"] = "lib/crm/Utils.php";
     $classes["travelsoft\\booking\\crm\\stores\\CashDesks"] = "lib/crm/stores/CashDesks.php";
+    $classes["travelsoft\\booking\\crm\\stores\\PaymentHistory"] = "lib/crm/stores/PaymentHistory.php";
     $classes["travelsoft\\booking\\crm\\Settings"] = "lib/crm/Settings.php";
 }
 
 CModule::AddAutoloadClasses("travelsoft.booking", $classes);
-
-require_once 'lib/Utils.php';
