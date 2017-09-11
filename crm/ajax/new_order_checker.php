@@ -17,7 +17,7 @@ if ($_REQUEST['last_id'] > 0 && bitrix_sessid()) {
 
         $arHeaders = \travelsoft\booking\crm\Utils::getOrdersTableHeaders();
 
-        $list = new CAdminList(\travelsoft\booking\crm\Utils::ORDERS_TABLE_ID);
+        $list = new CAdminList(\travelsoft\booking\crm\Settings::ORDERS_HTML_TABLE_ID);
         
         $list->AddHeaders($arHeaders);
 
@@ -27,7 +27,7 @@ if ($_REQUEST['last_id'] > 0 && bitrix_sessid()) {
         
         foreach ($arOrders as $ID => $arOrder) {
         
-            $row = new CAdminListRow($arHeaders, \travelsoft\booking\crm\Utils::ORDERS_TABLE_ID);
+            $row = new CAdminListRow($arHeaders, \travelsoft\booking\crm\Settings::ORDERS_HTML_TABLE_ID);
 
             $row->id = $arOrder['ID'];
             $row->arRes = $arOrder;
@@ -47,7 +47,7 @@ if ($_REQUEST['last_id'] > 0 && bitrix_sessid()) {
             
         }
             
-        $arResponse['result']['last_id'] = \travelsoft\booking\crm\Utils::getOrderLastId();
+        $arResponse['result']['last_id'] = travelsoft\booking\stores\Orders::getOrderLastId();
     }
 }
 

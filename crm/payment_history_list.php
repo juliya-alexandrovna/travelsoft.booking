@@ -1,17 +1,26 @@
 <?
+
 /** @global CMain $APPLICATION */
 /** @global CDatabase $DB */
 
 /** @global CUser $USER */
-use travelsoft\booking\crm\stores\PaymentHistory;
+use travelsoft\booking\stores\PaymentHistory;
 use travelsoft\booking\stores\PaymentsTypes;
 use travelsoft\booking\crm\stores\CashDesks;
 use travelsoft\booking\stores\Orders;
 use travelsoft\booking\stores\Users;
 use Bitrix\Main\Entity\ExpressionField;
 use travelsoft\booking\crm\Settings;
+use travelsoft\booking\crm\Utils;
 
 require_once 'header.php';
+
+$APPLICATION->AddHeadString("<link rel='stylesheet' href='/local/modules/travelsoft.booking/crm/css/select2.min.css'>");
+$APPLICATION->AddHeadString("<link rel='stylesheet' href='/local/modules/travelsoft.booking/crm/css/payment_history_list.css?v=h'>");
+$APPLICATION->AddHeadString("<script src='/local/modules/travelsoft.booking/crm/js/plugins/jquery-3.2.1.min.js'></script>");
+$APPLICATION->AddHeadString("<script src='/local/modules/travelsoft.booking/crm/js/plugins/select2.full.min.js'></script>");
+$APPLICATION->AddHeadString("<script src='/local/modules/travelsoft.booking/crm/js/payment_history_list.js?v=b'></script>");
+
 
 $sort = new CAdminSorting(Settings::PAYMENT_HISTORY_HTML_TABLE_ID, "ID", "DESC");
 $list = new CAdminList(Settings::PAYMENT_HISTORY_HTML_TABLE_ID, $sort);
@@ -46,11 +55,11 @@ if ($_REQUEST["order"]) {
     $order = $_REQUEST["order"];
 }
 
-$getParams = array("order" => array($by => $order));
+$getParams = array("filter" => Utils::getPaymentHistoryFilter(), "order" => array($by => $order));
 
 $usePageNavigation = true;
 $navParams = CDBResult::GetNavParams(CAdminResult::GetNavSize(
-Settings::PAYMENT_HISTORY_HTML_TABLE_ID, array('nPageSize' => 20)
+                        Settings::PAYMENT_HISTORY_HTML_TABLE_ID, array('nPageSize' => 20)
         ));
 
 $navParams['PAGEN'] = (int) $navParams['PAGEN'];
@@ -82,31 +91,22 @@ if ($usePageNavigation) {
 $arPaymentElementHistories = PaymentHistory::get($getParams);
 
 // linked cash desks
-$arCashDesksId = array_filter(array_map(function ($arItem) {return (int)$arItem['UF_CASH_DESK_ID'];}, $arPaymentElementHistories), function ($item) {
-    return $item > 0;
-});
-
-if (!empty($arCashDesksId)) {
-    $arCashDesks = CashDesks::get(array('filter' => $arCashDesksId, 'select' => array("ID", "UF_NAME")));
-}
+$arCashDesks = CashDesks::get(array('select' => array("ID", "UF_NAME")));
+$arFilterSelectCashDesksData = Utils::getReferencesSelectData($arCashDesks, 'UF_NAME', 'ID');
 
 // linked payments types
-$arPaymentsTypesId = array_filter(array_map(function ($arItem) {return (int)$arItem['UF_PAYMENT_TYPE_ID'];}, $arPaymentElementHistories), function ($item) {
-    return $item > 0;
-});
-
-if (!empty($arPaymentsTypesId)) {
-    $arPaymentsTypes = PaymentsTypes::get(array('filter' => $arPaymentsTypesId, 'select' => array("ID", "UF_NAME")));
-}
+$arPaymentsTypes = PaymentsTypes::get(array('select' => array("ID", "UF_NAME")));
+$arFilterSelectPaymentTypeData = Utils::getReferencesSelectData($arPaymentsTypes, 'UF_NAME', 'ID');
 
 // linked creaters
-$arCreatersId = array_filter(array_map(function ($arItem) {return (int)$arItem['UF_CREATER'];}, $arPaymentElementHistories), function ($item) {
-    return $item > 0;
-});
+$arCreaters = Users::get(array('select' => array('ID', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'EMAIL')), true, function (&$arCreater) {
+            $arCreater['FULL_NAME'] = Users::getFullUserNameWithEmailByFields($arCreater);
+        });
+$arFilterSelectCreatersData = Utils::getReferencesSelectData($arCreaters, 'FULL_NAME', 'ID');
 
-if (!empty($arCreatersId)) {
-    $arCreaters = Users::get(array('filter' => array('ID' => implode('|', $arCreatersId)), 'select' => array('ID','NAME', 'LAST_NAME', 'SECOND_NAME', 'EMAIL')));
-}
+// linked orders
+$arOrders = Orders::get(array('select' => array("ID")));
+$arFilterSelectOrdersData = Utils::getReferencesSelectData($arOrders, 'ID', 'ID');
 
 $dbResult = new CAdminResult($arPaymentElementHistories, Settings::PAYMENT_HISTORY_HTML_TABLE_ID);
 
@@ -183,32 +183,30 @@ $list->AddHeaders(array(
 ));
 
 while ($arPaymentElementHistory = $dbResult->Fetch()) {
-    
+
     $row = &$list->AddRow($arPaymentElementHistory["ID"], $arPaymentElementHistory);
-    
-    $row->AddViewField('UF_ORDER_ID', '<a target="__blank" href="'.Settings::ORDER_EDIT_URL.'?ID='.$arPaymentElementHistory['UF_ORDER_ID'].'">'.$arPaymentElementHistory['UF_ORDER_ID'].'</a>');
-    $row->AddViewField('ID', '<a href="'.Settings::PAYMENT_HISTORY_EDIT_URL.'?ID='.$arPaymentElementHistory['ID'].'">'.$arPaymentElementHistory['ID'].'</a>');
-    
+
+    $row->AddViewField('UF_ORDER_ID', '<a target="__blank" href="' . Settings::ORDER_EDIT_URL . '?ID=' . $arPaymentElementHistory['UF_ORDER_ID'] . '">' . $arPaymentElementHistory['UF_ORDER_ID'] . '</a>');
+    $row->AddViewField('ID', '<a href="' . Settings::PAYMENT_HISTORY_EDIT_URL . '?ID=' . $arPaymentElementHistory['ID'] . '">' . $arPaymentElementHistory['ID'] . '</a>');
+
     if (isset($arCashDesks[$arPaymentElementHistory['UF_CASH_DESK_ID']])) {
         $row->AddViewField("UF_CASH_DESK_ID", $arCashDesks[$arPaymentElementHistory['UF_CASH_DESK_ID']]['UF_NAME']);
     }
-    
+
     if (isset($arPaymentsTypes[$arPaymentElementHistory['UF_PAYMENT_TYPE_ID']])) {
         $row->AddViewField("UF_PAYMENT_TYPE_ID", $arPaymentsTypes[$arPaymentElementHistory['UF_PAYMENT_TYPE_ID']]['UF_NAME']);
     }
-    
+
     if (isset($arCreaters[$arPaymentElementHistory['UF_CREATER']])) {
         $row->AddViewField("UF_CREATER", Users::getFullUserNameWithEmailByFields($arCreaters[$arPaymentElementHistory['UF_CREATER']]));
     }
-    
-    
-    
+
     $row->AddActions(array(
         array(
             "ICON" => "edit",
             "DEFAULT" => true,
             "TEXT" => "Изменить",
-            "ACTION" => 'BX.adminPanel.Redirect([], "'.Settings::PAYMENT_HISTORY_EDIT_URL.'?ID=' . $arPaymentElementHistory["ID"] . '", event);'
+            "ACTION" => 'BX.adminPanel.Redirect([], "' . Settings::PAYMENT_HISTORY_EDIT_URL . '?ID=' . $arPaymentElementHistory["ID"] . '", event);'
         ),
         array(
             "ICON" => "delete",
@@ -241,6 +239,44 @@ $list->CheckListMode();
 $APPLICATION->SetTitle("История платежей");
 
 require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_admin_after.php");
+
+$arCurrencies = (new travelsoft\booking\adapters\CurrencyConverter)->getListOfCurrency();
+
+\travelsoft\booking\crm\Utils::showFilterForm(
+        array(
+            'table_id' => Settings::PAYMENT_HISTORY_HTML_TABLE_ID,
+            'form_elements' => array(
+                array(
+                    'label' => 'Дата создания c',
+                    'view' => CAdminCalendar::CalendarDate('UF_DATE_CREATE[0]', $_GET['UF_DATE_CREATE'][0], 19, true)
+                ),
+                array(
+                    'label' => 'Дата создания по',
+                    'view' => CAdminCalendar::CalendarDate('UF_DATE_CREATE[1]', $_GET['UF_DATE_CREATE'][1], 19, true)
+                ),
+                array(
+                    'label' => 'Создатель',
+                    'view' => SelectBoxFromArray("UF_CREATER", $arFilterSelectCreatersData, $_GET['UF_CREATER'], "", 'class="adm-filter-select"', false, "find_form")
+                ),
+                array(
+                    'label' => 'Номер путевки',
+                    'view' => SelectBoxFromArray("UF_ORDER_ID", $arFilterSelectOrdersData, $_GET['UF_ORDER_ID'], "", 'class="adm-filter-select"', false, "find_form")
+                ),
+                array(
+                    'label' => 'Касса',
+                    'view' => SelectBoxFromArray("UF_CASH_DESK_ID", $arFilterSelectCashDesksData, $_GET['UF_CASH_DESK_ID'], "", 'class="adm-filter-select"', false, "find_form")
+                ),
+                array(
+                    'label' => 'Тип платежа',
+                    'view' => SelectBoxFromArray("UF_PAYMENT_TYPE_ID", $arFilterSelectPaymentTypeData, $_GET['UF_PAYMENT_TYPE_ID'], "", 'class="adm-filter-select"', false, "find_form")
+                ),
+                array(
+                    'label' => 'Валюта',
+                    'view' => SelectBoxFromArray("UF_CURRENCY", array('REFERENCE' => $arCurrencies, 'REFERENCE_ID' => $arCurrencies), $_GET['UF_CURRENCY'], "", 'class="adm-filter-select"', false, "find_form")
+                )
+            )
+        )
+);
 
 $list->DisplayList();
 

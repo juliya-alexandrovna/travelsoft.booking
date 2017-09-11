@@ -35,7 +35,8 @@ class Utils {
         } else {
 
             $allowGroups = array(
-                Settings::managersUGroup()
+                Settings::managersUGroup(),
+                Settings::cashersUGroup()
             );
             $arUserGroups = $USER->GetUserGroupArray();
 
@@ -854,6 +855,132 @@ class Utils {
     }
 
     /**
+     * Выводит формы фильтрации на странце списка
+     * @param array $parameters
+     */
+    public static function showFilterForm(array $parameters) {
+
+        global $APPLICATION;
+
+        $form = '<form name="find_form" method="get" action="' . $APPLICATION->GetCurPage() . '">';
+
+        $form .= '<input name="lang" value="' . LANGUAGE_ID . '" type="hidden">';
+
+        $form .= '<div class="adm-filter-wrap" >';
+
+        $form .= '<table class="adm-filter-main-table">';
+
+        $form .= '<tbody>';
+
+        $form .= '<tr><td class="adm-filter-main-table-cell">';
+
+        $form .= '<div class="adm-filter-content">';
+
+        $form .= '<div class="adm-filter-content-table-wrap">';
+
+        $form .= '<table cellspacing="0" class="adm-filter-content-table">';
+
+        $form .= '<tbody>';
+
+        $form .= '<tr>';
+
+        $form .= '<td id="filter-title" colspan="2"><b>Фильтр<b></td>';
+
+        $form .= '</tr>';
+
+        $form .= '<tr>';
+
+        foreach ($parameters['form_elements'] as $key => $arFormElement) {
+
+            $form .= '<td class="form-element-cell">';
+            $form .= '<label><b>' . $arFormElement['label'] . '</b></label><br>';
+            $form .= '<div class="adm-filter-box-sizing">';
+            $form .= $arFormElement['view'];
+            $form .= '</div>';
+            $form .= '</td>';
+
+            if (($key + 1) % 2 === 0 || ($key + 1) === count($parameters['form_elements'])) {
+                $form .= '</tr>';
+                if (($key + 1) !== count($parameters['form_elements'])) {
+                    $form .= '<tr>';
+                }
+            }
+        }
+
+        $form .= '<tbody>'
+                . '</table>'
+                . '</div>'
+                . '<div class="adm-filter-bottom-separate"></div>'
+                . '<div class="adm-filter-bottom">'
+                . '<input type="submit" calss="adm-btn" name="SHOW_BY_FILTER" value="Найти">'
+                . '<input type="submit" calss="adm-btn" name="CANCEL" value="Отменить">'
+                . '</div>'
+                . '</div>'
+                . '</td>'
+                . '</tr>'
+                . '</tbody>'
+                . '</table>'
+                . '</div>'
+                . '</form>';
+        echo $form;
+    }
+
+    /**
+     * Возвращает фильтр для выборки списка истории платежей
+     * @return array
+     */
+    public static function getPaymentHistoryFilter(): array {
+
+        if (strlen($_REQUEST['CANCEL']) > 0) {
+            \LocalRedirect($GLOBALS['APPLICATION']->GetCurPageParam("", array(
+                        'UF_DATE_CREATE',
+                        'UF_ORDER_ID',
+                        'UF_CREATER',
+                        'UF_CASH_DESK_ID',
+                        'UF_PAYMENT_TYPE_ID',
+                        'UF_CURRENCY',
+                        'CANCEL'
+            )));
+        }
+
+        $filter = array();
+
+        if (strlen($_REQUEST['UF_DATE_CREATE'][0]) > 0 && strlen($_REQUEST['UF_DATE_CREATE'][1]) > 0) {
+
+            $filter['><UF_DATE_CREATE'] = array(
+                \travelsoft\booking\adapters\Date::create($_REQUEST['UF_DATE_CREATE'][0]),
+                \travelsoft\booking\adapters\Date::create($_REQUEST['UF_DATE_CREATE'][1])
+            );
+        } elseif (strlen($_REQUEST['UF_DATE_CREATE'][0]) > 0) {
+
+            $filter['>=UF_DATE_CREATE'] = \travelsoft\booking\adapters\Date::create($_REQUEST['UF_DATE_CREATE'][0]);
+        } elseif (strlen($_REQUEST['UF_DATE_CREATE'][1]) > 0) {
+
+            $filter['<=UF_DATE_CREATE'] = \travelsoft\booking\adapters\Date::create($_REQUEST['UF_DATE_CREATE'][1]);
+        }
+
+        $intFields = array(
+            'UF_ORDER_ID',
+            'UF_CREATER',
+            'UF_CASH_DESK_ID',
+            'UF_PAYMENT_TYPE_ID'
+        );
+
+        foreach ($intFields as $field) {
+            if ($_REQUEST[$field] > 0) {
+                $filter[$field] = $_REQUEST[$field];
+            }
+        }
+
+        if (strlen($_REQUEST['UF_CURRENCY']) > 0) {
+
+            $filter['UF_CURRENCY'] = $_REQUEST['UF_CURRENCY'];
+        }
+
+        return $filter;
+    }
+
+    /**
      * Вывод формы редактирования
      * @param array $parameters
      */
@@ -1346,7 +1473,7 @@ class Utils {
                     }
 
                     if ($arFieldData['required']) {
-                        
+
                         $validator = $arFieldData['validator'];
                         self::$validator($_POST[$fieldName], $arFieldData['title'], $arErrors);
                     }
@@ -1696,6 +1823,18 @@ class Utils {
                 "default" => true
             ),
             array(
+                "id" => "PAID",
+                "content" => "Оплачено",
+                "align" => "center",
+                "default" => true
+            ),
+            array(
+                "id" => "TO_PAY",
+                "content" => "К оплате",
+                "align" => "center",
+                "default" => true
+            ),
+            array(
                 "id" => "UF_CURRENCY",
                 "content" => "Валюта",
                 "align" => "center",
@@ -1756,18 +1895,9 @@ class Utils {
                 "ICON" => "delete",
                 "DEFAULT" => true,
                 "TEXT" => "Удалить",
-                "ACTION" => "if(confirm('Действительно хотите удалить бронь')) GetAdminList('/bitrix/admin/" . CRMSettings::ORDER_EDIT_URL . "?ID=" . $arData['ORDER']['ID'] . "&action_button=delete&lang=" . LANGUAGE_ID . "&sessid=" . bitrix_sessid() . "');"
+                "ACTION" => "if(confirm('Действительно хотите удалить бронь')) ".CRMSettings::ORDERS_HTML_TABLE_ID.".GetAdminList('/bitrix/admin/" . CRMSettings::ORDERS_LIST_URL . "?ID=" . $arData['ORDER']['ID'] . "&action_button=delete&lang=" . LANGUAGE_ID . "&sessid=" . bitrix_sessid() . "');"
             )
         ));
-    }
-
-    /**
-     * Возвращает максимальный id списка заказов
-     * @return int
-     */
-    public static function getOrderLastId() {
-        $result = Orders::get(array('select' => array(new \Bitrix\Main\Entity\ExpressionField('MAX_ID', 'max(ID)'))), false)->fetch();
-        return intVal($result['MAX_ID']);
     }
 
     /**
@@ -1836,7 +1966,7 @@ class Utils {
                     $ID = intval($_REQUEST['ID']);
                     $result = \travelsoft\booking\crm\stores\CashDesks::update($ID, $data);
                 } else {
-                    
+
                     $data['UF_CREATER'] = $GLOBALS['USER']->GetID();
                     $result = \travelsoft\booking\crm\stores\CashDesks::add($data);
                 }
@@ -1964,7 +2094,7 @@ class Utils {
             switch ($arUserField['FIELD_NAME']) {
 
                 case "UF_PRICE":
-                    
+
                     $content .= self::_getInputHtml(array(
                                 'name' => $arUserField['FIELD_NAME'],
                                 'current_value' => $arUserField['VALUE'],
@@ -1997,7 +2127,7 @@ class Utils {
                                     array('filter' => array('UF_ACTIVE' => true), 'select' => array('ID', 'UF_NAME'))));
 
                     $content .= self::_getSelectHtml(array(
-                        'id' => 'select-of-cash-desk',
+                                'id' => 'select-of-cash-desk',
                                 'name' => $arUserField['FIELD_NAME'],
                                 'values' => $arSelectData['values'],
                                 'titles' => $arSelectData['titles'],
@@ -2041,22 +2171,22 @@ class Utils {
                     break;
 
                 case "UF_CREATER":
-                    
+
                     if ($arUserField['VALUE'] > 0) {
-                        
+
                         $content .= self::getEditFieldHtml(
-                                $arUserField['EDIT_FORM_LABEL'] . ':', Users::getFullUserNameWithEmailByFields(Users::getById($arUserField['VALUE'])));
+                                        $arUserField['EDIT_FORM_LABEL'] . ':', Users::getFullUserNameWithEmailByFields(Users::getById($arUserField['VALUE'])));
                     }
                     break;
                 case "UF_DATE_CREATE":
-                    
+
                     if ($arUserField['VALUE'] > 0) {
-                        
+
                         $content .= self::getEditFieldHtml(
-                                $arUserField['EDIT_FORM_LABEL'] . ':', $arUserField['VALUE']);
+                                        $arUserField['EDIT_FORM_LABEL'] . ':', $arUserField['VALUE']);
                     }
                     break;
-                case "UF_COURSE_ID":
+                case "UF_COURSE_INFO":
                     break;
 
                 default:
@@ -2066,10 +2196,10 @@ class Utils {
 
         return $content;
     }
-    
-    public static function processingPaymentHistoryEditForm () {
-        
-        
+
+    public static function processingPaymentHistoryEditForm() {
+
+
         global $USER_FIELD_MANAGER;
 
         $url = CRMSettings::PAYMENT_HISTORY_LIST_URL . '?lang=' . LANGUAGE_ID;
@@ -2087,45 +2217,49 @@ class Utils {
             $USER_FIELD_MANAGER->EditFormAddFields('HLBLOCK_' . Settings::paymentHistoryStoreId(), $data);
 
             if ($data['UF_PRICE'] <= 0) {
-                
-                $arErrors[] = 'Укажите внесенную сумму'; 
+
+                $arErrors[] = 'Укажите внесенную сумму';
             }
-            
+
             $conveter = new CurrencyConverter;
-            
+
             if (!in_array($data['UF_CURRENCY'], $conveter->getListOfCurrency())) {
-                
+
                 $arErrors[] = 'Укажите валюту';
             }
-            
+
             if ($data['UF_CASH_DESK_ID'] <= 0) {
-                
+
                 $arErrors[] = 'Укажите кассу';
             }
-            
+
             if ($data['UF_PAYMENT_TYPE_ID'] <= 0) {
-                
+
                 $arErrors[] = 'Укажите тип платежа';
             }
-            
+
             if ($data['UF_ORDER_ID'] <= 0) {
-                
+
                 $arErrors[] = 'Укажите номер путевки';
             }
-            
+
             if (empty($arErrors)) {
 
                 if ($_REQUEST['ID'] > 0) {
 
                     $ID = intval($_REQUEST['ID']);
-                    
-                    $result = stores\PaymentHistory::update($ID, $data);
+
+                    $result = \travelsoft\booking\stores\PaymentHistory::update($ID, $data);
                 } else {
-                    
-                    $data['UF_COURSE_ID'] = $conveter->getCurrentCourseId();
+
+                    $data['UF_COURSE_INFO'] = SharedUtils::ats(
+                                    array(
+                                        'COURSE_ID' => $conveter->getCurrentCourseId(),
+                                        'COMMISSIONS' => $conveter->getCommissions())
+                    );
                     $data['UF_CREATER'] = $GLOBALS['USER']->GetID();
                     $data['UF_DATE_CREATE'] = date('d.m.Y H:i:s');
-                    $result = stores\PaymentHistory::add($data);
+                    $result = \travelsoft\booking\stores\PaymentHistory::add($data);
                 }
 
                 if ($result) {
@@ -2137,6 +2271,79 @@ class Utils {
 
 
         return array('errors' => $arErrors, 'result' => $result);
+    }
+    
+    /**
+     * 
+     * @param int $orderId
+     */
+    public static function getPaymentHistoryContent (int $orderId) {
+        
+        $content = '';
+        
+        $tbody = '';
+        
+        $dbHistories = \travelsoft\booking\stores\PaymentHistory::get(array('filter' => array('UF_ORDER_ID' => $orderId)), false);
+        
+        $arCashDesks = $arCreaters = $arPaymentTypes = array();
+        
+        while ($arPaymentHistory = $dbHistories->fetch() ) {
+            
+            if ($arPaymentHistory['UF_CASH_DESK_ID'] > 0) {
+                
+                if (!isset($arCashDesks[$arPaymentHistory['UF_CASH_DESK_ID']])) {
+                    $arCashDesks[$arPaymentHistory['UF_CASH_DESK_ID']] = current(stores\CashDesks::get(array('filter' => array('ID' => $arPaymentHistory['UF_CASH_DESK_ID']), 'select' => array('ID', 'UF_NAME'))));
+                }
+            }
+            
+            if ($arPaymentHistory['UF_PAYMENT_TYPE_ID'] > 0) {
+                
+                if (!isset($arPaymentTypes[$arPaymentHistory['UF_PAYMENT_TYPE_ID']])) {
+                    $arPaymentTypes[$arPaymentHistory['UF_PAYMENT_TYPE_ID']] = current(\travelsoft\booking\stores\PaymentsTypes::get(array('filter' => array('ID' => $arPaymentHistory['UF_PAYMENT_TYPE_ID']), 'select' => array('ID', 'UF_NAME'))));
+                }
+            }
+            
+            if ($arPaymentHistory['UF_CREATER'] > 0) {
+                
+                if (!isset($arCreaters[$arPaymentHistory['UF_CREATER']])) {
+                    $arCreaters[$arPaymentHistory['UF_CREATER']] = current(Users::get(array('filter' => array('ID' => $arPaymentHistory['UF_CREATER']), 'select' => array('ID', 'NAME', 'SECOND_NAME', 'LAST_NAME', 'EMAIL'))));
+                }
+            }
+                
+            $tbody .= '<tr>'
+                    . '<td style="text-align: left; border-bottom: 1px solid #000">' .$arPaymentHistory['UF_PRICE']. '</td>'
+                    . '<td style="text-align: left; border-bottom: 1px solid #000">' .$arPaymentHistory['UF_CURRENCY']. '</td>'
+                    . '<td style="text-align: left; border-bottom: 1px solid #000">' .$arCashDesks[$arPaymentHistory['UF_CASH_DESK_ID']]['UF_NAME']. '</td>'
+                    . '<td style="text-align: left; border-bottom: 1px solid #000">' .$arPaymentTypes[$arPaymentHistory['UF_PAYMENT_TYPE_ID']]['UF_NAME']. '</td>'
+                    . '<td style="text-align: left; border-bottom: 1px solid #000">' .$arCreaters[$arPaymentHistory['UF_CREATER']]['FULL_NAME_WITH_EMAIL']. '</td>'
+                    . '<td style="text-align: left; border-bottom: 1px solid #000">' .$arPaymentHistory['UF_DATE_CREATE']. '</td>'
+                    . '</tr>';
+        }
+        
+        if (strlen($tbody) > 0) {
+           
+            $content .= '<tr>';
+            $content .= '<td style="text-align: left; border-bottom: 1px solid #000"><b>Сумма</b></td>';
+            $content .= '<td style="text-align: left; border-bottom: 1px solid #000"><b>Валюта</b></td>';
+            $content .= '<td style="text-align: left; border-bottom: 1px solid #000"><b>Касса</b></td>';
+            $content .= '<td style="text-align: left; border-bottom: 1px solid #000"><b>Тип платежа</b></td>';
+            $content .= '<td style="text-align: left; border-bottom: 1px solid #000"><b>Создатель</b></td>';
+            $content .= '<td style="text-align: left; border-bottom: 1px solid #000"><b>Дата создания</b></td>';
+            $content .= '</tr>';
+            $content .= $tbody;
+            
+            $arOrder = Orders::getById($orderId);
+            
+//            $content .= '<tr><td colspan="5">Сумма: <b>'.$arOrder['UF_COST'] . ' ' . $arOrder['UF_CURRENCY'].'</b> Оплачено: '.$arOrder['PAID'] . ' ' . $arOrder['UF_CURRENCY'] . ' К оплате: '.$arOrder['TO_PAY'] . ' ' . $arOrder['UF_CURRENCY'] . '</td></tr>';
+            $content .= '<tr><td style="text-align: right; padding-top: 50px;" colspan="5">Сумма:</td><td style="padding-top: 50px"><b>'.$arOrder['UF_COST'] . ' ' . $arOrder['UF_CURRENCY'].'</b></td></tr>';
+            $content .= '<tr><td style="text-align: right" colspan="5">Оплачено:</td><td><b>'.$arOrder['PAID'] . ' ' . $arOrder['UF_CURRENCY'] . '</b></td></tr>';
+            $content .= '<tr><td style="text-align: right" colspan="5">К оплате:</td><td><b>'.$arOrder['TO_PAY'] . ' ' . $arOrder['UF_CURRENCY'] . '</b></td></tr>';
+        } else {
+            
+            $content .= '<tr><td colspan="6"><b>Платежей не поступило</b></td></tr>';
+        }
+        
+        return $content;
     }
     
     public static function _getInputHtml(array $parameters): string {
@@ -2160,6 +2367,32 @@ class Utils {
         $select .= '</select>';
 
         return self::getEditFieldHtml($parameters['label'] . ':', $select, boolval($parameters['required']), boolval($parameters['hide']));
+    }
+
+    /**
+     * Возвращает массив array("REFERENCE" => array(), "REFERENCE_ID" => array())для SelectBoxFromArray, SelectBoxMFromArray
+     * @param array $arElements
+     * @param string $referenceField
+     * @param string $referenceIdField
+     * @return array
+     */
+    public static function getReferencesSelectData(array $arElements, string $referenceField, string $referenceIdField): array {
+
+        $arData = array(
+            "REFERENCE" => array(),
+            "REFERENCE_ID" => array()
+        );
+
+        $arData['REFERENCE'][] = '...';
+        $arData['REFERENCE_ID'][] = '';
+
+        foreach ($arElements as $arElement) {
+
+            $arData['REFERENCE'][] = $arElement[$referenceField];
+            $arData['REFERENCE_ID'][] = $arElement[$referenceIdField];
+        }
+
+        return $arData;
     }
 
     /**

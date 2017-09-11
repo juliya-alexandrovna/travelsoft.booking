@@ -15,7 +15,7 @@ $(document).ready(function () {
 
                     if (typeof data.result === 'object' && data.result) {
 
-                        if (typeof data.result.content === 'string') {
+                        if (typeof data.result.content === 'string' && typeof data.result.content != '') {
 
                             // add table row new order
                             $("#" + CRM.config.table_id).prepend(data.result.content);

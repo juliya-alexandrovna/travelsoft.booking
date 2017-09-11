@@ -26,7 +26,6 @@ window.CRM = {
             var notifyWindow = new Notification(typeof config.title === 'string' ? config.title : '', options);
             notifyWindow.onclick = function (e) {
 
-                console.log(e);
             };
 
             notifyWindow.onshow = function (e) {

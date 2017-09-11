@@ -90,7 +90,8 @@ $main_options = array(
     'USER_GROUPS' => array(
         'MANAGERS_USER_GROUPS' => array("DESC" => "Группа пользователей для менеджеров", "VALUES" => $arGroups, 'TYPE' => 'select'),
         'AGENTS_USER_GROUPS' => array("DESC" => "Группа пользователей для агентов", "VALUES" => $arGroups, 'TYPE' => 'select'),
-        'CLIENTS_USER_GROUPS' => array("DESC" => "Группа пользователей для клиентов", "VALUES" => $arGroups, 'TYPE' => 'select')
+        'CLIENTS_USER_GROUPS' => array("DESC" => "Группа пользователей для клиентов", "VALUES" => $arGroups, 'TYPE' => 'select'),
+        'CASHERS_USER_GROUPS' => array("DESC" => "Группа пользователей для кассиров", "VALUES" => $arGroups, 'TYPE' => 'select')
     ),
     'ORDERS' => array(
         'STATUS_ID_FOR_ORDER_CREATION' => array('DESC' => "При создании заказа устанавливать статус", "VALUES" => $arStatuses, 'TYPE' => 'select'),

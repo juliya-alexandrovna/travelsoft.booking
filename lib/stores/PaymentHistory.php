@@ -1,6 +1,6 @@
 <?php
 
-namespace travelsoft\booking\crm\stores;
+namespace travelsoft\booking\stores;
 
 use travelsoft\booking\adapters\Highloadblock;
 

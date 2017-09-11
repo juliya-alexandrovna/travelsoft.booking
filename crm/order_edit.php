@@ -1,4 +1,5 @@
 <?
+
 /** @global CMain $APPLICATION */
 /** @global CDatabase $DB */
 
@@ -22,10 +23,11 @@ $APPLICATION->AddHeadString("<script src='/local/modules/travelsoft.booking/crm/
 </style>
 
 <?
+
 try {
 
     $ID = intVal($_REQUEST['ID']);
-    
+
     $title = 'Создание заказа';
     if ($ID > 0) {
 
@@ -35,35 +37,46 @@ try {
 
             throw new Exception('Бронь с ID="' . $ID . '" не найдена');
         }
-        
+
         $title = 'Редактирование заказа #' . $arOrder['ID'];
     }
-    
+
     $APPLICATION->SetTitle($title);
-    
+
     $arResult = Utils::processingOrderEditForm();
-    
+
     require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_admin_after.php");
-    
+
     if (!empty($arResult['errors'])) {
-        
+
         CAdminMessage::ShowMessage(array(
-            "MESSAGE"=> implode('<br>', $arResult['errors']),
-            "TYPE"=>"ERROR"
-         ));
+            "MESSAGE" => implode('<br>', $arResult['errors']),
+            "TYPE" => "ERROR"
+        ));
     }
-    
+
+    $arTabs = array(
+        array(
+            "DIV" => "ORDER",
+            "TAB" => 'Заказ',
+            "TITLE" => 'Информация по заказу',
+            'content' => Utils::getEditOrderFieldsContent((array) $arOrder))
+    );
+
+    if ($arOrder['ID'] > 0) {
+        $arTabs[] = array(
+            "DIV" => "PAYMENT_HISTORY",
+            "TAB" => 'Платежи',
+            "TITLE" => 'История платежей',
+            'content' => Utils::getPaymentHistoryContent(intVal($arOrder['ID']))
+        );
+    }
+
     Utils::showEditForm(array(
         'action' => $APPLICATION->GetCurPageParam(),
         'name' => 'order_form',
         'id' => 'order_form',
-        'tabs' => array(
-            array(
-                "DIV" => "ORDER", 
-                "TAB" => 'Заказ', 
-                "TITLE" => 'Информация по заказу', 
-                'content' => Utils::getEditOrderFieldsContent((array)$arOrder))
-            ),
+        'tabs' => $arTabs,
         'buttons' => array(
             array(
                 'class' => 'adm-btn-save',
@@ -76,7 +89,6 @@ try {
             )
         )
     ));
-    
 } catch (Exception $e) {
 
     require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_admin_after.php");

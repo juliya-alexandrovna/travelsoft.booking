@@ -29,7 +29,7 @@ try {
     $title = 'Добавление элемента истории платежа';
     if ($ID > 0) {
 
-        $arPaymentHistory = travelsoft\booking\crm\stores\PaymentHistory::getById($ID);
+        $arPaymentHistory = travelsoft\booking\stores\PaymentHistory::getById($ID);
 
         if (!$arPaymentHistory['ID']) {
 

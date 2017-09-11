@@ -207,6 +207,15 @@ class Settings {
 
         return (int) self::get("MANAGERS_USER_GROUPS");
     }
+    
+    /**
+     * Возвращает id группы пользователей для кассиров
+     * @return int
+     */
+    public static function cashersUGroup(): int {
+
+        return (int) self::get("CASHERS_USER_GROUPS");
+    }
 
     /**
      * @param string $name

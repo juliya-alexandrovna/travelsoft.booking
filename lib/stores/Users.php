@@ -74,12 +74,16 @@ class Users extends Store {
 
                 $callback($arUser);
                 $result[$arUser['ID']] = $arUser;
+                $result[$arUser['ID']]['FULL_NAME'] = self::getFullUserNameByFields($arUser);
+                $result[$arUser['ID']]['FULL_NAME_WITH_EMAIL'] = self::getFullUserNameWithEmailByFields($arUser);
             }
         } else {
 
             while ($arUser = $dbList->GetNext()) {
 
                 $result[$arUser['ID']] = $arUser;
+                $result[$arUser['ID']]['FULL_NAME'] = self::getFullUserNameByFields($arUser);
+                $result[$arUser['ID']]['FULL_NAME_WITH_EMAIL'] = self::getFullUserNameWithEmailByFields($arUser);
             }
         }
         

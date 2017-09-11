@@ -21,6 +21,7 @@ $classes = array(
     "travelsoft\\booking\\stores\\Tours" => "lib/stores/Tours.php",
     "travelsoft\\booking\\stores\\Duration" => "lib/stores/Duration.php",
     "travelsoft\\booking\\stores\\PaymentsTypes" => "lib/stores/PaymentsTypes.php",
+    "travelsoft\\booking\\stores\\PaymentHistory" => "lib/stores/PaymentHistory.php",
     "travelsoft\\booking\\stores\\Users" => "lib/stores/Users.php",
     "travelsoft\\booking\\Settings" => "lib/Settings.php",
     "travelsoft\\booking\\EventsHandlers" => "lib/EventsHandlers.php",
@@ -34,7 +35,6 @@ if (ADMIN_SECTION === true) {
     $classes["travelsoft\\booking\\crm\\stores\\Settings"] = "lib/crm/stores/Settings.php";
     $classes["travelsoft\\booking\\crm\\Utils"] = "lib/crm/Utils.php";
     $classes["travelsoft\\booking\\crm\\stores\\CashDesks"] = "lib/crm/stores/CashDesks.php";
-    $classes["travelsoft\\booking\\crm\\stores\\PaymentHistory"] = "lib/crm/stores/PaymentHistory.php";
     $classes["travelsoft\\booking\\crm\\Settings"] = "lib/crm/Settings.php";
 }
 

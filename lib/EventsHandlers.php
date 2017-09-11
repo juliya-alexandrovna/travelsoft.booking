@@ -2,7 +2,7 @@
 
 namespace travelsoft\booking;
 
-use travelsoft\booking\crm\Settings;
+use travelsoft\booking\crm\Settings as CRMSettings;
 
 /**
  * Класс методов обработки событий
@@ -22,7 +22,88 @@ class EventsHandlers {
         global $USER;
 
         if (crm\Utils::access()) {
-
+            
+            $currentUserGroups = $USER->GetUserGroupArray();
+            
+            $arAllMenuItems = array(
+                    CRMSettings::ADD_PRICES_URL => array(
+                        "text" => "Цены и наличие мест",
+                        "url" => CRMSettings::ADD_PRICES_URL . "?lang=" . LANGUAGE_ID,
+                        "more_url" => array(),
+                        "title" => "Цены и наличие мест",
+                    ),
+                    CRMSettings::ORDERS_LIST_URL => array(
+                        "text" => "Список заказов",
+                        "url" => CRMSettings::ORDERS_LIST_URL . "?lang=" . LANGUAGE_ID,
+                        "more_url" => array(CRMSettings::ORDER_EDIT_URL),
+                        "title" => "Список заказов",
+                    ),
+                    CRMSettings::CLIENTS_LIST_URL => array(
+                        "text" => "Клиенты",
+                        "url" => CRMSettings::CLIENTS_LIST_URL . "?lang=" . LANGUAGE_ID,
+                        "more_url" => array(CRMSettings::CLIENT_EDIT_URL),
+                        "title" => "Клиенты",
+                    ),
+                    CRMSettings::TOURISTS_LIST_URL => array(
+                        "text" => "Туристы",
+                        "url" => CRMSettings::TOURISTS_LIST_URL . "?lang=" . LANGUAGE_ID,
+                        "more_url" => array(CRMSettings::TOURIST_EDIT_URL),
+                        "title" => "Туристы",
+                    ),
+                    CRMSettings::DOCUMENTS_URL => array(
+                        "text" => "Документы",
+                        "url" => CRMSettings::DOCUMENTS_URL . "?lang=" . LANGUAGE_ID,
+                        "more_url" => array(),
+                        "title" => "Документы",
+                    ),
+                    CRMSettings::PAYMENT_HISTORY_LIST_URL => array(
+                        "text" => "История платежей",
+                        "url" => CRMSettings::PAYMENT_HISTORY_LIST_URL . "?lang=" . LANGUAGE_ID,
+                        "more_url" => array(CRMSettings::PAYMENT_HISTORY_EDIT_URL),
+                        "title" => "История платежей",
+                    ),
+                    CRMSettings::CASH_DESKS_LIST_URL => array(
+                        "text" => "Кассы",
+                        "url" => CRMSettings::CASH_DESKS_LIST_URL . "?lang=" . LANGUAGE_ID,
+                        "more_url" => array(CRMSettings::CASH_DESK_EDIT_URL),
+                        "title" => "Кассы",
+                    ),
+                    CRMSettings::PAYMENTS_TYPES_LIST_URL => array(
+                        "text" => "Типы оплаты",
+                        "url" => CRMSettings::PAYMENTS_TYPES_LIST_URL . "?lang=" . LANGUAGE_ID,
+                        "more_url" => array(CRMSettings::PAYMENT_TYPE_EDIT_URL),
+                        "title" => "Типы оплаты",
+                    )
+                );
+            
+            $arMenuItems = array();
+            
+            if ($USER->IsAdmin()) {
+                
+                $arMenuItems = $arAllMenuItems;
+                
+            } elseif (in_array(Settings::cashersUGroup(), $currentUserGroups)) {
+                
+                $arMenuItems = array(
+                    CRMSettings::ORDERS_LIST_URL => $arAllMenuItems[CRMSettings::ORDERS_LIST_URL],
+                    CRMSettings::DOCUMENTS_URL => $arAllMenuItems[CRMSettings::DOCUMENTS_URL],
+                    CRMSettings::PAYMENT_HISTORY_LIST_URL => $arAllMenuItems[CRMSettings::PAYMENT_HISTORY_LIST_URL],
+                    CRMSettings::CASH_DESKS_LIST_URL => $arAllMenuItems[CRMSettings::CASH_DESKS_LIST_URL],
+                    CRMSettings::PAYMENTS_TYPES_LIST_URL => $arAllMenuItems[CRMSettings::PAYMENTS_TYPES_LIST_URL]
+                );
+            }
+            
+            if (in_array(Settings::managersUGroup(), $currentUserGroups)) {
+                
+                $arMenuItems = array(
+                    CRMSettings::ADD_PRICES_URL => $arAllMenuItems[CRMSettings::ADD_PRICES_URL],
+                    CRMSettings::ORDERS_LIST_URL => $arAllMenuItems[CRMSettings::ORDERS_LIST_URL],
+                    CRMSettings::CLIENTS_LIST_URL => $arAllMenuItems[CRMSettings::CLIENTS_LIST_URL],
+                    CRMSettings::TOURISTS_LIST_URL => $arAllMenuItems[CRMSettings::TOURISTS_LIST_URL],
+                    CRMSettings::DOCUMENTS_URL => $arAllMenuItems[CRMSettings::DOCUMENTS_URL]
+                );
+            }
+            
             $arGlobalMenu["global_menu_travelsoft_crm"] = array(
                 "menu_id" => "travelsoft_booking_crm",
                 "text" => "CRM",
@@ -30,56 +111,7 @@ class EventsHandlers {
                 "sort" => 500,
                 "items_id" => "global_menu_travelsoft_booking_crm",
                 "help_section" => "travelsoft_booking_crm",
-                "items" => array(
-                    array(
-                        "text" => "Цены и наличие мест",
-                        "url" => Settings::ADD_PRICES_URL . "?lang=" . LANGUAGE_ID,
-                        "more_url" => array(),
-                        "title" => "Цены и наличие мест",
-                    ),
-                    array(
-                        "text" => "Список заказов",
-                        "url" => Settings::ORDERS_LIST_URL . "?lang=" . LANGUAGE_ID,
-                        "more_url" => array(Settings::ORDER_EDIT_URL),
-                        "title" => "Список заказов",
-                    ),
-                    array(
-                        "text" => "Клиенты",
-                        "url" => Settings::CLIENTS_LIST_URL . "?lang=" . LANGUAGE_ID,
-                        "more_url" => array(Settings::CLIENT_EDIT_URL),
-                        "title" => "Клиенты",
-                    ),
-                    array(
-                        "text" => "Туристы",
-                        "url" => Settings::TOURISTS_LIST_URL . "?lang=" . LANGUAGE_ID,
-                        "more_url" => array(Settings::TOURIST_EDIT_URL),
-                        "title" => "Туристы",
-                    ),
-                    array(
-                        "text" => "Документы",
-                        "url" => Settings::DOCUMENTS_URL . "?lang=" . LANGUAGE_ID,
-                        "more_url" => array(),
-                        "title" => "Документы",
-                    ),
-                    array(
-                        "text" => "История платежей",
-                        "url" => Settings::PAYMENT_HISTORY_LIST_URL . "?lang=" . LANGUAGE_ID,
-                        "more_url" => array(Settings::PAYMENT_HISTORY_EDIT_URL),
-                        "title" => "История платежей",
-                    ),
-                    array(
-                        "text" => "Кассы",
-                        "url" => Settings::CASH_DESKS_LIST_URL . "?lang=" . LANGUAGE_ID,
-                        "more_url" => array(Settings::CASH_DESK_EDIT_URL),
-                        "title" => "Кассы",
-                    ),
-                    array(
-                        "text" => "Типы оплаты",
-                        "url" => Settings::PAYMENTS_TYPES_LIST_URL . "?lang=" . LANGUAGE_ID,
-                        "more_url" => array(Settings::PAYMENT_TYPE_EDIT_URL),
-                        "title" => "Типы оплаты",
-                    )
-                )
+                "items" => array_values($arMenuItems)
             );
         }
     }
@@ -96,7 +128,7 @@ class EventsHandlers {
                 $arParameters['fields']['UF_STATUS_ID'] == \travelsoft\booking\Settings::cancellationStatus() &&
                 $arOrder['UF_STATUS_ID'] != $arParameters['fields']['UF_STATUS_ID']
         ) {
-            
+
             // ФЛАГ НА АННУЛЯЦИЮ
             $GLOBALS['__TRAVELSOFT']['NEED_CANCELLATION'] = true;
         }
@@ -113,9 +145,9 @@ class EventsHandlers {
 
             // АННУЛИРОВАНИЕ
             $dateFrom = $arOrder['UF_DATE_FROM'] ? $arOrder['UF_DATE_FROM']->toString() : '';
-            
+
             Utils::bookingTourCancellation(
-                    (int)$arOrder['UF_SERVICE_ID'], $dateFrom, (int) $arOrder['UF_ADULTS'], (int) $arOrder['UF_CHILDREN']
+                    (int) $arOrder['UF_SERVICE_ID'], $dateFrom, (int) $arOrder['UF_ADULTS'], (int) $arOrder['UF_CHILDREN']
             );
         }
         unset($GLOBALS['__TRAVELSOFT']['NEED_CANCELLATION']);
@@ -137,14 +169,12 @@ class EventsHandlers {
                 $GLOBALS['__TRAVELSOFT']['ORDERS_FIELDS_BEFORE_DELETE']['UF_SERVICE_ID'] > 0 &&
                 $GLOBALS['__TRAVELSOFT']['ORDERS_FIELDS_BEFORE_DELETE']['UF_STATUS_ID'] != \travelsoft\booking\Settings::cancellationStatus()
         ) {
-            
+
             // АННУЛИРОВАНИЕ
             $dateFrom = $GLOBALS['__TRAVELSOFT']['ORDERS_FIELDS_BEFORE_DELETE']['UF_DATE_FROM'] ? $GLOBALS['__TRAVELSOFT']['ORDERS_FIELDS_BEFORE_DELETE']['UF_DATE_FROM']->toString() : '';
             Utils::bookingTourCancellation(
                     (int) $GLOBALS['__TRAVELSOFT']['ORDERS_FIELDS_BEFORE_DELETE']['UF_SERVICE_ID'], $dateFrom, (int) $GLOBALS['__TRAVELSOFT']['ORDERS_FIELDS_BEFORE_DELETE']['UF_ADULTS'], (int) $GLOBALS['__TRAVELSOFT']['ORDERS_FIELDS_BEFORE_DELETE']['UF_CHILDREN']);
-
         }
         unset($GLOBALS['__TRAVELSOFT']['ORDERS_FIELDS_BEFORE_DELETE']);
     }
-
 }
