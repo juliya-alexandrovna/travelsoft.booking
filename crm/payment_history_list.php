@@ -15,13 +15,6 @@ use travelsoft\booking\crm\Utils;
 
 require_once 'header.php';
 
-$APPLICATION->AddHeadString("<link rel='stylesheet' href='/local/modules/travelsoft.booking/crm/css/select2.min.css'>");
-$APPLICATION->AddHeadString("<link rel='stylesheet' href='/local/modules/travelsoft.booking/crm/css/payment_history_list.css?v=h'>");
-$APPLICATION->AddHeadString("<script src='/local/modules/travelsoft.booking/crm/js/plugins/jquery-3.2.1.min.js'></script>");
-$APPLICATION->AddHeadString("<script src='/local/modules/travelsoft.booking/crm/js/plugins/select2.full.min.js'></script>");
-$APPLICATION->AddHeadString("<script src='/local/modules/travelsoft.booking/crm/js/payment_history_list.js?v=b'></script>");
-
-
 $sort = new CAdminSorting(Settings::PAYMENT_HISTORY_HTML_TABLE_ID, "ID", "DESC");
 $list = new CAdminList(Settings::PAYMENT_HISTORY_HTML_TABLE_ID, $sort);
 
@@ -198,7 +191,7 @@ while ($arPaymentElementHistory = $dbResult->Fetch()) {
     }
 
     if (isset($arCreaters[$arPaymentElementHistory['UF_CREATER']])) {
-        $row->AddViewField("UF_CREATER", Users::getFullUserNameWithEmailByFields($arCreaters[$arPaymentElementHistory['UF_CREATER']]));
+        $row->AddViewField("UF_CREATER", $arCreaters[$arPaymentElementHistory['UF_CREATER']]['FULL_NAME_WITH_EMAIL']);
     }
 
     $row->AddActions(array(

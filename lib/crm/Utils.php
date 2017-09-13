@@ -884,12 +884,12 @@ class Utils {
 
         $form .= '<tr>';
 
-        $form .= '<td id="filter-title" colspan="2"><b>Фильтр<b></td>';
+        $form .= '<td id="filter-title" style="font-size: 23px; padding-bottom: 10px;" colspan="2"><b>Фильтр<b></td>';
 
         $form .= '</tr>';
 
         $form .= '<tr>';
-
+        
         foreach ($parameters['form_elements'] as $key => $arFormElement) {
 
             $form .= '<td class="form-element-cell">';
@@ -922,7 +922,44 @@ class Utils {
                 . '</table>'
                 . '</div>'
                 . '</form>';
-        echo $form;
+        
+        $APPLICATION->AddHeadString("<link rel='stylesheet' href='/local/modules/travelsoft.booking/crm/css/select2.min.css'>");
+        $APPLICATION->AddHeadString("<script src='/local/modules/travelsoft.booking/crm/js/plugins/jquery-3.2.1.min.js'></script>");
+        $APPLICATION->AddHeadString("<script src='/local/modules/travelsoft.booking/crm/js/plugins/select2.full.min.js'></script>");
+        
+        $style = '<style>
+            .adm-filter-select {
+                width: 100% !important;
+            }
+
+            .adm-filter-item-center .select2-container {
+                margin-left: 12px;
+            }
+
+            .form-element-cell {
+                width: 50%;
+                padding-bottom: 10px;
+            }
+
+            .adm-input-wrap {
+                margin: 0px !important;
+            }
+
+            .adm-filter-main-table label {
+                margin-left: 0px !important;
+            }
+
+            #filter-title {
+                font-size: 23px;
+                padding-bottom: 10px;
+            }
+            </style>';
+        
+        $script = '<script>'
+                . '$(document).ready(function () { $(".adm-filter-select").select2(); })'
+                . '</script>';
+        
+        echo $style . $form . $script;
     }
 
     /**
@@ -1740,111 +1777,219 @@ class Utils {
      */
     public static function getOrdersTableHeaders(): array {
 
-        $arHeaders = array(
-            array(
-                "id" => "ID",
-                "content" => "Номер брони",
-                "sort" => "ID",
-                "align" => "center",
-                "default" => true
-            ),
-            array(
-                "id" => "UF_STATUS_ID",
-                "content" => "Статус брони",
-                "sort" => "UF_STATUS_ID",
-                "align" => "center",
-                "default" => true
-            ),
-            array(
-                "id" => "UF_SERVICE_NAME",
-                "content" => "Услуги",
-                "sort" => "UF_SERVICE_NAME",
-                "align" => "center",
-                "default" => true
-            ),
-            array(
-                "id" => "UF_CLIENT_NAME",
-                "content" => "Клиент",
-                "align" => "center",
-                "default" => true
-            ),
-            array(
-                "id" => "CLIENT_IS_AGENT",
-                "content" => "Является агентом",
-                "align" => "center",
-                "default" => true
-            ),
-            array(
-                "id" => "UF_CLIENT_PHONE",
-                "content" => "Телефон клиента",
-                "align" => "center",
-                "default" => true
-            ),
-            array(
-                "id" => "UF_DATE",
-                "content" => "Дата создания брони",
-                "align" => "center",
-                "default" => true
-            ),
-            array(
-                "id" => "UF_DATE_FROM",
-                "content" => "Дата начала",
-                "align" => "center",
-                "default" => true
-            ),
-            array(
-                "id" => "UF_DATE_TO",
-                "content" => "Дата окончания",
-                "align" => "center",
-                "default" => true
-            ),
-            array(
-                "id" => "UF_DURATION",
-                "content" => "Продолжительность (дней)",
-                "align" => "center",
-                "default" => true
-            ),
-            array(
-                "id" => "UF_ADULTS",
-                "content" => "Количество взрослых",
-                "align" => "center",
-                "default" => true
-            ),
-            array(
-                "id" => "UF_CHILDREN",
-                "content" => "Количество детей",
-                "align" => "center",
-                "default" => true
-            ),
-            array(
-                "id" => "UF_COST",
-                "content" => "Стоимость",
-                "align" => "center",
-                "default" => true
-            ),
-            array(
-                "id" => "PAID",
-                "content" => "Оплачено",
-                "align" => "center",
-                "default" => true
-            ),
-            array(
-                "id" => "TO_PAY",
-                "content" => "К оплате",
-                "align" => "center",
-                "default" => true
-            ),
-            array(
-                "id" => "UF_CURRENCY",
-                "content" => "Валюта",
-                "align" => "center",
-                "default" => true
-            )
-        );
+        static $arHeaders = array();
+
+        if (empty($arHeaders)) {
+            
+            $dbOrders = Orders::get(array('select' => array('ID', 'UF_SERVICE_NAME', 'UF_USER_ID', 'UF_DATE', 'UF_STATUS_ID')), false);
+            
+            $arToursNames = $arClients = $arStatuses = array();
+            while ($arOrder = $dbOrders->fetch()) {
+                
+                 if (!in_array($arOrder['UF_SERVICE_NAME'], $arToursNames['REFERENCE'])) {
+                     
+                     $arToursNames['REFERENCE'][] = $arOrder['UF_SERVICE_NAME'];
+                     $arToursNames['REFERENCE_ID'][] = $arOrder['UF_SERVICE_NAME'];
+                 }
+                 
+                 if (!isset($arClients[$arOrder['UF_USER_ID']])) {
+                     
+                     $arClients[$arOrder['UF_USER_ID']] = current(Users::get(array('filter' => array('ID' => $arOrder['UF_USER_ID']), 'select' => array('ID', 'NAME', 'SECOND_NAME', 'LAST_NAME', 'EMAIL', 'UF_LEGAL_NAME'))));
+                     if (strlen($arClients[$arOrder['UF_USER_ID']]['UF_LEGAL_NAME']) > 0) {
+                         $arClients[$arOrder['UF_USER_ID']]['FULL_NAME_WITH_EMAIL'] = $arClients[$arOrder['UF_USER_ID']]['UF_LEGAL_NAME'];
+                     }
+                 }
+                 
+                 if (!isset($arStatuses[$arOrder['UF_STATUS_ID']])) {
+                     
+                     $arStatuses[$arOrder['UF_STATUS_ID']] = current(Statuses::get(array('filter' => array('ID' => $arOrder['UF_STATUS_ID']), 'select' => array('ID', 'UF_NAME'))));
+                     
+                 }
+            }
+            
+            array_unshift($arToursNames['REFERENCE'], '...');
+            array_unshift($arToursNames['REFERENCE_ID'], '');
+            
+            $arHeaders = array(
+                array(
+                    "id" => "ID",
+                    "content" => "Номер брони",
+                    "sort" => "ID",
+                    "align" => "center",
+                    "default" => true
+                ),
+                array(
+                    "id" => "UF_DATE_FROM",
+                    "content" => "Дата тура",
+                    "align" => "center",
+                    "default" => true,
+                    "filter_form_element" => array(
+                        'label' => 'Дата тура',
+                        'view' => \CAdminCalendar::CalendarDate('UF_DATE_FROM', $_GET['UF_DATE_FROM'], 19, true)
+                    )
+                ),
+                array(
+                    "id" => "UF_SERVICE_NAME",
+                    "content" => "Название тура",
+                    "sort" => "UF_SERVICE_NAME",
+                    "align" => "center",
+                    "default" => true,
+                    "filter_form_element" => array(
+                        'label' => 'Название тура',
+                        'view' => \SelectBoxFromArray("UF_SERVICE_NAME", $arToursNames, $_GET['UF_SERVICE_NAME'], "", 'class="adm-filter-select"', false, "find_form")
+                    )
+                ),
+                array(
+                    "id" => "UF_CLIENT_NAME",
+                    "content" => "Клиент",
+                    "align" => "center",
+                    "default" => true,
+                    "filter_form_element" => array(
+                        'label' => 'Клиент',
+                        'view' => \SelectBoxFromArray("UF_USER_ID", self::getReferencesSelectData($arClients, 'FULL_NAME_WITH_EMAIL', 'ID'), $_GET['UF_USER_ID'], "", 'class="adm-filter-select"', false, "find_form")
+                    )
+                ),
+                array(
+                    "id" => "UF_ADULTS",
+                    "content" => "Количество взрослых",
+                    "align" => "center",
+                    "default" => true
+                ),
+                array(
+                    "id" => "UF_CHILDREN",
+                    "content" => "Количество детей",
+                    "align" => "center",
+                    "default" => true
+                ),
+                array(
+                    "id" => "UF_DURATION",
+                    "content" => "Количество дней",
+                    "align" => "center",
+                    "default" => true
+                ),
+                array(
+                    "id" => "UF_FOOD",
+                    "content" => "Питание",
+                    "align" => "center",
+                    "default" => true
+                ),
+                array(
+                    "id" => "UF_COST",
+                    "content" => "Стоимость",
+                    "align" => "center",
+                    "default" => true
+                ),
+                array(
+                    "id" => "PAID",
+                    "content" => "Оплачено",
+                    "align" => "center",
+                    "default" => true
+                ),
+                array(
+                    "id" => "TO_PAY",
+                    "content" => "К оплате",
+                    "align" => "center",
+                    "default" => true
+                ),
+                array(
+                    "id" => "UF_CURRENCY",
+                    "content" => "Валюта",
+                    "align" => "center",
+                    "default" => true
+                ),
+                array(
+                    'id' => 'UF_DATE',
+                    'content' => 'Дата создания',
+                    'align' => 'center',
+                    'default' => true,
+                    "filter_form_element" => array(
+                        'label' => 'Дата создания',
+                        'view' => \CAdminCalendar::CalendarDate('UF_DATE', $_GET['UF_DATE'], 19, true)
+                    )
+                ),
+                array(
+                    "id" => "UF_STATUS_ID",
+                    "content" => "Статус брони",
+                    "sort" => "UF_STATUS_ID",
+                    "align" => "center",
+                    "default" => true,
+                    "filter_form_element" => array(
+                        'label' => 'Статус',
+                        'view' => \SelectBoxFromArray("UF_STATUS_ID", self::getReferencesSelectData($arStatuses, 'UF_NAME', 'ID'), $_GET['UF_STATUS_ID'], "", 'class="adm-filter-select"', false, "find_form")
+                    )
+                )
+            );
+        }
 
         return $arHeaders;
     }
-
+    
+    /**
+     * Фильтр списка заказов
+     * @return array
+     */
+    public static function getOrdersListFilter () : array {
+        
+        if (strlen($_REQUEST['CANCEL']) > 0) {
+            \LocalRedirect($GLOBALS['APPLICATION']->GetCurPageParam("", array(
+                        'UF_SERVICE_NAME',
+                        'UF_DATE_FROM',
+                        'UF_DATE',
+                        'UF_USER_ID',
+                        'UF_STATUS_ID',
+                        'CANCEL'
+            )));
+        }
+        
+        $filter = array();
+        if (strlen($_GET['UF_SERVICE_NAME']) > 0) {
+            
+            $filter['UF_SERVICE_NAME'] = '%' . $_GET['UF_SERVICE_NAME'] . '%';
+        }
+        
+        if (strlen($_GET['UF_DATE_FROM']) > 0) {
+            
+            $filter['UF_DATE_FROM'] = \travelsoft\booking\adapters\Date::create($_GET['UF_DATE_FROM']);
+        }
+        
+        if (strlen($_GET['UF_DATE']) > 0) {
+            
+            $filter['UF_DATE'] = \travelsoft\booking\adapters\Date::create($_GET['UF_DATE']);
+        }
+        
+        if ($_GET['UF_USER_ID'] > 0) {
+            
+            $filter['UF_USER_ID'] = $_GET['UF_USER_ID'];
+        }
+        
+        if ($_GET['UF_STATUS_ID'] > 0) {
+            
+            $filter['UF_STATUS_ID'] = $_GET['UF_STATUS_ID'];
+        }
+        
+        return $filter;
+    }
+    
+    /**
+     * HTML элементы фильтра списка заказов
+     * @return type
+     */
+    public static function getOrderFilterFormElements (): array {
+        
+        $arFields = self::getOrdersTableHeaders();
+        
+        $arFilterFormElements = array();
+        
+        foreach ($arFields as $arField) {
+            
+            if (!empty($arField['filter_form_element']) && is_array($arField['filter_form_element'])) {
+                $arFilterFormElements[] = $arField['filter_form_element'];
+            }
+        }
+        
+        return $arFilterFormElements;
+    }
+    
     /**
      * Подготовка строки таблицы заказов
      * @param \CAdminListRow $row
@@ -1865,24 +2010,17 @@ class Utils {
 
         if ($arData['ORDER']['UF_USER_ID']) {
 
-            $arUser = Users::getById($arData['ORDER']['UF_USER_ID']);
-            $CNAME = Users::getFullUserNameWithEmailByFields((array) $arUser);
+            $arUser = current(Users::get(array('filter' => array('ID' => $arData['ORDER']['UF_USER_ID']), 'select' => array('ID', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'UF_LEGAL_NAME'))));
+
+            if (in_array(Settings::agentsUGroup(), $GLOBALS['USER']->GetUserGroup($arUser['ID']))) {
+
+                $CNAME = $arUser['UF_LEGAL_NAME'];
+            } else {
+                $CNAME = $arUser['FULL_NAME_WITH_EMAIL'];
+            }
         }
-
-        $isAgent = "Нет";
-        if ($arUser['ID'] > 0 && in_array(Settings::agentsUGroup(), $GLOBALS['USER']->GetUserGroup($arUser['ID']))) {
-
-            $isAgent = 'Да';
-        }
-
-        $row->AddViewField('CLIENT_IS_AGENT', $isAgent);
 
         $row->AddViewField("UF_CLIENT_NAME", '<a target="__blank" href="' . CRMSettings::CLIENT_EDIT_URL . '?lang=' . LANG . '&ID=' . $arData['ORDER']['UF_USER_ID'] . '">' . $CNAME . '</a>');
-
-        if ($arUser['PERSONAL_PHONE']) {
-
-            $row->AddViewField("UF_CLIENT_PHONE", $arUser['PERSONAL_PHONE']);
-        }
 
         $row->AddActions(array(
             array(
@@ -1895,7 +2033,7 @@ class Utils {
                 "ICON" => "delete",
                 "DEFAULT" => true,
                 "TEXT" => "Удалить",
-                "ACTION" => "if(confirm('Действительно хотите удалить бронь')) ".CRMSettings::ORDERS_HTML_TABLE_ID.".GetAdminList('/bitrix/admin/" . CRMSettings::ORDERS_LIST_URL . "?ID=" . $arData['ORDER']['ID'] . "&action_button=delete&lang=" . LANGUAGE_ID . "&sessid=" . bitrix_sessid() . "');"
+                "ACTION" => "if(confirm('Действительно хотите удалить бронь')) " . CRMSettings::ORDERS_HTML_TABLE_ID . ".GetAdminList('/bitrix/admin/" . CRMSettings::ORDERS_LIST_URL . "?ID=" . $arData['ORDER']['ID'] . "&action_button=delete&lang=" . LANGUAGE_ID . "&sessid=" . bitrix_sessid() . "');"
             )
         ));
     }
@@ -2272,56 +2410,56 @@ class Utils {
 
         return array('errors' => $arErrors, 'result' => $result);
     }
-    
+
     /**
      * 
      * @param int $orderId
      */
-    public static function getPaymentHistoryContent (int $orderId) {
-        
+    public static function getPaymentHistoryContent(int $orderId) {
+
         $content = '';
-        
+
         $tbody = '';
-        
+
         $dbHistories = \travelsoft\booking\stores\PaymentHistory::get(array('filter' => array('UF_ORDER_ID' => $orderId)), false);
-        
+
         $arCashDesks = $arCreaters = $arPaymentTypes = array();
-        
-        while ($arPaymentHistory = $dbHistories->fetch() ) {
-            
+
+        while ($arPaymentHistory = $dbHistories->fetch()) {
+
             if ($arPaymentHistory['UF_CASH_DESK_ID'] > 0) {
-                
+
                 if (!isset($arCashDesks[$arPaymentHistory['UF_CASH_DESK_ID']])) {
                     $arCashDesks[$arPaymentHistory['UF_CASH_DESK_ID']] = current(stores\CashDesks::get(array('filter' => array('ID' => $arPaymentHistory['UF_CASH_DESK_ID']), 'select' => array('ID', 'UF_NAME'))));
                 }
             }
-            
+
             if ($arPaymentHistory['UF_PAYMENT_TYPE_ID'] > 0) {
-                
+
                 if (!isset($arPaymentTypes[$arPaymentHistory['UF_PAYMENT_TYPE_ID']])) {
                     $arPaymentTypes[$arPaymentHistory['UF_PAYMENT_TYPE_ID']] = current(\travelsoft\booking\stores\PaymentsTypes::get(array('filter' => array('ID' => $arPaymentHistory['UF_PAYMENT_TYPE_ID']), 'select' => array('ID', 'UF_NAME'))));
                 }
             }
-            
+
             if ($arPaymentHistory['UF_CREATER'] > 0) {
-                
+
                 if (!isset($arCreaters[$arPaymentHistory['UF_CREATER']])) {
                     $arCreaters[$arPaymentHistory['UF_CREATER']] = current(Users::get(array('filter' => array('ID' => $arPaymentHistory['UF_CREATER']), 'select' => array('ID', 'NAME', 'SECOND_NAME', 'LAST_NAME', 'EMAIL'))));
                 }
             }
-                
+
             $tbody .= '<tr>'
-                    . '<td style="text-align: left; border-bottom: 1px solid #000">' .$arPaymentHistory['UF_PRICE']. '</td>'
-                    . '<td style="text-align: left; border-bottom: 1px solid #000">' .$arPaymentHistory['UF_CURRENCY']. '</td>'
-                    . '<td style="text-align: left; border-bottom: 1px solid #000">' .$arCashDesks[$arPaymentHistory['UF_CASH_DESK_ID']]['UF_NAME']. '</td>'
-                    . '<td style="text-align: left; border-bottom: 1px solid #000">' .$arPaymentTypes[$arPaymentHistory['UF_PAYMENT_TYPE_ID']]['UF_NAME']. '</td>'
-                    . '<td style="text-align: left; border-bottom: 1px solid #000">' .$arCreaters[$arPaymentHistory['UF_CREATER']]['FULL_NAME_WITH_EMAIL']. '</td>'
-                    . '<td style="text-align: left; border-bottom: 1px solid #000">' .$arPaymentHistory['UF_DATE_CREATE']. '</td>'
+                    . '<td style="text-align: left; border-bottom: 1px solid #000">' . $arPaymentHistory['UF_PRICE'] . '</td>'
+                    . '<td style="text-align: left; border-bottom: 1px solid #000">' . $arPaymentHistory['UF_CURRENCY'] . '</td>'
+                    . '<td style="text-align: left; border-bottom: 1px solid #000">' . $arCashDesks[$arPaymentHistory['UF_CASH_DESK_ID']]['UF_NAME'] . '</td>'
+                    . '<td style="text-align: left; border-bottom: 1px solid #000">' . $arPaymentTypes[$arPaymentHistory['UF_PAYMENT_TYPE_ID']]['UF_NAME'] . '</td>'
+                    . '<td style="text-align: left; border-bottom: 1px solid #000">' . $arCreaters[$arPaymentHistory['UF_CREATER']]['FULL_NAME_WITH_EMAIL'] . '</td>'
+                    . '<td style="text-align: left; border-bottom: 1px solid #000">' . $arPaymentHistory['UF_DATE_CREATE'] . '</td>'
                     . '</tr>';
         }
-        
+
         if (strlen($tbody) > 0) {
-           
+
             $content .= '<tr>';
             $content .= '<td style="text-align: left; border-bottom: 1px solid #000"><b>Сумма</b></td>';
             $content .= '<td style="text-align: left; border-bottom: 1px solid #000"><b>Валюта</b></td>';
@@ -2331,21 +2469,21 @@ class Utils {
             $content .= '<td style="text-align: left; border-bottom: 1px solid #000"><b>Дата создания</b></td>';
             $content .= '</tr>';
             $content .= $tbody;
-            
+
             $arOrder = Orders::getById($orderId);
-            
+
 //            $content .= '<tr><td colspan="5">Сумма: <b>'.$arOrder['UF_COST'] . ' ' . $arOrder['UF_CURRENCY'].'</b> Оплачено: '.$arOrder['PAID'] . ' ' . $arOrder['UF_CURRENCY'] . ' К оплате: '.$arOrder['TO_PAY'] . ' ' . $arOrder['UF_CURRENCY'] . '</td></tr>';
-            $content .= '<tr><td style="text-align: right; padding-top: 50px;" colspan="5">Сумма:</td><td style="padding-top: 50px"><b>'.$arOrder['UF_COST'] . ' ' . $arOrder['UF_CURRENCY'].'</b></td></tr>';
-            $content .= '<tr><td style="text-align: right" colspan="5">Оплачено:</td><td><b>'.$arOrder['PAID'] . ' ' . $arOrder['UF_CURRENCY'] . '</b></td></tr>';
-            $content .= '<tr><td style="text-align: right" colspan="5">К оплате:</td><td><b>'.$arOrder['TO_PAY'] . ' ' . $arOrder['UF_CURRENCY'] . '</b></td></tr>';
+            $content .= '<tr><td style="text-align: right; padding-top: 50px;" colspan="5">Сумма:</td><td style="padding-top: 50px"><b>' . $arOrder['UF_COST'] . ' ' . $arOrder['UF_CURRENCY'] . '</b></td></tr>';
+            $content .= '<tr><td style="text-align: right" colspan="5">Оплачено:</td><td><b>' . $arOrder['PAID'] . ' ' . $arOrder['UF_CURRENCY'] . '</b></td></tr>';
+            $content .= '<tr><td style="text-align: right" colspan="5">К оплате:</td><td><b>' . $arOrder['TO_PAY'] . ' ' . $arOrder['UF_CURRENCY'] . '</b></td></tr>';
         } else {
-            
+
             $content .= '<tr><td colspan="6"><b>Платежей не поступило</b></td></tr>';
         }
-        
+
         return $content;
     }
-    
+
     public static function _getInputHtml(array $parameters): string {
 
         $input = '<input ' . self::_getHtmlAttrs($parameters) . ' type="' . $parameters['type'] . '" value="' . $parameters['current_value'] . '">';

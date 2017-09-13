@@ -48,7 +48,7 @@ if ($_REQUEST["order"]) {
     $order = $_REQUEST["order"];
 }
 
-$getParams = array("order" => array($by => $order));
+$getParams = array('filter' => \travelsoft\booking\crm\Utils::getOrdersListFilter(), "order" => array($by => $order));
 
 $usePageNavigation = true;
 $navParams = CDBResult::GetNavParams(CAdminResult::GetNavSize(
@@ -150,6 +150,14 @@ require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_admin_a
     CRM.config.time_interval = 60000;
 </script>
 <?
+
+travelsoft\booking\crm\Utils::showFilterForm(
+    array(
+            'table_id' => Settings::ORDERS_HTML_TABLE_ID,
+            'form_elements' => travelsoft\booking\crm\Utils::getOrderFilterFormElements()
+        )
+);
+
 $list->DisplayList();
 
 require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/epilog_admin.php");
