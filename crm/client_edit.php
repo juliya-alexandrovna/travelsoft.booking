@@ -31,7 +31,7 @@ try {
     $title = 'Добавление клиента';
     if ($ID > 0) {
 
-        $arUser = current(Users::get(array('filter' => array('ID' => $ID), 'select' => array('UF_*'))));
+        $arUser = current(Users::get(array('filter' => array('ID' => $ID), 'select' => array('*', 'UF_*'))));
 
         if (!$arUser['ID']) {
 
@@ -54,7 +54,7 @@ try {
             "TYPE" => "ERROR"
         ));
     }
-
+    
     Utils::showEditForm(array(
         'action' => $APPLICATION->GetCurPageParam(),
         'name' => 'client_form',

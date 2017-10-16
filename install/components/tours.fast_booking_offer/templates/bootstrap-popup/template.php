@@ -22,6 +22,9 @@ function _er(string $code, bool $div = false, string $message = '') {
         echo '<span class="error">' . $message . '</span>';
     }
 }
+
+$arSource = $arResult['COST']->getSource();
+$arSourceByOffer = current($arSource[$arResult['OFFER']['ID']]);
 ?>
 
 <form class="booking-form" id="booking-form-<?= $arResult['HASH'] ?>" method="POST" action="<?= $APPLICATION->GetCurPageParam() ?>">
@@ -165,7 +168,8 @@ function _er(string $code, bool $div = false, string $message = '') {
                     </div>
                     <div class="col-md-4 col-xs-4 col-sm-4 <? if ($arResult['ADULT_TOUR_SERVICE_PRICE_FORMATTED']): ?>pdt-10<? else: ?>pdt-27<? endif ?> text-center">
                         <span class="adult-cost">
-                            <b><?= $arResult['ADULT_PRICE_FORMATTED'] ?></b>
+                            <b><?= $arResult['ADULT_PRICE_FORMATTED'] ?></b><br>
+                            (<?= $arSourceByOffer['prices']['adult']['price'] . ' ' . $arSourceByOffer['prices']['adult']['currency']?>)
                             <? if ($arResult['ADULT_TOUR_SERVICE_PRICE_FORMATTED']): ?>
                                 <br>+<br>
                                 <b><?= $arResult['ADULT_TOUR_SERVICE_PRICE_FORMATTED'] ?></b>
@@ -193,7 +197,8 @@ function _er(string $code, bool $div = false, string $message = '') {
                     </div>
                     <div class="col-md-4 col-xs-4 col-sm-4 <? if ($arResult['CHILDREN_TOUR_SERVICE_PRICE_FORMATTED']): ?>pdt-10<? else: ?>pdt-27<? endif ?> text-center">
                         <span class="children-cost">
-                            <b><?= $arResult['CHILDREN_PRICE_FORMATTED'] ?></b>
+                            <b><?= $arResult['CHILDREN_PRICE_FORMATTED'] ?></b><br>
+                            (<?= $arSourceByOffer['prices']['children']['price'] . ' ' . $arSourceByOffer['prices']['children']['currency']?>)
                             <? if ($arResult['CHILDREN_TOUR_SERVICE_PRICE_FORMATTED']): ?>
                                 <br>+<br>
                                 <b><?= $arResult['CHILDREN_TOUR_SERVICE_PRICE_FORMATTED'] ?></b>
@@ -346,7 +351,7 @@ function _er(string $code, bool $div = false, string $message = '') {
 
                                                         if (typeof resp.success !== 'undefined' && resp.success === true) {
                                                             // TEMPORARY SOLUTION
-                                                            top.BX.insertAfter(top.BX.create('div', {attrs: {className: 'success'}, text: '<?= GetMessage('BOOKING_FORM_SUCCESS') ?>'}), top.BX('booking-form-title-<?= $arResult['HASH'] ?>'));
+                                                            top.BX.insertAfter(top.BX.create('div', {attrs: {className: 'success'}, html: '<?= GetMessage('BOOKING_FORM_SUCCESS', array('#ORDER_LIST_PAGE#' => $arParams['ORDER_LIST_PAGE'])) ?>'}), top.BX('booking-form-title-<?= $arResult['HASH'] ?>'));
                                                             top.BX.scrollToNode(form);
                                                             top.BX.remove(top.BX('booking-btn-<?= $arResult['HASH'] ?>'));
                                                             top.BX.remove(top.BX.findChildByClassName(form, 'cost-block', true));

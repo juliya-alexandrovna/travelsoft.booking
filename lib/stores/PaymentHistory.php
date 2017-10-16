@@ -13,5 +13,16 @@ use travelsoft\booking\adapters\Highloadblock;
 class PaymentHistory extends Highloadblock {
 
     protected static $storeName = 'paymentHistory';
-
+    
+    /**
+     * Возвращает информацию по последнему платежу по заказу
+     * @param int $orderId
+     * @return array
+     */
+    public static function getLastPaymentByOrderId (int $orderId) : array {
+        
+        return (array)current(self::get(array('order' => array('ID' => 'DESC'), 'filter' => array('UF_ORDER_ID' => $orderId),
+            'limit' => 1)));
+    }
+    
 }

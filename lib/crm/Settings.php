@@ -71,6 +71,11 @@ class Settings {
     const DOCUMENTS_URL = 'travelsoft_crm_booking_documents.php';
     
     /**
+     * Url страницы редактирования документа
+     */
+    const DOCUMENT_EDIT_URL = 'travelsoft_crm_booking_document_edit.php';
+    
+    /**
      * Url страницы списка касс
      */
     const CASH_DESKS_LIST_URL = 'travelsoft_crm_booking_cash_desks_list.php';

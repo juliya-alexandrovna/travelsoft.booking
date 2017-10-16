@@ -156,10 +156,11 @@ class Utils {
     }
 
     /**
-     * Увеличевает количество проданных
+     * Увеличевает количество проданных и возвращает количество в продаже
      * @param int $offerId
      * @param string $dateFrom
      * @param int $count
+     * @return int $inSale
      */
     public static function increaseNumberOfSold(int $offerId, string $dateFrom, int $count) {
 
@@ -179,6 +180,10 @@ class Utils {
         stores\Quotas::update($arQuota['ID'], array(
             'UF_SOLD_NUMBER' => $value
         ));
+        
+        $inSale = $arQuota['UF_QUOTA'] - $value;
+        
+        return $inSale > 0 ? $inSale : 0;
     }
 
     /**

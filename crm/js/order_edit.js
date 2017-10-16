@@ -36,8 +36,14 @@ $(document).ready(function () {
             $('input[name=UF_FOOD]').val(item[0].food);
             $('input[name=UF_HOTEL]').val(item[0].hotel);
             $('input[name=UF_SERVICE_TYPE]').val(item[0].type);
-
-            $("#calculation-btn-area").show();
+            
+            $('input[name=UF_COST]').closest('tr').hide();
+            $('input[name=UF_TS_COST]').closest('tr').hide();
+            $('input[name=UF_ADULT_PRICE]').closest('tr').show();
+            $('input[name=UF_CHILDREN_PRICE]').closest('tr').show();
+            $('input[name=UF_ADULTTS_PRICE]').closest('tr').show();
+            $('input[name=UF_CHILDTS_PRICE]').closest('tr').show();
+            $('#calculation-link').closest('tr').show();
         }
     });
     
@@ -52,6 +58,18 @@ $(document).ready(function () {
     });
 
     window.CRMUtils = {
+        
+        buildDocLink: function (_this, orderId) {
+            
+            var linkContainer = document.getElementById('link-container');
+            
+            if (_this.value) {
+                 linkContainer.innerHTML = '<a target="__blank" href="travelsoft_crm_booking_make_doc.php?ORDER_ID='+orderId+'&DOC_TPL_ID='+_this.value+'">Сформировать</a>';
+                 return;
+            }
+            
+            linkContainer.innerHTML = '';
+        },
         
         // добавление нового клиента
         addClient: function () {
@@ -97,17 +115,17 @@ $(document).ready(function () {
 
                 id: $('.tour-select').val(),
                 dateFrom: $('input[name=UF_DATE_FROM]').val(),
-                adults: $('input[name=UF_ADULTS]').val(),
-                children: $('input[name=UF_CHILDREN]').val(),
-                currency: $('select[name=UF_CURRENCY]').val(),
+//                adults: $('input[name=UF_ADULTS]').val(),
+//                children: $('input[name=UF_CHILDREN]').val(),
+//                currency: $('select[name=UF_CURRENCY]').val(),
 
             },
                     errorsMessages = {
 
                         dateFrom: 'Укажите дату начала',
                         id: 'Укажите тур',
-                        adults: 'Укажите количество взрослых',
-                        currency: 'Укажите валюту'
+//                        adults: 'Укажите количество взрослых',
+//                        currency: 'Укажите валюту'
                     },
                     errors = [], property;
 
@@ -131,7 +149,19 @@ $(document).ready(function () {
 
                 if (typeof data.result === 'object') {
 
-                    $('input[name=UF_COST]').val(data.result.UF_COST);
+//                    $('input[name=UF_COST]').val(data.result.UF_COST);
+                    $('input[name=UF_ADULT_PRICE]').val(data.result.UF_ADULT_PRICE);
+                    $('select[name=UF_ADULT_PRICE_CRNC]').val(data.result.UF_ADULT_PRICE_CRNC);
+                    $('select[name=UF_ADULT_PRICE_CRNC]').data('currency-in', data.result.UF_ADULT_PRICE_CRNC);
+                    $('input[name=UF_CHILDREN_PRICE]').val(data.result.UF_CHILDREN_PRICE);
+                    $('select[name=UF_CHILD_PRICE_CRNC]').val(data.result.UF_CHILD_PRICE_CRNC);
+                    $('select[name=UF_CHILD_PRICE_CRNC]').data('currency-in', data.result.UF_CHILD_PRICE_CRNC);
+                    $('input[name=UF_ADULTTS_PRICE]').val(data.result.UF_ADULTTS_PRICE);
+                    $('select[name=UF_ADTS_PRICE_CRNC]').val(data.result.UF_ADTS_PRICE_CRNC);
+                    $('select[name=UF_ADTS_PRICE_CRNC]').data('currency-in', data.result.UF_ADTS_PRICE_CRNC);
+                    $('input[name=UF_CHILDTS_PRICE]').val(data.result.UF_CHILDTS_PRICE);
+                    $('select[name=UF_CHTS_PRICE_CRNC]').val(data.result.UF_CHTS_PRICE_CRNC);
+                    $('select[name=UF_CHTS_PRICE_CRNC]').data('currency-in', data.result.UF_CHTS_PRICE_CRNC);
                     $('input[name=UF_DURATION]').val(data.result.UF_DURATION);
                     $('input[name=UF_DATE_TO]').val(data.result.UF_DATE_TO);
 
@@ -143,10 +173,11 @@ $(document).ready(function () {
             return null;
         },
         
-        convertingCurrency (that) {
+        convertingCurrency (that, priceCode) {
             
             var $this = $(that),
-                    price = $('input[name=UF_COST]').val(),
+                    priceInput = $('input[name='+priceCode+']'),
+                    price = priceInput.val(),
                     currencyIn = $this.data("currency-in");
             
             if ($this.val() && price > 0 && currencyIn) {
@@ -161,12 +192,11 @@ $(document).ready(function () {
                     
                     if (!showAlert(data)) {
 
-                    
-                    if (typeof data.result === 'string') {
+                        if (typeof data.result === 'string') {
 
-                        $('input[name=UF_COST]').val(data.result);
+                            priceInput.val(data.result);
+                        }
                     }
-                }
                 });
             }
             

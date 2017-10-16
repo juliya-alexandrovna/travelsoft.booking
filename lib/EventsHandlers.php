@@ -3,6 +3,7 @@
 namespace travelsoft\booking;
 
 use travelsoft\booking\crm\Settings as CRMSettings;
+use travelsoft\booking\Utils;
 
 /**
  * Класс методов обработки событий
@@ -50,12 +51,6 @@ class EventsHandlers {
                         "more_url" => array(CRMSettings::TOURIST_EDIT_URL),
                         "title" => "Туристы",
                     ),
-                    CRMSettings::DOCUMENTS_URL => array(
-                        "text" => "Документы",
-                        "url" => CRMSettings::DOCUMENTS_URL . "?lang=" . LANGUAGE_ID,
-                        "more_url" => array(),
-                        "title" => "Документы",
-                    ),
                     CRMSettings::PAYMENT_HISTORY_LIST_URL => array(
                         "text" => "История платежей",
                         "url" => CRMSettings::PAYMENT_HISTORY_LIST_URL . "?lang=" . LANGUAGE_ID,
@@ -81,6 +76,12 @@ class EventsHandlers {
             if ($USER->IsAdmin()) {
                 
                 $arMenuItems = $arAllMenuItems;
+                $arMenuItems[CRMSettings::DOCUMENTS_URL] = array(
+                    "text" => "Документы",
+                    "url" => CRMSettings::DOCUMENTS_URL . "?lang=" . LANGUAGE_ID,
+                    "more_url" => array(CRMSettings::DOCUMENT_EDIT_URL),
+                    "title" => "Документы",
+                );
                 
             } elseif (in_array(Settings::cashersUGroup(), $currentUserGroups)) {
                 
@@ -176,5 +177,44 @@ class EventsHandlers {
                     (int) $GLOBALS['__TRAVELSOFT']['ORDERS_FIELDS_BEFORE_DELETE']['UF_SERVICE_ID'], $dateFrom, (int) $GLOBALS['__TRAVELSOFT']['ORDERS_FIELDS_BEFORE_DELETE']['UF_ADULTS'], (int) $GLOBALS['__TRAVELSOFT']['ORDERS_FIELDS_BEFORE_DELETE']['UF_CHILDREN']);
         }
         unset($GLOBALS['__TRAVELSOFT']['ORDERS_FIELDS_BEFORE_DELETE']);
+    }
+    
+    /**
+     * @param type $arFields
+     */
+    public static function onBeforeUserRegister(&$arFields) {
+
+        $arFields['LOGIN'] = $arFields['EMAIL'];
+    }
+
+    /**
+     * @param type $arFields
+     */
+    public static function onAfterUserRegister(&$arFields) {
+
+        if ($arFields['USER_ID'] > 0) {
+
+            if ($_POST['IS_AGENT'] == 'Y') {
+
+                // ОТПРАВКА ПИСЬМА АДМИНУ САЙТА О РЕГИСТРАЦИИ НОВОГО АГЕНТА
+                \Bitrix\Main\Mail\Event::send(array(
+                    "EVENT_NAME" => "TRAVELSOFT_BOOKING",
+                    "LID" => $arFields['LID'],
+                    "C_FIELDS" => array(
+                        "USER_ID" => $arFields['USER_ID']
+                    ),
+                    "DUPLICATE" => 'N',
+                    "MESSAGE_ID" => \Bitrix\Main\Config\Option::get("travelsoft.booking", "MAIL_ID_FOR_ADMIN_NOTIFICATION")
+                ));
+            }
+        }
+    }
+
+    /**
+     * @param array $arFields
+     */
+    public static function onBeforeUserUpdate(&$arFields) {
+
+        $arFields['LOGIN'] = $arFields['EMAIL'];
     }
 }

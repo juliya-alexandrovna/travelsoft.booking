@@ -4,7 +4,6 @@ use travelsoft\booking\stores\Tours;
 use travelsoft\booking\tours\SearchEngine;
 use travelsoft\booking\Settings;
 use travelsoft\booking\stores\Orders;
-use travelsoft\booking\stores\Quotas;
 use travelsoft\booking\adapters\Mail;
 use travelsoft\booking\adapters\Date;
 use travelsoft\booking\stores\Statuses;
@@ -349,7 +348,11 @@ class TravelsoftMakeOrder extends CBitrixComponent {
                     $STATUS_ID = Settings::defStatus();
 
                     $DEPPOINT = $this->_getOfferAdditionalField($this->arParams['PROPERTY_POINT_DEPARTURE_CODE']);
-
+                    
+                    $arCostSourceData = $this->arResult['COST']->getSource();
+                    
+                    $arCostInfo = $arCostSourceData[$this->arResult['OFFER']['ID']][MakeTimeStamp($arCost['date_from'])]['prices'];
+                   
                     # создание заказа
                     $ORDER_ID = Orders::add(array(
                                 'UF_DEP_CITY' => $DEPPOINT,
@@ -370,12 +373,20 @@ class TravelsoftMakeOrder extends CBitrixComponent {
                                 'UF_DURATION' => $this->arResult['DURATION'],
                                 'UF_ADULTS' => $this->arResult['ADULTS'],
                                 'UF_CHILDREN' => $this->arResult['CHILDREN'],
+                                'UF_ADULT_PRICE' => $arCostInfo['adult']['price'],
+                                'UF_ADULT_PRICE_CRNC' => $arCostInfo['adult']['currency'],
+                                'UF_CHILDREN_PRICE' => $arCostInfo['children']['price'],
+                                'UF_CHILD_PRICE_CRNC' => $arCostInfo['children']['currency'],
+                                'UF_ADULTTS_PRICE' => $arCostInfo['adult_tour_service']['price'],
+                                'UF_ADTS_PRICE_CRNC' => $arCostInfo['adult_tour_service']['currency'],
+                                'UF_CHILDTS_PRICE' => $arCostInfo['children_tour_service']['price'],
+                                'UF_CHTS_PRICE_CRNC' => $arCostInfo['children_tour_service']['currency'],
                                 'UF_COMMENT' => $this->arResult['USER_COMMENT']
                     ));
 
                     if ($ORDER_ID > 0) {
 
-                        \travelsoft\booking\Utils::increaseNumberOfSold(
+                        $inSale = \travelsoft\booking\Utils::increaseNumberOfSold(
                                 $this->arResult['OFFER']['ID'], $arCost['date_from'], $PEOPLE);
 
                         $arStatus = Statuses::getById($STATUS_ID);
@@ -429,9 +440,7 @@ class TravelsoftMakeOrder extends CBitrixComponent {
                     if (empty($this->arResult['CODE_ERRORS'])) {
 
                         $arResponse['success'] = true;
-
-                        $in_sale = $arQuota['UF_QUOTA'] - $value;
-                        $arResponse['in_sale'] = $in_sale < 0 ? 0 : $in_sale;
+                        $arResponse['in_sale'] = $inSale;
                     } else {
 
                         $arResponse['errors'] = $this->arResult['CODE_ERRORS'];

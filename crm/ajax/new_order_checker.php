@@ -47,7 +47,7 @@ if ($_REQUEST['last_id'] > 0 && bitrix_sessid()) {
             
         }
             
-        $arResponse['result']['last_id'] = travelsoft\booking\stores\Orders::getOrderLastId();
+        $arResponse['result']['last_id'] = travelsoft\booking\stores\Orders::getLastId();
     }
 }
 

@@ -92,6 +92,15 @@ class Settings {
     }
     
     /**
+     * Возвращает id таблицы документов
+     * @return int
+     */
+    public static function documentsStoreId(): int {
+
+        return (int) self::get("DOCUMENTS_HL");
+    }
+    
+    /**
      * Возвращает id таблицы продолжительности услуги
      * @return int
      */

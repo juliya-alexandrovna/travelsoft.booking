@@ -1162,7 +1162,43 @@ class Utils {
 
         return array('errors' => $arErrors, 'result' => $result);
     }
+    
+    /**
+     * Возвращает select для валюты
+     * @staticvar array $arCurrencies
+     * @param string $code
+     * @param string $currentValue
+     * @return string
+     */
+    public static function getCurrencySelectForOrderEdit (string $code, string $currentValue, string $priceCode) : string {
+        
+        static $arCurrencies = array();
+        
+        if (empty($arCurrencies)) {
+            $converter = new CurrencyConverter;
+            $arCurrencies = $converter->getListOfCurrency();
+        }
+        
+        if (key_exists($code, $_POST)) {
 
+            $currentValue = $_POST[$code];
+        }
+        
+        if (strlen($currentValue) <= 0) {
+            
+            $currentValue = current($arCurrencies);
+        }
+        
+        $select = '<select onchange="CRMUtils.convertingCurrency(this, \''.$priceCode.'\')" data-currency-in="' . $currentValue . '" name="'.$code.'">';
+        foreach ($arCurrencies as $currency) {
+
+            $select .= '<option ' . ($currentValue == $currency ? 'selected=""' : '') . ' value="' . $currency . '">' . $currency . '</option>';
+        }
+        $select .= '</select>';
+        
+        return $select;
+    }
+    
     /**
      * HTML полей для формы редактирования заказа
      * @global type $USER_FIELD_MANAGER
@@ -1178,7 +1214,7 @@ class Utils {
         $isFormRequest = self::isEditFormRequest();
 
         $content = '';
-
+        
         foreach ($arUserFields as $arUserField) {
 
             if (key_exists($arUserField['FIELD_NAME'], $_POST)) {
@@ -1189,18 +1225,53 @@ class Utils {
             switch ($arUserField['FIELD_NAME']) {
 
                 case 'UF_COST':
+                    
+                    $content .= self::getEditFieldHtml(
+                                    $arUserField['EDIT_FORM_LABEL'] . ':', '<input name="' . $arUserField['FIELD_NAME'] . '" value="' . $arUserField['VALUE'] . '" type="text"> &nbsp;' . self::getCurrencySelectForOrderEdit('UF_CURRENCY', (string)$arUserFields['UF_CURRENCY']['VALUE'], 'UF_COST'), false, $arUserFields['UF_SERVICE_ID']['VALUE'] > 0 || $_POST['UF_SERVICE_ID'] > 0);
 
-                    $calculationBtn = '<span id="calculation-btn-area" style="display:none">&nbsp;<a href="javascript:CRMUtils.calculate()">Рассчитать стоимость</a></span>';
-                    if ($arUserFields['UF_SERVICE_ID']['VALUE'] > 0) {
+                    break;
+                
+                case 'UF_TS_COST':
+                    
+                    $content .= self::getEditFieldHtml(
+                                    $arUserField['EDIT_FORM_LABEL'] . ':', '<input name="' . $arUserField['FIELD_NAME'] . '" value="' . $arUserField['VALUE'] . '" type="text"> &nbsp;' . self::getCurrencySelectForOrderEdit('UF_TS_CURRENCY', (string)$arUserFields['UF_TS_CURRENCY']['VALUE'], 'UF_TS_COST'), false, $arUserFields['UF_SERVICE_ID']['VALUE'] > 0 || $_POST['UF_SERVICE_ID'] > 0);
+
+                    break;
+                
+                case 'UF_ADULT_PRICE':
+                    
+                    $calculationBtn = self::getEditFieldHtml('', '<a id="calculation-link" href="javascript:CRMUtils.calculate()">Взять стоимость из тура</a>', false, true);
+                    if ($arUserFields['UF_SERVICE_ID']['VALUE'] > 0 || $_POST['UF_SERVICE_ID'] > 0) {
 
                         $calculationBtn = '';
                     }
-
-                    $content .= self::getEditFieldHtml(
-                                    $arUserField['EDIT_FORM_LABEL'] . ':', '<input name="' . $arUserField['FIELD_NAME'] . '" value="' . $arUserField['VALUE'] . '" type="text">' . $calculationBtn);
-
+                    
+                    $content .= $calculationBtn . self::getEditFieldHtml(
+                                    $arUserField['EDIT_FORM_LABEL'] . ':', '<input name="' . $arUserField['FIELD_NAME'] . '" value="' . $arUserField['VALUE'] . '" type="text"> &nbsp;' . self::getCurrencySelectForOrderEdit('UF_ADULT_PRICE_CRNC', (string)$arUserFields['UF_ADULT_PRICE_CRNC']['VALUE'], 'UF_ADULT_PRICE'), false, $arUserFields['UF_SERVICE_ID']['VALUE'] <= 0 && $_POST['UF_SERVICE_ID'] <= 0);
+                    
                     break;
-
+                
+                case 'UF_CHILDREN_PRICE':
+                    
+                    $content .= self::getEditFieldHtml(
+                                    $arUserField['EDIT_FORM_LABEL'] . ':', '<input name="' . $arUserField['FIELD_NAME'] . '" value="' . $arUserField['VALUE'] . '" type="text"> &nbsp;' . self::getCurrencySelectForOrderEdit('UF_CHILD_PRICE_CRNC', (string)$arUserFields['UF_CHILD_PRICE_CRNC']['VALUE'], 'UF_CHILDREN_PRICE'), false, $arUserFields['UF_SERVICE_ID']['VALUE'] <= 0 && $_POST['UF_SERVICE_ID'] <= 0);
+                    
+                    break;
+                
+                case 'UF_ADULTTS_PRICE':
+                    
+                    $content .= self::getEditFieldHtml(
+                                    $arUserField['EDIT_FORM_LABEL'] . ':', '<input name="' . $arUserField['FIELD_NAME'] . '" value="' . $arUserField['VALUE'] . '" type="text"> &nbsp;' . self::getCurrencySelectForOrderEdit('UF_ADTS_PRICE_CRNC', (string)$arUserFields['UF_ADTS__PRICE_CRNC']['VALUE'], 'UF_ADULTTS_PRICE'), false, $arUserFields['UF_SERVICE_ID']['VALUE'] <= 0 && $_POST['UF_SERVICE_ID'] <= 0);
+                    
+                    break;
+                
+                case 'UF_CHILDTS_PRICE':
+                    
+                    $content .= self::getEditFieldHtml(
+                                    $arUserField['EDIT_FORM_LABEL'] . ':', '<input name="' . $arUserField['FIELD_NAME'] . '" value="' . $arUserField['VALUE'] . '" type="text"> &nbsp;' . self::getCurrencySelectForOrderEdit('UF_CHTS_PRICE_CRNC', (string)$arUserFields['UF_CHTS_PRICE_CRNC']['VALUE'], 'UF_CHILDTS_PRICE'), false, $arUserFields['UF_SERVICE_ID']['VALUE'] <= 0 && $_POST['UF_SERVICE_ID'] <= 0);
+                    
+                    break;
+                
                 case 'UF_DURATION':
 
                     $content .= self::getEditFieldHtml(
@@ -1319,17 +1390,11 @@ class Utils {
                     break;
 
                 case 'UF_CURRENCY':
-
-                    $converter = new CurrencyConverter;
-                    $arCurrencies = $converter->getListOfCurrency();
-                    $select = '<select onchange="CRMUtils.convertingCurrency(this)" data-currency-in="' . $arUserField['VALUE'] . '" name="' . $arUserField['FIELD_NAME'] . '">';
-                    foreach ($arCurrencies as $currency) {
-
-                        $select .= '<option ' . ($arUserField['VALUE'] == $currency ? 'selected=""' : '') . ' value="' . $currency . '">' . $currency . '</option>';
-                    }
-                    $select .= '</select>';
-
-                    $content .= self::getEditFieldHtml($arUserField['EDIT_FORM_LABEL'] . ':', $select);
+                case 'UF_ADULT_PRICE_CRNC':
+                case 'UF_CHILD_PRICE_CRNC':
+                case 'UF_ADTS_PRICE_CRNC':
+                case 'UF_CHTS_PRICE_CRNC':
+                case 'UF_TS_CURRENCY':
 
                     break;
 
@@ -1385,6 +1450,7 @@ class Utils {
         $arFields['PERSONAL_DATA']['LAST_NAME'] = array('type' => 'text', 'title' => 'Фамилия', 'required' => true, 'validator' => '_stringLessThenTwo');
         $arFields['PERSONAL_DATA']['EMAIL'] = array('type' => 'email', 'title' => 'Email');
         $arFields['PERSONAL_DATA']['PERSONAL_PHONE'] = array('type' => 'text', 'title' => 'Телефон', 'required' => true, 'validator' => '_checkPhone');
+        $arFields['PERSONAL_DATA']['UF_PASS_ADDRESS'] = array('type' => 'text', 'title' => 'Адрес');
         $arFields['PERSONAL_DATA']['IS_AGENT'] = array('type' => 'checkbox', 'def' => 'Y', 'title' => 'Является агентом');
         $arFields['PASSPORT_DATA']['UF_PASS_NUMBER'] = array('type' => 'text', 'title' => 'Номер паспорта');
         $arFields['PASSPORT_DATA']['UF_PASS_SERIES'] = array('type' => 'text', 'title' => 'Серия паспорта');
@@ -1392,6 +1458,7 @@ class Utils {
         $arFields['PASSPORT_DATA']['UF_PASS_DATE_ISSUE'] = array('type' => 'date', 'title' => 'Дата выдачи паспорта');
         $arFields['PASSPORT_DATA']['UF_PASS_ACTEND'] = array('type' => 'date', 'title' => 'Дата окончания активности');
         $arFields['PASSPORT_DATA']['UF_PASS_ISSUED_BY'] = array('type' => 'text', 'title' => 'Кем выдан паспорт');
+        $arFields['PASSPORT_DATA']['PERSONAL_BIRTHDAY'] = array('type' => 'date', 'title' => 'Дата рождения');
         $arFields['COMPANY_DATA']['UF_LEGAL_NAME'] = array('type' => 'text', 'title' => 'Юр. название');
         $arFields['COMPANY_DATA']['UF_LEGAL_ADDRESS'] = array('type' => 'text', 'title' => 'Юр. адрес');
         $arFields['COMPANY_DATA']['UF_BANK_NAME'] = array('type' => 'text', 'title' => 'Название банка');
@@ -1609,7 +1676,7 @@ class Utils {
                 'UF_USER_ID', 'UF_NAME', 'UF_NAME_LAT', 'UF_LAST_NAME', 'UF_LAST_NAME_LAT', 'UF_SECOND_NAME',
                 'UF_PASS_SERIES', 'UF_PASS_PERNUM', 'UF_PASS_NUMBER', 'UF_PASS_ISSUED_BY', 'UF_PASS_DATE_ISSUE',
                 'UF_PASS_ACTEND', 'UF_CITIZENSHIP', 'UF_BIRTHDATE', 'UF_BIRTHCOUNTRY', 'UF_BIRTHCITY',
-                'UF_NEED_VISA', 'UF_HAVE_VISA', 'UF_VISA_DATE_FROM', 'UF_VISA_DATE_TO', 'UF_MALE'
+                'UF_NEED_VISA', 'UF_HAVE_VISA', 'UF_VISA_DATE_FROM', 'UF_VISA_DATE_TO', 'UF_MALE', 'UF_FILE'
             ),
             'WORK_DATA' => array(
                 'UF_PLACE_WORK', 'UF_WORK_ZIP', 'UF_WORK_STREET', 'UF_WORK_REGION', 'UF_WORK_PHONE', 'UF_WORK_OFFICE',
@@ -1874,25 +1941,25 @@ class Utils {
                     "default" => true
                 ),
                 array(
-                    "id" => "UF_COST",
+                    "id" => "FORMATTED_CURRENT_TOTAL_COST",
                     "content" => "Стоимость",
                     "align" => "center",
                     "default" => true
                 ),
                 array(
-                    "id" => "PAID",
+                    "id" => "FORMATTED_PAID",
                     "content" => "Оплачено",
                     "align" => "center",
                     "default" => true
                 ),
                 array(
-                    "id" => "TO_PAY",
+                    "id" => "FORMATTED_TO_PAY",
                     "content" => "К оплате",
                     "align" => "center",
                     "default" => true
                 ),
                 array(
-                    "id" => "UF_CURRENCY",
+                    "id" => "CURRENT_TOTAL_COST_CURRENCY",
                     "content" => "Валюта",
                     "align" => "center",
                     "default" => true
@@ -1995,7 +2062,7 @@ class Utils {
      * @param \CAdminListRow $row
      */
     public static function prepareRowForOrdersTable(\CAdminListRow &$row, array $arData) {
-
+        
         $newOrderLabel = '';
         if (isset($arData['STATUSES'][$arData['ORDER']['UF_STATUS_ID']])) {
 
@@ -2472,10 +2539,24 @@ class Utils {
 
             $arOrder = Orders::getById($orderId);
 
-//            $content .= '<tr><td colspan="5">Сумма: <b>'.$arOrder['UF_COST'] . ' ' . $arOrder['UF_CURRENCY'].'</b> Оплачено: '.$arOrder['PAID'] . ' ' . $arOrder['UF_CURRENCY'] . ' К оплате: '.$arOrder['TO_PAY'] . ' ' . $arOrder['UF_CURRENCY'] . '</td></tr>';
-            $content .= '<tr><td style="text-align: right; padding-top: 50px;" colspan="5">Сумма:</td><td style="padding-top: 50px"><b>' . $arOrder['UF_COST'] . ' ' . $arOrder['UF_CURRENCY'] . '</b></td></tr>';
-            $content .= '<tr><td style="text-align: right" colspan="5">Оплачено:</td><td><b>' . $arOrder['PAID'] . ' ' . $arOrder['UF_CURRENCY'] . '</b></td></tr>';
-            $content .= '<tr><td style="text-align: right" colspan="5">К оплате:</td><td><b>' . $arOrder['TO_PAY'] . ' ' . $arOrder['UF_CURRENCY'] . '</b></td></tr>';
+            $content .= '<tr><td style="text-align: right; padding-top: 50px;" colspan="6">';
+            $content .= '<table>';
+            $content .= '<tr><td></td>';
+            $content .= '<td style="padding: 10px"><b>Цена</b></td>';
+            $content .= '<td style="padding: 10px"><b>Оплачено</b></td>';
+            $content .= '<td style="padding: 10px"><b>К оплате</b></td></tr>';
+            $content .= '<tr><td style="padding: 10px">Стоимость</td>';
+            $content .= '<td style="padding: 10px">'.$arOrder['FORMATTED_CURRENT_COST'].'</td>';
+            $content .= '<td style="padding: 10px">'.$arOrder['FORMATTED_COST_PAID'].'</td>';
+            $content .= '<td style="padding: 10px">'.$arOrder['FORMATTED_COST_TO_PAY'].'</td>';
+            $content .= '</td></tr>';
+            $content .= '<tr><td style="padding: 10px">Туруслуга</td>';
+            $content .= '<td style="padding: 10px">'.$arOrder['FORMATTED_CURRENT_TS_COST'].'</td>';
+            $content .= '<td style="padding: 10px">'.$arOrder['FORMATTED_TS_PAID'].'</td>';
+            $content .= '<td style="padding: 10px">'.$arOrder['FORMATTED_TS_TO_PAY'].'</td>';
+            $content .= '</td></tr>';
+            $content .= '</table>';
+            $content .= '</td></tr>';
         } else {
 
             $content .= '<tr><td colspan="6"><b>Платежей не поступило</b></td></tr>';
@@ -2483,7 +2564,90 @@ class Utils {
 
         return $content;
     }
+    
+    /**
+     * Возвращает HTML полей для формы редактирования документов
+     * @param array $data
+     * @return string
+     */
+    public static function getDocumentFieldsContent(array $data): string {
 
+        global $USER_FIELD_MANAGER;
+
+        $arUserFields = $USER_FIELD_MANAGER->getUserFieldsWithReadyData("HLBLOCK_" . Settings::documentsStoreId(), $data, LANGUAGE_ID);
+
+        $isFormRequest = self::isEditFormRequest();
+
+        $content = '';
+
+        foreach ($arUserFields as $arUserField) {
+
+            $content .= $USER_FIELD_MANAGER->GetEditFormHtml($isFormRequest, $_POST[$arUserField['FIELD_NAME']], $arUserField);
+        }
+
+        return $content;
+    }
+    
+    public static function getDocumentsForPrintContent (int $orderId = null) {
+        
+        if ($orderId) {
+            $select = \SelectBoxFromArray("DOCTPL", self::getReferencesSelectData(\travelsoft\booking\stores\Documents::get(array("select" => array('ID', 'UF_NAME'))), "UF_NAME", "ID"), '', "", 'onchange="CRMUtils.buildDocLink(this, '.$orderId.')"', false, "find_form");
+            
+            $linkContainer = '&nbsp;<span id="link-container"></span>';
+            
+            return self::getEditFieldHtml("Шаблон документа:", $select . $linkContainer);
+        }
+        
+        return "Необходимо создать путевку";
+    }
+    
+    /**
+     * Обработка формы добавления.редактирования документа
+     * @global \travelsoft\booking\crm\type $USER_FIELD_MANAGER
+     * @return type
+     */
+    public static function processingDocumentEditForm() {
+
+        global $USER_FIELD_MANAGER;
+
+        $url = CRMSettings::DOCUMENTS_URL . '?lang=' . LANGUAGE_ID;
+
+        if (strlen($_POST['CANCEL']) > 0) {
+
+            LocalRedirect($url);
+        }
+
+        $arErrors = array();
+
+        if (self::isEditFormRequest()) {
+            $data = array();
+
+            $USER_FIELD_MANAGER->EditFormAddFields('HLBLOCK_' . Settings::documentsStoreId(), $data);
+
+            self::_stringLessThenTwo($data['UF_NAME'], 'Название', $arErrors);
+
+            if (empty($arErrors)) {
+
+                if ($_REQUEST['ID'] > 0) {
+
+                    $ID = intval($_REQUEST['ID']);
+                    $result = \travelsoft\booking\stores\Documents::update($ID, $data);
+                } else {
+
+                    $result = \travelsoft\booking\stores\Documents::add($data);
+                }
+
+                if ($result) {
+
+                    LocalRedirect($url);
+                }
+            }
+        }
+
+
+        return array('errors' => $arErrors, 'result' => $result);
+    }
+    
     public static function _getInputHtml(array $parameters): string {
 
         $input = '<input ' . self::_getHtmlAttrs($parameters) . ' type="' . $parameters['type'] . '" value="' . $parameters['current_value'] . '">';

@@ -12,7 +12,7 @@ require_once 'header.php';
 $APPLICATION->AddHeadString("<link rel='stylesheet' href='/local/modules/travelsoft.booking/crm/css/orders-list.css'>");
 $APPLICATION->AddHeadString("<script src='/local/modules/travelsoft.booking/crm/js/plugins/jquery-3.2.1.min.js'></script>");
 $APPLICATION->AddHeadString("<script src='/local/modules/travelsoft.booking/crm/js/crm.js?v=b'></script>");
-$APPLICATION->AddHeadString("<script src='/local/modules/travelsoft.booking/crm/js/orders_list.js?v=xxx'></script>");
+$APPLICATION->AddHeadString("<script src='/local/modules/travelsoft.booking/crm/js/orders_list.js?v1'></script>");
 
 
 $sort = new CAdminSorting(Settings::ORDERS_HTML_TABLE_ID, "ID", "DESC");
@@ -142,7 +142,7 @@ require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_admin_a
 <script>
     CRM.config.table_id = "<?= \travelsoft\booking\crm\Settings::ORDERS_HTML_TABLE_ID ?>";
     CRM.config.sessid = "<?= bitrix_sessid() ?>";
-    CRM.config.last_id = "<?= Orders::getOrderLastId() ?>";
+    CRM.config.last_id = "<?= Orders::getLastId() ?>";
     CRM.config.notifyIcon = "/local/templates/travelsoft/images/logo.png";
     CRM.config.notifyTitle = 'Новый заказ';
     CRM.config.notifyBody = '';

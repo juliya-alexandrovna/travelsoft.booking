@@ -1,0 +1,95 @@
+
+/* 
+    Created on : 09.08.2017, 17:43:21
+    Author     : dimabresky
+*/
+
+.starrequired {color: red;}
+
+#tourists-form select:focus, #tourists-form input:focus,  #tourists-form textarea:focus {
+    border-color: #ffb300;
+    box-shadow: 0 0 0 0.1rem rgba(255, 179, 0, 0.6);
+}
+
+#tourists-form .underline {
+    text-decoration: underline;
+}
+
+#tourists-form .text-right {
+    text-align: right;
+}
+
+#tourists-form .cleaners {
+    position: absolute;
+    top: 34px;
+    right: 25px;
+    cursor: pointer;
+}
+
+#tourists-form #add-tourists-btn {
+    width: 150px;
+    background: #ffb300;
+    border: 0;
+    margin-top: 20px;
+    color: #000;
+    font-size: 16px;
+    border-radius: 0;
+    font-weight: 600;
+    display: inline-block;
+    box-shadow: 0 2px 0 0 rgba(255, 179, 0, 0.6);
+}
+
+#tourists-form #add-tourists-btn:hover {
+    color: #fff;
+}
+
+#tourists-form .error {
+    color: #E22B2B !important;
+    font-size: 11px;
+}
+
+#tourists-form input[type=checkbox] {
+    margin-top: 3px !important;
+}
+
+#tourists-form input[type=checkbox]:checked:before {
+    color: #ffb300 !important
+}
+
+#tourists-form div.error {
+    font-size: 14px;
+    margin: 10px 0;
+}
+
+#tourists-form .success {
+    color: #01cb68;
+    font-weight: 700;
+    font-size: 14px;
+    max-width: 380px;
+    text-align: center;
+}
+
+#tourists-form .posrel {
+
+    position: relative;
+}
+
+#tourists-form .calendar-icon {
+
+    position: absolute;
+    top: 36px;
+    right: 10px;
+}
+
+.tourist-title, .add-tourist-title {
+    
+    text-align: center;
+    margin-top: 20px;
+}
+
+@media (max-width: 768px) {
+    
+    #tourists-form #add-tourists-btn {
+        width: 100%;
+    }
+}

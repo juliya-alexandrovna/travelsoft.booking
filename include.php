@@ -11,6 +11,7 @@ $classes = array(
     "travelsoft\\booking\\adapters\\CurrencyConverter" => "lib/adapters/CurrencyConverter.php",
     "travelsoft\\booking\\adapters\\Date" => "lib/adapters/Date.php",
     "travelsoft\\booking\\stores\\Citizenship" => "lib/stores/Citizenship.php",
+    "travelsoft\\booking\\stores\\Documents" => "lib/stores/Documents.php",
     "travelsoft\\booking\\stores\\Food" => "lib/stores/Food.php",
     "travelsoft\\booking\\stores\\Orders" => "lib/stores/Orders.php",
     "travelsoft\\booking\\stores\\PriceTypes" => "lib/stores/PriceTypes.php",

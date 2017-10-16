@@ -13,7 +13,7 @@ $APPLICATION->AddHeadString("<link rel='stylesheet' href='/local/modules/travels
 $APPLICATION->AddHeadString("<script src='/local/modules/travelsoft.booking/crm/js/plugins/jquery-3.2.1.min.js'></script>");
 $APPLICATION->AddHeadString("<script src='/local/modules/travelsoft.booking/crm/js/plugins/select2.full.min.js'></script>");
 $APPLICATION->AddHeadString("<script src='/local/modules/travelsoft.booking/crm/js/lib.js?v=aa'></script>");
-$APPLICATION->AddHeadString("<script src='/local/modules/travelsoft.booking/crm/js/order_edit.js?v=O'></script>");
+$APPLICATION->AddHeadString("<script src='/local/modules/travelsoft.booking/crm/js/order_edit.js?v17'></script>");
 ?>
 
 <style>
@@ -60,7 +60,13 @@ try {
             "DIV" => "ORDER",
             "TAB" => 'Заказ',
             "TITLE" => 'Информация по заказу',
-            'content' => Utils::getEditOrderFieldsContent((array) $arOrder))
+            'content' => Utils::getEditOrderFieldsContent((array) $arOrder)),
+        array(
+            "DIV" => "DOCUMENTS",
+            "TAB" => "Формирование документов",
+            "TITLE" => "Выбор документа для формирования",
+            "content" => Utils::getDocumentsForPrintContent(intVal($arOrder['ID']))
+        )
     );
 
     if ($arOrder['ID'] > 0) {

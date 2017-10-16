@@ -85,7 +85,8 @@ $main_options = array(
         "CRMSETTINGS_HL" => array("DESC" => "Таблица настроек crm", "VALUES" => $arHLS, 'TYPE' => 'select'),
         "CASH_DESKS_HL" => array("DESC" => "Таблица касс", "VALUES" => $arHLS, 'TYPE' => 'select'),
         "PAYMENTS_TYPES_HL" => array("DESC" => "Таблица типов оплаты", "VALUES" => $arHLS, 'TYPE' => 'select'),
-        "PAYMENT_HISTORY_HL" => array("DESC" => "Таблица истории оплаты", "VALUES" => $arHLS, 'TYPE' => 'select')
+        "PAYMENT_HISTORY_HL" => array("DESC" => "Таблица истории оплаты", "VALUES" => $arHLS, 'TYPE' => 'select'),
+        "DOCUMENTS_HL" => array("DESC" => "Таблица документов", "VALUES" => $arHLS, 'TYPE' => 'select')
     ),
     'USER_GROUPS' => array(
         'MANAGERS_USER_GROUPS' => array("DESC" => "Группа пользователей для менеджеров", "VALUES" => $arGroups, 'TYPE' => 'select'),
