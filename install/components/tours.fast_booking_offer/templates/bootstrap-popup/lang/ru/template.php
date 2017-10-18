@@ -8,6 +8,7 @@ $MESS['BOOKING_FORM_WRONG_USER_LAST_NAME'] = '(Фамилия пользоват
 $MESS['BOOKING_FORM_WRONG_USER_NAME'] = '(Имя пользователя должно быть не менее 2 символов)';
 $MESS['BOOKING_FORM_WRONG_USER_PHONE'] = '(Введите телефон в указанном формате)';
 $MESS['BOOKING_FORM_ORDER_CREATION_FAIL'] = 'Возникла ошибка при создании заказа. Попробуйте повторить бронирование через 5 минут.';
+$MESS['BOOKING_FORM_ORDER_INFORMATION'] = 'Для продолжения бронирования введите номер телефона для связи и количество туристов.';
 $MESS['BOOKING_FORM_WRONG_PEOPLE_COUNT'] = 'Общее количество человек должно быть больше чем 0';
 $MESS['BOOKING_FORM_QUOTA_OVERLOAD'] = 'Превышена квота по туру';
 $MESS['BOOKING_FORM_SERVICE_TYPE'] = 'Тур';
@@ -27,9 +28,17 @@ $MESS['BOOKING_FORM_ADULTS'] = 'Взрослых';
 $MESS['BOOKING_FORM_CHILDREN'] = 'Детей';
 $MESS['BOOKING_FORM_TOUR_SERVICE'] = '(туруслуга)';
 $MESS['BOOKING_FORM_TOTAL_COST'] = 'ИТОГО К ОПЛАТЕ =';
-$MESS['BOOKING_FORM_BUTTON_TITLE'] = 'Забронировать';
+$MESS['BOOKING_FORM_BUTTON_TITLE'] = 'Продолжить бронирование';
 $MESS['BOOKING_FORM_TITLE'] = 'Забронировать тур';
 $MESS['BOOKING_FORM_USER_COMMENT'] = 'Комментарий';
+$MESS['BOOKING_FORM_STEP_1'] = 'Ввод данных для авторизации';
+$MESS['BOOKING_FORM_STEP_2'] = 'Ввод личных данных';
+$MESS['BOOKING_FORM_STEP_3'] = 'Ввод количества туристов';
+$MESS['BOOKING_FORM_STEP_4'] = 'Ввод информации о туристах';
+$MESS['BOOKING_FORM_REGISTER_CLIENT_LINK'] = 'Регистрация клиентов';
+$MESS['BOOKING_FORM_REGISTER_AGENT_LINK'] = 'Регистрация агентов';
+$MESS['BOOKING_FORM_AUTH_AGENT_LINK'] = 'Авторизация агентов';
+$MESS['BOOKING_FORM_AUTH_CLIENT_LINK'] = 'Авторизация клиентов';
 $MESS['BOOKING_FORM_SUCCESS'] = 'Бронирование данной услуги прошло успешно. '
         . 'Детальная информация по бронированию отправлена Вам на электронную почту. '
-        . ' В ближайшее время менеджер свяжется с Вами.';
+        . ' В ближайшее время менеджер свяжется с Вами. <br><a href="#ORDER_DETAIL_PAGE#">Ваш заказ</a>';

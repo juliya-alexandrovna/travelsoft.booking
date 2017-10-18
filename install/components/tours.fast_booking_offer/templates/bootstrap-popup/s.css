@@ -5,6 +5,7 @@
 
 .booking-form h2{
     text-align: center;
+    margin-top: 0px;
 }
 
 .booking-form .border-bottom-grey {
@@ -22,17 +23,17 @@
     cursor: pointer;
 }
 
-.booking-form .switches .active {
+/*.booking-form .switches .active {
     background-color: #ffb300;
     color: #fff;
-}
+}*/
 
 .booking-form .switches {
-    margin-bottom: 10px;
+    margin-top: 20px;
 }
 
 .booking-form .desc-block {
-    margin: 30px 0;
+    margin: 0;
 }
 
 .booking-form .hidden {
@@ -45,6 +46,10 @@
 
 .booking-form .pdt-10 {
     padding-top: 10px !important;
+}
+
+.booking-form .pdt-15 {
+    padding-top: 15px !important;
 }
 
 .text-center {
@@ -88,4 +93,48 @@
     font-size: 14px;
     max-width: 380px;
     text-align: center;
+}
+
+.booking-form .desc-block blockquote {
+    font-size: 14px;
+    font-weight: 600;
+    margin: 20px 0;
+    background-color: lightgrey;
+}
+.booking_step label {
+    text-transform: uppercase;
+    width: 290px;
+    display: inline-block;
+    vertical-align: middle;
+    margin-bottom: 0;
+}
+.booking_step label i {
+    width: 34px;
+    height: 34px;
+    line-height: 34px;
+    text-align: center;
+    background: #ccc;
+    border-radius: 50%;
+    display: inline-block;
+    vertical-align: middle;
+    color: #fff;
+    margin-right: 10px;
+}
+.booking_step {
+    border-top: 1px solid #ccc;
+    padding-bottom: 10px;
+    padding-top: 10px;
+    list-style: none;
+    margin-top: 20px;
+    padding-left: 15px;
+}
+.form-group {
+    margin-bottom: 8px;
+}
+.booking_step_activ i {background: #1060B6 !important;}
+.booking-form .desc-block {
+    margin: 0 !important;
+}
+.booking_step_info i {
+    background: #ffb300 !important;
 }

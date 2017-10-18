@@ -38,7 +38,7 @@ $arSourceByOffer = current($arSource[$arResult['OFFER']['ID']]);
             _er('BOOKING_FORM_ORDER_CREATION_FAIL', true);
         }
         ?>
-        <div class="desc-block border-bottom-grey">
+        <div class="desc-block">
 
             <div class="desc-part"><?= GetMessage('BOOKING_FORM_SERVICE_TYPE') ?>: <b><?= $arResult['OFFER']['NAME'] ?></b></div>
             <div class="desc-part"><?= GetMessage('BOOKING_FORM_DATE_FROM') ?>: <b><?= $arResult['DATE_FROM'] ?></b></div>
@@ -46,17 +46,18 @@ $arSourceByOffer = current($arSource[$arResult['OFFER']['ID']]);
             <div class="desc-part"><?= GetMessage('BOOKING_FORM_DURATION') ?>: <b><?= $arResult['DURATION'] ?></b></div>
             <div id="quota-in-sale-<?= $arResult['HASH'] ?>" class="desc-part"><?= GetMessage('BOOKING_FORM_QUOTA') ?>: <b><?= $arResult['QUOTA'] ?></b></div>
         </div>
-
+        <?/* if ($arResult['IS_AUTH_USER']): ?>
+            <div class="desc-block">
+                <blockquote><p><?= GetMessage('BOOKING_FORM_ORDER_INFORMATION') ?></p></blockquote>
+            </div>
+        <? endif; */?>
         <div class="contact-info-block">
             <? if (!$arResult['IS_AUTH_USER']): ?>
 
-                <div class="switches">
-                    <label class="switch active" id="first-time-<?= $arResult['HASH'] ?>"><?= GetMessage('BOOKING_FORM_FIRST_TIME') ?></label>
-                    <label class="switch" id="many-time-<?= $arResult['HASH'] ?>"><?= GetMessage('BOOKING_FORM_MANY_TIME') ?></label>
-                    <input type="hidden" name="FIRST_TIME" value="Y">
-                </div>
-
+                    <input type="hidden" name="FIRST_TIME" value="N">
+                <div class="booking_step row"><label class="booking_step_activ"><i class="fa">1</i> <?= GetMessage('BOOKING_FORM_STEP_1') ?></label></div>
                 <div class="form-group <? if (in_array('WRONG_USER_EMAIL', $arResult['CODE_ERRORS']) || in_array('USER_NOT_FOUND', $arResult['CODE_ERRORS'])): ?>has-error<? endif ?>">
+
                     <label for="USER_EMAIL"><?= GetMessage('BOOKING_FORM_USER_EMAIL') ?></label>
                     <?
                     if (in_array('WRONG_USER_EMAIL', $arResult['CODE_ERRORS'])) {
@@ -84,20 +85,26 @@ $arSourceByOffer = current($arSource[$arResult['OFFER']['ID']]);
                     ?>
                     <input class="form-control" name="PASSWORD" type="password">
                 </div>
-
-                <div class="first-time-block">
-
-                    <div class="form-group <? if (in_array('WRONG_PASSWORD_CONFORMATION', $arResult['CODE_ERRORS'])): ?>has-error<? endif ?>">
-                        <label for="CONFIRM_PASSWORD"><?= GetMessage('BOOKING_FORM_CONFIRM_PASSWORD') ?></label>
-                        <?
-                        if (in_array('WRONG_PASSWORD_CONFORMATION', $arResult['CODE_ERRORS'])) {
-                            _er('BOOKING_FORM_WRONG_PASSWORD_CONFORMATION');
-                        }
-                        ?>
-                        <input class="form-control" name="CONFIRM_PASSWORD" type="password">
-                    </div>
+                <div class="first-time-block hidden form-group <? if (in_array('WRONG_PASSWORD_CONFORMATION', $arResult['CODE_ERRORS'])): ?>has-error<? endif ?>">
+                    <label for="CONFIRM_PASSWORD"><?= GetMessage('BOOKING_FORM_CONFIRM_PASSWORD') ?></label>
+                    <?
+                    if (in_array('WRONG_PASSWORD_CONFORMATION', $arResult['CODE_ERRORS'])) {
+                        _er('BOOKING_FORM_WRONG_PASSWORD_CONFORMATION');
+                    }
+                    ?>
+                    <input class="form-control" name="CONFIRM_PASSWORD" type="password">
+                </div>
+                <div class="switches">
+                    <a rel="nofollow" class="switch register" href="#"><?= GetMessage('BOOKING_FORM_REGISTER_CLIENT_LINK')?> &nbsp;&nbsp;&nbsp;&nbsp;</a>
+                    <a rel="nofollow" class="register" href="/auth/?register=yes&isAgent=yes"><?= GetMessage('BOOKING_FORM_REGISTER_AGENT_LINK')?></a>
+                    <a rel="nofollow" class="auth switch hidden" href="#"><?= GetMessage('BOOKING_FORM_AUTH_CLIENT_LINK')?> &nbsp;&nbsp;&nbsp;&nbsp;</a>
+                    <a rel="nofollow" class="auth switch hidden" href="#"><?= GetMessage('BOOKING_FORM_AUTH_AGENT_LINK')?></a>
+                </div>
+                <div class="booking_step row"><label class="booking_step_activ"><i class="fa">2</i> <?= GetMessage('BOOKING_FORM_STEP_2') ?></label></div>
+                <div class="first-time-block hidden">
 
                     <div class="form-group <? if (in_array('WRONG_USER_LAST_NAME', $arResult['CODE_ERRORS'])): ?>has-error<? endif ?>">
+
                         <label for="USER_LAST_NAME"><?= GetMessage('BOOKING_FORM_USER_LAST_NAME') ?></label>
                         <?
                         if (in_array('WRONG_USER_LAST_NAME', $arResult['CODE_ERRORS'])) {
@@ -119,7 +126,9 @@ $arSourceByOffer = current($arSource[$arResult['OFFER']['ID']]);
                 </div>
 
             <? endif ?>
-
+            <? if ($arResult['IS_AUTH_USER']): ?>
+                <div class="booking_step row"><label class="booking_step_activ"><i class="fa">1</i> <?= GetMessage('BOOKING_FORM_STEP_2') ?></label></div>
+            <? endif; ?>
             <div class="form-group <? if (in_array('WRONG_USER_PHONE', $arResult['CODE_ERRORS'])): ?>has-error<? endif ?>">
                 <label for="USER_PHONE"><?= GetMessage('BOOKING_FORM_USER_PHONE') ?></label>
                 <?
@@ -136,8 +145,9 @@ $arSourceByOffer = current($arSource[$arResult['OFFER']['ID']]);
             </div>
 
         </div>
-
+        <div class="booking_step row"><label class="booking_step_activ"><i class="fa"><? if ($arResult['IS_AUTH_USER']): ?>2<? else: ?>3<? endif ?></i> <?= GetMessage('BOOKING_FORM_STEP_3') ?></label></div>
         <div class="cost-block">
+
             <?
             if (in_array('WRONG_PEOPLE_COUNT', $arResult['CODE_ERRORS']) || in_array('QUOTA_OVERLOAD', $arResult['CODE_ERRORS'])) {
                 $hasError = true;
@@ -153,7 +163,7 @@ $arSourceByOffer = current($arSource[$arResult['OFFER']['ID']]);
             ?>
             <div class="form-group <? if ($hasError): ?>has-error<? endif ?>">
                 <div class="row">
-                    <div class="col-md-5 col-xs-5 col-sm-5">
+                    <div class="col-md-4 col-xs-4 col-sm-4">
                         <label for="ADULTS"><?= GetMessage('BOOKING_FORM_ADULTS') ?></label>
                         <?
                         $p = $arResult['ADULT_PRICE'];
@@ -166,14 +176,14 @@ $arSourceByOffer = current($arSource[$arResult['OFFER']['ID']]);
                     <div class="col-md-1 col-xs-1 col-sm-1 pdt-27">
                         <span class="factor">X</span>
                     </div>
-                    <div class="col-md-4 col-xs-4 col-sm-4 <? if ($arResult['ADULT_TOUR_SERVICE_PRICE_FORMATTED']): ?>pdt-10<? else: ?>pdt-27<? endif ?> text-center">
+                    <div class="col-md-5 col-xs-5 col-sm-5 <? if ($arResult['ADULT_TOUR_SERVICE_PRICE_FORMATTED']): ?>pdt-15<? else: ?>pdt-27<? endif ?> text-center">
                         <span class="adult-cost">
-                            <b><?= $arResult['ADULT_PRICE_FORMATTED'] ?></b><br>
-                            (<?= $arSourceByOffer['prices']['adult']['price'] . ' ' . $arSourceByOffer['prices']['adult']['currency']?>)
+                            <b><?= $arResult['ADULT_PRICE_FORMATTED'] ?></b>
+                            (<?= $arSourceByOffer['prices']['adult']['price'] . ' ' . $arSourceByOffer['prices']['adult']['currency'] ?>)
                             <? if ($arResult['ADULT_TOUR_SERVICE_PRICE_FORMATTED']): ?>
                                 <br>+<br>
                                 <b><?= $arResult['ADULT_TOUR_SERVICE_PRICE_FORMATTED'] ?></b>
-                                <br><?= GetMessage('BOOKING_FORM_TOUR_SERVICE') ?>
+                                <?= GetMessage('BOOKING_FORM_TOUR_SERVICE') ?>
                             <? endif ?>
                         </span>
                     </div>
@@ -182,7 +192,7 @@ $arSourceByOffer = current($arSource[$arResult['OFFER']['ID']]);
 
             <div class="form-group <? if ($hasError): ?>has-error<? endif ?>">
                 <div class="row">
-                    <div class="col-md-5 col-xs-5 col-sm-5">
+                    <div class="col-md-4 col-xs-4 col-sm-4">
                         <label for="CHILDREN"><?= GetMessage('BOOKING_FORM_CHILDREN') ?></label>
                         <?
                         $p = $arResult['CHILDREN_PRICE'];
@@ -195,14 +205,14 @@ $arSourceByOffer = current($arSource[$arResult['OFFER']['ID']]);
                     <div class="col-md-1 col-xs-1 col-sm-1 pdt-27">
                         <span class="factor">X</span>
                     </div>
-                    <div class="col-md-4 col-xs-4 col-sm-4 <? if ($arResult['CHILDREN_TOUR_SERVICE_PRICE_FORMATTED']): ?>pdt-10<? else: ?>pdt-27<? endif ?> text-center">
+                    <div class="col-md-5 col-xs-5 col-sm-5 <? if ($arResult['CHILDREN_TOUR_SERVICE_PRICE_FORMATTED']): ?>pdt-15<? else: ?>pdt-27<? endif ?> text-center">
                         <span class="children-cost">
-                            <b><?= $arResult['CHILDREN_PRICE_FORMATTED'] ?></b><br>
-                            (<?= $arSourceByOffer['prices']['children']['price'] . ' ' . $arSourceByOffer['prices']['children']['currency']?>)
+                            <b><?= $arResult['CHILDREN_PRICE_FORMATTED'] ?></b>
+                            (<?= $arSourceByOffer['prices']['children']['price'] . ' ' . $arSourceByOffer['prices']['children']['currency'] ?>)
                             <? if ($arResult['CHILDREN_TOUR_SERVICE_PRICE_FORMATTED']): ?>
                                 <br>+<br>
                                 <b><?= $arResult['CHILDREN_TOUR_SERVICE_PRICE_FORMATTED'] ?></b>
-                                <br><?= GetMessage('BOOKING_FORM_TOUR_SERVICE') ?>
+                                <?= GetMessage('BOOKING_FORM_TOUR_SERVICE') ?>
                             <? endif ?>
                         </span>
                     </div>
@@ -210,16 +220,18 @@ $arSourceByOffer = current($arSource[$arResult['OFFER']['ID']]);
             </div>
 
             <div>
-                <b><?= GetMessage('BOOKING_FORM_TOTAL_COST') ?> <span id="total-<?= $arResult['HASH']?>">0.00</span> <?= $arParams['CONVERT_IN_CURRENCY_ISO'] ?></b>
+                <b><?= GetMessage('BOOKING_FORM_TOTAL_COST') ?> <span id="total-<?= $arResult['HASH'] ?>">0.00</span> <?= $arParams['CONVERT_IN_CURRENCY_ISO'] ?></b>
             </div>
         </div>
 
         <button id="booking-btn-<?= $arResult['HASH'] ?>" class="booking-btn form-control" name="BOOKING_NOW" value="BOOKING_NOW" type="submit"><?= GetMessage('BOOKING_FORM_BUTTON_TITLE') ?></button>
+        <div class="booking_step row"><label class="booking_step_activ"><i class="fa"><? if ($arResult['IS_AUTH_USER']): ?>3<? else: ?>4<? endif ?></i> <?= GetMessage('BOOKING_FORM_STEP_4') ?></label></div>
     </div>
 </form>
+
 <script>
 
-    top.BX.loadCSS('<?= $templateFolder . '/s.css?v10' ?>');
+    top.BX.loadCSS('<?= $templateFolder . '/s.css?v13' ?>');
     top.BX.ready(function () {
 
         try {
@@ -287,29 +299,40 @@ $arSourceByOffer = current($arSource[$arResult['OFFER']['ID']]);
                 return top.BX.create(tag, {attrs: {className: 'error'}, text: ' ' + message});
 
             }
-
+            
+            function toggleShowRegAuthLinks (classNameForHidden) {
+                var fh = classNameForHidden;
+                var fs = classNameForHidden === 'register' ? 'auth' : 'register';
+                top.BX.findChildrenByClassName(form, fs).forEach(function (el) {
+                    top.BX.removeClass(el, 'hidden');
+                });
+                top.BX.findChildrenByClassName(form, fh).forEach(function (el) {
+                    top.BX.addClass(el, 'hidden');
+                });
+            }
+            
             // FIELDS SWITCHES
             top.BX.bindDelegate(form, 'click', {className: 'switch'}, function (e) {
 
                 var firstTime = top.BX.findChild(form, {tag: 'input', attribute: {name: 'FIRST_TIME'}}, true);
 
-                if (!top.BX.hasClass(this, 'active')) {
+                    if (top.BX.hasClass(this, 'auth')) {
 
-                    top.BX.removeClass(top.BX.findChildByClassName(top.BX.findParent(this, {className: 'switches'}), 'active'), 'active');
-                    top.BX.addClass(this, 'active');
-                    if (this.getAttribute('id') == 'many-time-<?= $arResult['HASH'] ?>') {
-
-                        top.BX.addClass(top.BX.findChildByClassName(form, 'first-time-block'), 'hidden');
+                        top.BX.findChildrenByClassName(form, 'first-time-block').forEach(function (el) {
+                            top.BX.addClass(el, 'hidden');
+                        });
+                        toggleShowRegAuthLinks('auth');
                         firstTime.value = 'N';
                     } else {
 
-                        top.BX.removeClass(top.BX.findChildByClassName(form, 'first-time-block'), 'hidden');
+                        top.BX.findChildrenByClassName(form, 'first-time-block').forEach(function (el) {
+                            top.BX.removeClass(el, 'hidden');
+                        });
+                        toggleShowRegAuthLinks('register');
                         firstTime.value = 'Y';
                     }
 
-                }
-
-                return top.BX.PreventDefault(e);
+                return BX.PreventDefault(e);
             });
 
             // TOTAL PRICE CALCULATION
@@ -317,11 +340,11 @@ $arSourceByOffer = current($arSource[$arResult['OFFER']['ID']]);
 
                 var total = 0;
                 top.BX.findChildrenByClassName(form, 'people-cnt', true).forEach(function (el) {
-                    
+
                     total = total + (el.dataset.price * el.value);
                 });
 
-                top.BX('total-<?= $arResult['HASH']?>').innerHTML = _formatPrice(total);
+                top.BX('total-<?= $arResult['HASH'] ?>').innerHTML = _formatPrice(total);
             });
 
             // AJAX SUBMIT FORM
@@ -339,6 +362,7 @@ $arSourceByOffer = current($arSource[$arResult['OFFER']['ID']]);
                                 var phone = top.BX.findChild(this, {tagName: 'input', attribute: {name: 'USER_PHONE'}}, true);
                                 var confirmPassword = top.BX.findChild(this, {tagName: 'input', attribute: {name: 'CONFIRM_PASSWORD'}}, true);
                                 var authUser = <? if ($arResult['IS_AUTH_USER']): ?>true<? else: ?>false<? endif ?>;
+                                                    var successTmpStr = '<?= GetMessage('BOOKING_FORM_SUCCESS', array('#ORDER_DETAIL_PAGE#' => $arParams['ORDER_DETAIL_PAGE'])) ?>';
                                                     top.BX.ajax.post(this.action,
                                                             (top.BX.ajax.prepareForm(this, {
                                                                 BOOKING_NOW: 'BOOKING_NOW',
@@ -351,7 +375,7 @@ $arSourceByOffer = current($arSource[$arResult['OFFER']['ID']]);
 
                                                         if (typeof resp.success !== 'undefined' && resp.success === true) {
                                                             // TEMPORARY SOLUTION
-                                                            top.BX.insertAfter(top.BX.create('div', {attrs: {className: 'success'}, html: '<?= GetMessage('BOOKING_FORM_SUCCESS', array('#ORDER_LIST_PAGE#' => $arParams['ORDER_LIST_PAGE'])) ?>'}), top.BX('booking-form-title-<?= $arResult['HASH'] ?>'));
+                                                            top.BX.insertAfter(top.BX.create('div', {attrs: {className: 'success'}, html: successTmpStr.replace("#ORDER_ID#", resp.order_id)}), top.BX('booking-form-title-<?= $arResult['HASH'] ?>'));
                                                             top.BX.scrollToNode(form);
                                                             top.BX.remove(top.BX('booking-btn-<?= $arResult['HASH'] ?>'));
                                                             top.BX.remove(top.BX.findChildByClassName(form, 'cost-block', true));
@@ -359,7 +383,7 @@ $arSourceByOffer = current($arSource[$arResult['OFFER']['ID']]);
                                                             if (typeof resp.in_sale !== 'undefined') {
                                                                 top.BX.findChild(top.BX('quota-in-sale-<?= $arResult['HASH'] ?>', {tag: 'b'}, true)).innerHTML = resp.in_sale;
                                                             }
-
+                                                            top.window.location = '<?= $arParams['ORDER_DETAIL_PAGE'] ?>'.replace("#ORDER_ID#", resp.order_id);
                                                         } else if (typeof resp.errors !== 'undefined' && top.BX.type.isArray(resp.errors)) {
 
                                                             _cleanErrors();

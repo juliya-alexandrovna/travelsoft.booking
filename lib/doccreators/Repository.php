@@ -1,6 +1,6 @@
 <?php
 
-namespace travelsoft\booking\documents;
+namespace travelsoft\booking\doccreators;
 
 /**
  * Репозиторий данных для формирования документа
@@ -36,14 +36,6 @@ class Repository {
      * @return array
      */
     public function getLabels () : array {
-        return (array)array_keys($this->_labels);
-    }
-    
-    /**
-     * Получение значений по меткам шаблона
-     * @return array
-     */
-    public function getLabelsValues () : array{
-        return (array)array_values($this->_labels);
+        return $this->_labels;
     }
 }

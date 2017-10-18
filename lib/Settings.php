@@ -225,7 +225,15 @@ class Settings {
 
         return (int) self::get("CASHERS_USER_GROUPS");
     }
-
+    
+    /**
+     * Путь для сохранения документов
+     * @return string
+     */
+    public static function getDocsSavePath () {
+        return $_SERVER['DOCUMENT_ROOT'] . '/docs';
+    }
+    
     /**
      * @param string $name
      * @return string
@@ -234,5 +242,4 @@ class Settings {
 
         return (string) Option::get("travelsoft.booking", $name);
     }
-
 }

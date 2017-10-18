@@ -30,6 +30,10 @@ $(document).ready(function () {
         if (typeof item[0] === 'object') {
 
             $('input[name=UF_SERVICE_NAME]').val(item[0].text);
+            $('input[name=UF_ROUTE]').val(item[0].route);
+            $('input[name=UF_DEP_EXT_TXT]').val(item[0].deptext);
+            $('input[name=UF_INCOST]').val(item[0].incost);
+            $('input[name=UF_OUTCOST]').val(item[0].outcost);
             $('input[name=UF_COUNTRY]').val(item[0].country);
             $('input[name=UF_DEP_CITY]').val(item[0].point_departure);
             $('input[name=UF_ARR_CITY]').val(item[0].point_arrival);

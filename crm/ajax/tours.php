@@ -59,6 +59,26 @@ if ($_REQUEST['q']) {
             $result['hotel'] = getLinkElementName($arProperties['HOTEL']);
         }
         
+        if (strlen($arProperties['ROUTE']['VALUE']) > 0) {
+            
+            $result['route'] = strip_tags($arProperties['ROUTE']['VALUE']);
+        }
+        
+        if (strlen($arProperties['DEPARTURE_EXC_TEXT']['VALUE']) > 0) {
+            
+            $result['deptext'] = strip_tags($arProperties['DEPARTURE_EXC_TEXT']['VALUE']);
+        }
+        
+        if (strlen($arProperties['PRICE_INCLUDE']['VALUE']['TEXT']) > 0) {
+            
+            $result['incost'] = strip_tags($arProperties['PRICE_INCLUDE']['VALUE']['TEXT']);
+        }
+        
+        if (strlen($arProperties['PRICE_NO_INCLUDE']['VALUE']['TEXT']) > 0) {
+            
+            $result['outcost'] = strip_tags($arProperties['PRICE_NO_INCLUDE']['VALUE']['TEXT']);
+        }
+        
         if ($arProperties['FOOD']['VALUE']) {
             
             $result['food'] = getLinkElementName($arProperties['FOOD']);
