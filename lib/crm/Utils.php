@@ -961,7 +961,32 @@ class Utils {
         
         echo $style . $form . $script;
     }
-
+    
+    /**
+     * @return array
+     */
+    public static function getTouristsFilter (): array {
+        
+        if (strlen($_REQUEST['CANCEL']) > 0) {
+            \LocalRedirect($GLOBALS['APPLICATION']->GetCurPageParam("", array(
+                        'UF_NEED_VISA',
+                        'UF_NEED_INSUR',
+                        'CANCEL'
+            )));
+        }
+        
+        $filter = array();
+        if (in_array($_REQUEST['UF_NEED_VISA'], array(0,1)) ) {
+            $filter['UF_NEED_VISA'] = $_REQUEST['UF_NEED_VISA'];
+        }
+        
+        if (in_array($_REQUEST['UF_NEED_INSUR'], array(0,1)) ) {
+            $filter['UF_NEED_INSUR'] = $_REQUEST['UF_NEED_INSUR'];
+        }
+        
+        return $filter;
+    }
+    
     /**
      * Возвращает фильтр для выборки списка истории платежей
      * @return array
@@ -1663,7 +1688,7 @@ class Utils {
 
         return array('errors' => $arErrors, 'result' => $result);
     }
-
+    
     /**
      * Возвращает список полей по туристу
      * @param string $firtsKey
@@ -1676,7 +1701,7 @@ class Utils {
                 'UF_USER_ID', 'UF_NAME', 'UF_NAME_LAT', 'UF_LAST_NAME', 'UF_LAST_NAME_LAT', 'UF_SECOND_NAME',
                 'UF_PASS_SERIES', 'UF_PASS_PERNUM', 'UF_PASS_NUMBER', 'UF_PASS_ISSUED_BY', 'UF_PASS_DATE_ISSUE',
                 'UF_PASS_ACTEND', 'UF_CITIZENSHIP', 'UF_BIRTHDATE', 'UF_BIRTHCOUNTRY', 'UF_BIRTHCITY',
-                'UF_NEED_VISA', 'UF_HAVE_VISA', 'UF_VISA_DATE_FROM', 'UF_VISA_DATE_TO', 'UF_MALE', 'UF_FILE'
+                'UF_NEED_VISA', 'UF_HAVE_VISA', 'UF_NEED_INSUR', 'UF_VISA_DATE_FROM', 'UF_VISA_DATE_TO', 'UF_MALE', 'UF_FILE'
             ),
             'WORK_DATA' => array(
                 'UF_PLACE_WORK', 'UF_WORK_ZIP', 'UF_WORK_STREET', 'UF_WORK_REGION', 'UF_WORK_PHONE', 'UF_WORK_OFFICE',
@@ -2591,11 +2616,13 @@ class Utils {
     public static function getDocumentsForPrintContent (int $orderId = null) {
         
         if ($orderId) {
-            $select = \SelectBoxFromArray("DOCTPL", self::getReferencesSelectData(\travelsoft\booking\stores\Documents::get(array("select" => array('ID', 'UF_NAME'))), "UF_NAME", "ID"), '', "", 'onchange="CRMUtils.buildDocLink(this, '.$orderId.')"', false, "find_form");
-            
-            $linkContainer = '&nbsp;<span id="link-container"></span>';
-            
-            return self::getEditFieldHtml("Шаблон документа:", $select . $linkContainer);
+            $content = self::getEditFieldHtml("Шаблон документа:", \SelectBoxFromArray("DOCTPL", self::getReferencesSelectData(\travelsoft\booking\stores\Documents::get(array("select" => array('ID', 'UF_NAME'))), "UF_NAME", "ID"), '', "", 'onchange="CRMUtils.buildDocLink('.$orderId.')"', false, "find_form"));
+            $content .= self::getEditFieldHtml("Формат документа:", \SelectBoxFromArray("DOCFORMAT", self::getReferencesSelectData(array(
+                array("name" => "docx", "value" => "docx"),
+                array("name" => "pdf", "value" => "pdf")
+            ), "name", "value"),'', "", 'onchange="CRMUtils.buildDocLink('.$orderId.')"', false, "find_form"));
+            $content .= self::getEditFieldHtml("", '<span id="link-container"></span>');
+            return $content;
         }
         
         return "Необходимо создать путевку";

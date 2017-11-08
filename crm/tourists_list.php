@@ -9,7 +9,7 @@ use Bitrix\Main\Entity\ExpressionField;
 
 require_once 'header.php';
 
-$TABLE_ID = "TOURISTS_LIST";
+$TABLE_ID = \travelsoft\booking\crm\Settings::TOURISTS_HTML_TABLE_ID;
 
 $sort = new CAdminSorting($TABLE_ID, "ID", "DESC");
 $list = new CAdminList($TABLE_ID, $sort);
@@ -44,7 +44,7 @@ if ($_REQUEST["order"]) {
     $order = $_REQUEST["order"];
 }
 
-$getParams = array("order" => array($by => $order), 'select' => array('ID', 'UF_NAME', 'UF_LAST_NAME', 'UF_SECOND_NAME'));
+$getParams = array("filter" => travelsoft\booking\crm\Utils::getTouristsFilter(), "order" => array($by => $order), 'select' => array('ID', 'UF_NAME', 'UF_LAST_NAME', 'UF_SECOND_NAME'));
 
 $usePageNavigation = true;
 $navParams = CDBResult::GetNavParams(CAdminResult::GetNavSize(
@@ -168,6 +168,28 @@ $list->CheckListMode();
 $APPLICATION->SetTitle("Список туристов");
 
 require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_admin_after.php");
+
+\travelsoft\booking\crm\Utils::showFilterForm(
+        array(
+            'table_id' => $TABLE_ID,
+            'form_elements' => array(
+                array(
+                    'label' => 'Нужна виза',
+                    'view' => SelectBoxFromArray("UF_NEED_VISA", array(
+                        "REFERENCE" => array("Нет", "Да"),
+                        "REFERENCE_ID" => array(0, 1)
+                            ), $_GET['UF_NEED_VISA'], "", 'class="adm-filter-select"', false, "find_form")
+                ),
+                array(
+                    'label' => 'Нужна страховка',
+                    'view' => SelectBoxFromArray("UF_NEED_INSUR", array(
+                        "REFERENCE" => array("Нет", "Да"),
+                        "REFERENCE_ID" => array(0, 1)
+                            ), $_GET['UF_NEED_INSUR'], "", 'class="adm-filter-select"', false, "find_form")
+                )
+            ),
+        )
+);
 
 $list->DisplayList();
 

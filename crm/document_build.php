@@ -27,6 +27,10 @@ try {
         $errors[] = 'Не указан id шаблона документа';
     }
     
+    if (0 >= strlen($_GET['DOCFORMAT'])) {
+        $errors[] = 'Не указан формат получаемого документа';
+    }
+    
     attemptSendErros($errors);
     
     $order = Orders::getById((int)$_GET['ORDER_ID']);
@@ -45,7 +49,7 @@ try {
 
     $file = CFile::GetFileArray($dbDoc['UF_TPL']);
     
-    $document = $dbDoc['UF_CLASS']::create($order, $file['SRC']);
+    $document = $dbDoc['UF_CLASS']::create($order, $file['SRC'], $_GET['DOCFORMAT']);
     
     
 } catch (\Exception $e) {

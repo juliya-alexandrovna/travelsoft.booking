@@ -63,12 +63,13 @@ $(document).ready(function () {
 
     window.CRMUtils = {
         
-        buildDocLink: function (_this, orderId) {
+        buildDocLink: function (orderId) {
             
             var linkContainer = document.getElementById('link-container');
-            
-            if (_this.value) {
-                 linkContainer.innerHTML = '<a target="__blank" href="travelsoft_crm_booking_make_doc.php?ORDER_ID='+orderId+'&DOC_TPL_ID='+_this.value+'">Сформировать</a>';
+            var doctplid = document.getElementById('DOCTPL').value;
+            var docformat = document.getElementById('DOCFORMAT').value;
+            if (doctplid.length > 0 && docformat.length > 0) {
+                 linkContainer.innerHTML = '<a target="__blank" href="travelsoft_crm_booking_make_doc.php?ORDER_ID='+orderId+'&DOC_TPL_ID='+doctplid+'&DOCFORMAT='+docformat+'">Сформировать</a>';
                  return;
             }
             

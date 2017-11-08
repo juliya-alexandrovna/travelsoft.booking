@@ -231,7 +231,15 @@ class Settings {
      * @return string
      */
     public static function getDocsSavePath () {
-        return $_SERVER['DOCUMENT_ROOT'] . '/docs';
+        return $_SERVER['DOCUMENT_ROOT'] . self::getRelDocsSavePath();
+    }
+    
+    /**
+     * Путь для сохранения документов
+     * @return string
+     */
+    public static function getRelDocsSavePath () {
+        return '/upload/docs';
     }
     
     /**

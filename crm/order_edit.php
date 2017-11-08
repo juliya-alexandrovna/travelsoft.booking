@@ -13,7 +13,7 @@ $APPLICATION->AddHeadString("<link rel='stylesheet' href='/local/modules/travels
 $APPLICATION->AddHeadString("<script src='/local/modules/travelsoft.booking/crm/js/plugins/jquery-3.2.1.min.js'></script>");
 $APPLICATION->AddHeadString("<script src='/local/modules/travelsoft.booking/crm/js/plugins/select2.full.min.js'></script>");
 $APPLICATION->AddHeadString("<script src='/local/modules/travelsoft.booking/crm/js/lib.js?v=aa'></script>");
-$APPLICATION->AddHeadString("<script src='/local/modules/travelsoft.booking/crm/js/order_edit.js?v23'></script>");
+$APPLICATION->AddHeadString("<script src='/local/modules/travelsoft.booking/crm/js/order_edit.js?v28'></script>");
 ?>
 
 <style>
@@ -60,16 +60,16 @@ try {
             "DIV" => "ORDER",
             "TAB" => 'Заказ',
             "TITLE" => 'Информация по заказу',
-            'content' => Utils::getEditOrderFieldsContent((array) $arOrder)),
-        array(
+            'content' => Utils::getEditOrderFieldsContent((array) $arOrder))
+    );
+
+    if ($arOrder['ID'] > 0) {
+        $arTabs[] = array(
             "DIV" => "DOCUMENTS",
             "TAB" => "Формирование документов",
             "TITLE" => "Выбор документа для формирования",
             "content" => Utils::getDocumentsForPrintContent(intVal($arOrder['ID']))
-        )
-    );
-
-    if ($arOrder['ID'] > 0) {
+        );
         $arTabs[] = array(
             "DIV" => "PAYMENT_HISTORY",
             "TAB" => 'Платежи',

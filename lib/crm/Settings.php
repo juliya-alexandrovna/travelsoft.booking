@@ -21,6 +21,11 @@ class Settings {
     const ORDERS_HTML_TABLE_ID = 'ORDERS_TABLE';
     
     /**
+     * ID таблицы туристов
+     */
+    const TOURISTS_HTML_TABLE_ID = 'ORDERS_TABLE';
+    
+    /**
      * ID таблицы типов оплаты
      */
     const PAYMENTS_TYPES_HTML_TABLE_ID = 'PAYMENTS_TYPES_TABLE';

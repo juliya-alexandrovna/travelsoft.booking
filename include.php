@@ -5,12 +5,14 @@ $classes = array(
     "travelsoft\\booking\\abstraction\\Entity" => "lib/abstraction/Entity.php",
     "travelsoft\\booking\\abstraction\\Cost" => "lib/abstraction/Cost.php",
     "travelsoft\\booking\\abstraction\\SearchEngine" => "lib/abstraction/SearchEngine.php",
+    "travelsoft\\booking\\abstraction\\TemplateProcessor" => "lib/abstraction/TemplateProcessor.php",
     "travelsoft\\booking\\adapters\\Highloadblock" => "lib/adapters/Highloadblock.php",
     "travelsoft\\booking\\adapters\\Iblock" => "lib/adapters/Iblock.php",
     "travelsoft\\booking\\adapters\\Mail" => "lib/adapters/Mail.php",
-    "travelsoft\\booking\\adapters\\MSDocAdapter" => "lib/adapters/MSDocAdapter.php",
     "travelsoft\\booking\\adapters\\CurrencyConverter" => "lib/adapters/CurrencyConverter.php",
     "travelsoft\\booking\\adapters\\Date" => "lib/adapters/Date.php",
+    "travelsoft\\booking\\adapters\\DocxTemplateProcessor" => "lib/adapters/DocxTemplateProcessor.php",
+    "travelsoft\\booking\\adapters\\HTMLTemplateProcessor" => "lib/adapters/HTMLTemplateProcessor.php",
     "travelsoft\\booking\\stores\\Citizenship" => "lib/stores/Citizenship.php",
     "travelsoft\\booking\\stores\\Documents" => "lib/stores/Documents.php",
     "travelsoft\\booking\\stores\\Food" => "lib/stores/Food.php",
@@ -32,13 +34,8 @@ $classes = array(
     "travelsoft\\booking\\Utils" => 'lib/Utils.php',
     
     // doccreators
-    "travelsoft\\booking\\doccreators\\Repository" => 'lib/doccreators/Repository.php',
-    "travelsoft\\booking\\doccreators\\TemplateProcessor" => 'lib/doccreators/TemplateProcessor.php',
-    "travelsoft\\booking\\doccreators\\types\\AbstractType" => "lib/doccreators/AbstractType.php",
-    "travelsoft\\booking\\doccreators\\types\\Factory" => "lib/doccreators/types/Factory.php",
-    "travelsoft\\booking\\doccreators\\types\\AbstractType" => "lib/doccreators/types/AbstractType.php",
-    "travelsoft\\booking\\doccreators\\types\\Docx" => "lib/doccreators/types/Docx.php",
-    "travelsoft\\booking\\doccreators\\bus\\ContractFactory" => "lib/doccreators/bus/ContractFactory.php"
+    "travelsoft\\booking\\doccreators\\TemplateProccessorFactory" => "lib/doccreators/TemplateProccessorFactory.php",
+    "travelsoft\\booking\\doccreators\\BusContractFactory" => "lib/doccreators/BusContractFactory.php"
 );
 
 if (ADMIN_SECTION === true) {
