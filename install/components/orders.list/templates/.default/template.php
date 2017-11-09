@@ -41,12 +41,12 @@ $formName = 'order-filter';
 ?>
 <form name="<?= $formName ?>" id="<?= $formName ?>" action="<?= $APPLICATION->GetCurPage(false) ?>" method="get">
     <fieldset>
-        <legend><b>Фильтр</b></legend>
+        <legend><b><?= GetMessage('FILTER_TITLE')?></b></legend>
     <?= bitrix_sessid_post()?>
     <div class="row">
         <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
             <div class="form-group posrel">
-                <label for="UF_DATE_FROM">Дата тура</label>
+                <label for="UF_DATE_FROM"><?= GetMessage('FILTER_DATE_FROM')?></label>
                 <input class="form-control" name="UF_DATE_FROM" value="<?= htmlspecialchars($_REQUEST['UF_DATE_FROM'])?>">
                 <?
                 $APPLICATION->IncludeComponent(
@@ -61,7 +61,7 @@ $formName = 'order-filter';
         </div>
         <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
             <div class="form-group posrel">
-                <label for="UF_DATE">Дата создания</label>
+                <label for="UF_DATE"><?= GetMessage('FILTER_DATE')?></label>
                 <input class="form-control" name="UF_DATE" value="<?= htmlspecialchars($_REQUEST['UF_DATE'])?>">
                 <?
                 $APPLICATION->IncludeComponent(
@@ -76,7 +76,7 @@ $formName = 'order-filter';
         </div>
         <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
             <div class="form-group posrel">
-                <label for="UF_SERVICE_NAME">Название тура</label>
+                <label for="UF_SERVICE_NAME"><?= GetMessage('FILTER_SERVICE_NAME')?></label>
                 <?= \SelectBoxFromArray("UF_SERVICE_NAME", getReferencesSelectData($arResult['VARS']['SERVICES_NAMES'], 'UF_SERVICE_NAME', 'UF_SERVICE_NAME'), $_GET['UF_SERVICE_NAME'], "", 'class="select-2 form-control"', false, $formName)?>
             </div>
         </div> 
@@ -84,16 +84,24 @@ $formName = 'order-filter';
     <div class="row">
          <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
             <div class="form-group posrel">
-                <label for="UF_STATUS_ID">Статус</label>
+                <label for="UF_STATUS_ID"><?= GetMessage('FILTER_STATUS')?></label>
                 <?= \SelectBoxFromArray("UF_STATUS_ID", getReferencesSelectData($arResult['VARS']['STATUSES'], 'UF_NAME', 'ID'), $_GET['UF_STATUS_ID'], "", 'class="select-2 form-control"', false, $formName)?>
             </div>
-        </div> 
+        </div>
+        <?if ($arResult['GET_FILTER_BY_CLIENT']):?>
+        <div class="col-lg-4 col-md-4 col-sm-6 col-xs-12">
+            <div class="form-group posrel">
+                <label for="UF_USER_ID"><?= GetMessage('FILTER_CLIENT')?></label>
+                <?= \SelectBoxFromArray("UF_USER_ID", getReferencesSelectData($arResult['VARS']['CLIENTS'], 'FULL_NAME_WITH_EMAIL', 'ID'), $_GET['UF_USER_ID'], "", 'class="select-2 form-control"', false, $formName)?>
+            </div>
+        </div>
+        <?endif?>
     </div>
     <div class="row">
         <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
             <div class="text-right">
-                <button type="submit" name="SHOW_FROM_FILTER" value="SHOW_FROM_FILTER" class="filter-btn">Найти</button>
-                <button type="submit" name="CANCEL" value="CANCEL" class="filter-btn">Отмена</button>
+                <button type="submit" name="SHOW_FROM_FILTER" value="SHOW_FROM_FILTER" class="filter-btn"><?= GetMessage('FILTER_SHOW_FROM_FILTER')?></button>
+                <button type="submit" name="CANCEL" value="CANCEL" class="filter-btn"><?= GetMessage('FILTER_CANCEL')?></button>
             </div>
         </div>
     </div>

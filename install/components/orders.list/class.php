@@ -34,28 +34,28 @@ class TravelsoftOrdersList extends CBitrixComponent {
 
         $this->arParams["PAGE_ORDERS_COUNT"] = $this->arParams["PAGE_ORDERS_COUNT"] > 0 ? $this->arParams["PAGE_ORDERS_COUNT"] : 10;
     }
-    
+
     /**
      * @return array
      */
-    public function getFilterByUser () {
-        
+    public function getFilterByUser() {
+
         $filter = array();
         if (!$GLOBALS['USER']->IsAdmin()) {
 
             $filter['UF_USER_ID'] = $GLOBALS['USER']->GetID();
         }
-        
+
         return $filter;
     }
-    
+
     /**
      * @return array
      */
-    public function getFilter () {
-        
+    public function getFilter() {
+
         $filter = array();
-        
+
         if (strlen($_REQUEST['SHOW_FROM_FILTER']) > 0 && check_bitrix_sessid()) {
 
             if ($_REQUEST['UF_DATE_FROM']) {
@@ -73,58 +73,83 @@ class TravelsoftOrdersList extends CBitrixComponent {
             if ($_REQUEST['UF_STATUS_ID']) {
                 $filter['UF_STATUS_ID'] = $_REQUEST['UF_STATUS_ID'];
             }
+            
+            if ($this->arResult['GET_FILTER_BY_CLIENT'] && $_REQUEST['UF_USER_ID']) {
+                $filter['UF_USER_ID'] = $_REQUEST['UF_USER_ID'];
+            }
         }
-        
+
         return array_merge($filter, $this->getFilterByUser());
     }
-    
-    public function createVariables () {
-        
+
+    public function createVariables() {
+
         # orders
         $dbOrders = Orders::get(array("filter" => $this->getFilterByUser()), false);
-        
-        $trash = array();
+
+        $trash = $clients = array();
         while ($order = $dbOrders->Fetch()) {
             $this->arResult['VARS']['ORDERS'][] = $order['ID'];
             if (!in_array($order['UF_SERVICE_NAME'], $trash)) {
                 $this->arResult['VARS']['SERVICES_NAMES'][] = array('UF_SERVICE_NAME' => $order['UF_SERVICE_NAME']);
                 $trash[] = $order['UF_SERVICE_NAME'];
+                if ($order['UF_USER_ID'] && !in_array($order['UF_USER_ID'], $clients)) {
+                    $clients[] = $order['UF_USER_ID'];
+                }
             }
         }
-        
+
         # statuses
         $dbStatuses = Statuses::get(array("order" => array('ID' => 'ASC')), false);
-        
+
         while ($status = $dbStatuses->Fetch()) {
             $this->arResult['VARS']['STATUSES'][$status['ID']] = array("ID" => $status['ID'], 'UF_NAME' => $status['UF_NAME']);
         }
+
+        $this->arResult['VARS']['CLIENTS'] = array();
+        # clients
+        if (!empty($clients)) {
+
+            $dbUsers = Users::get(
+                    array(
+                'filter' => array('ID' => $clients),
+                'select' => array('ID', 'NAME', 'SECOND_NAME', 'LAST_NAME', 'EMAIL')));
+            
+            foreach ($dbUsers as $user) {
+                $this->arResult['VARS']['CLIENTS'][] = array('ID' => $user['ID'], 'FULL_NAME_WITH_EMAIL' => $user['FULL_NAME_WITH_EMAIL']);
+            }
+        }
     }
-    
+
     /**
      * component body
      */
     public function executeComponent() {
 
-        global $APPLICATION;
+        global $APPLICATION, $USER;
 
         try {
-            
+
+            # reset filter
             if (strlen($_REQUEST['CANCEL']) > 0) {
                 LocalRedirect($APPLICATION->GetCurPageParam("", array(
-                    "sessid",
-                    "UF_SERVICE_NAME",
-                    "UF_STATUS_ID",
-                    "UF_DATE",
-                    "UF_DATE_FROM",
-                    "CANCEL",
-                    "SHOW_FROM_FILTER"
-                ), false));
+                            "sessid",
+                            "UF_SERVICE_NAME",
+                            "UF_STATUS_ID",
+                            "UF_DATE",
+                            "UF_DATE_FROM",
+                            "CANCEL",
+                            "SHOW_FROM_FILTER"
+                                ), false));
             }
-            
+
             $this->prepareParameters();
-
+            
+            $this->arResult['GET_FILTER_BY_CLIENT'] = $USER->IsAdmin() || 
+                    in_array(Bitrix\Main\Config\Option::get('travelsoft.booking', 'AGENTS_USER_GROUPS'), $USER->GetUserGroupArray());
+            
             $arUsers = array();
-
+            
             $this->arResult["NAV"] = new \Bitrix\Main\UI\PageNavigation("nav-orders-list");
             $this->arResult["NAV"]->allowAllRecords(true)->setPageSize($this->arParams["PAGE_ORDERS_COUNT"])->initFromUri();
 
@@ -137,9 +162,9 @@ class TravelsoftOrdersList extends CBitrixComponent {
                             ), false);
 
             $converter = new travelsoft\booking\adapters\CurrencyConverter;
-            
+
             $this->createVariables();
-            
+
             while ($arOrder = $dbOrders->fetch()) {
 
                 if ($arOrder['UF_STATUS_ID']) {
@@ -160,11 +185,10 @@ class TravelsoftOrdersList extends CBitrixComponent {
 
                     $arOrder['USER_NAME'] = strlen($arUsers[$arUser['ID']]['UF_LEGAL_NAME']) > 0 ? $arUsers[$arUser['ID']]['UF_LEGAL_NAME'] : $arUsers[$arUser['ID']]['NAME'] . ' ' . $arUsers[$arUser['ID']]['LAST_NAME'];
                 }
-                
-                Orders::preparedOrderFieldsForView($arOrder);
-                
-                $this->arResult['ORDERS_LIST'][$arOrder['ID']] = $arOrder;
 
+                Orders::preparedOrderFieldsForView($arOrder);
+
+                $this->arResult['ORDERS_LIST'][$arOrder['ID']] = $arOrder;
             }
 
             $this->arResult["NAV"]->setRecordCount($dbOrders->getCount());
