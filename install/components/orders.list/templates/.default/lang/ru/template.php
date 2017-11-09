@@ -13,3 +13,4 @@ $MESS['ORDERS_LIST_COST'] = 'Стоимость';
 $MESS['ORDERS_LIST_CURRENCY'] = 'Валюта';
 $MESS['ORDERS_LIST_STATUS'] = 'Статус';
 $MESS['ORDERS_LIST_DETAIL'] = 'Подробнее';
+$MESS['ORDERS_LIST_DATE'] = 'Дата создания';

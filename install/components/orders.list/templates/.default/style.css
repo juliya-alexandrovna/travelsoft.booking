@@ -3,7 +3,7 @@
     Author     : dimabresky
 */
 
-.detail-btn {
+.detail-btn, .filter-btn {
     cursor: pointer;
     background: #ffb300;
     border: 0;
@@ -16,12 +16,26 @@
     box-shadow: 0 2px 0 0 rgba(255, 179, 0, 0.6);
 }
 
-.detail-btn {
+.detail-btn, .filter-btn {
     color: #000;
 }
 
 .detail-btn:hover {
     color: #fff;
+}
+
+.filter-btn:hover {
+    color: #fff;
+}
+
+#order-filter {
+    margin-bottom: 40px;
+}
+
+#order-filter .calendar-icon {
+    position: absolute;
+    top: 35px;
+    right: 23px;
 }
 
 @media (max-width: 1200px) {
