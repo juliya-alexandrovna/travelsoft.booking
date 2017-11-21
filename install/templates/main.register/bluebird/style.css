@@ -1,0 +1,63 @@
+div.bx-auth-reg input.bx-auth-input {vertical-align:middle;}
+div.bx-auth-reg span.bx-auth-secure {background-color:#FFFAE3; border:1px solid #DEDBC8; padding:2px; display:inline-block; vertical-align:middle;}
+div.bx-auth-reg div.bx-auth-secure-icon {background-image:url(images/sec.png); background-repeat:no-repeat; background-position:center; width:19px; height:18px;}
+div.bx-auth-reg div.bx-auth-secure-unlock {background-image:url(images/sec-unlocked.png);}
+div.bx-auth-reg .starrequired {color: red}
+div.bx-auth-reg input:focus {
+    border-color: #ffb300 !important;
+    box-shadow: 0 0 0 0.1rem rgba(255, 179, 0, 0.6) !important;
+}
+
+div.bx-auth-reg input[type=checkbox]:checked:before {
+    color: #ffb300 !important
+}
+
+div.bx-auth-reg input[type=checkbox] {
+    margin-top: 3px !important;
+}
+
+div.bx-auth-reg input[type=checkbox]:checked:before {
+    color: #ffb300 !important
+}
+
+div.bx-auth-reg .register-btn {
+    background: #ffb300 !important;
+    border: 0 !important;
+    color: #000 !important;
+    font-size: 16px !important;
+    padding: 9px 28px !important;
+    border-radius: 0 !important;
+    font-weight: 600 !important;
+    display: inline-block !important;
+    box-shadow: 0 2px 0 0 rgba(255, 179, 0, 0.6) !important;
+}
+
+div.bx-auth-reg .register-btn:hover {
+    color: #fff !important;
+}
+
+div.bx-auth-reg .hide {
+    display: none !important;
+}
+
+div.bx-auth-reg .show {
+    display: block !important;
+}
+
+#passport-data-block-title {
+    margin: 10px 0 20px 0;
+    font-size: 20px;
+    color: blue;
+    cursor: pointer;
+}
+
+div.bx-auth-reg .posrel {
+    position: relative;
+}
+
+div.bx-auth-reg img.calendar-icon {
+    position: absolute;
+    right: 10px;
+    bottom: 7px;
+}
+
