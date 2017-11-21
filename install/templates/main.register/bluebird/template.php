@@ -72,28 +72,7 @@ CJSCore::Init();
                     foreach ($arResult["SHOW_FIELDS"] as $FIELD):
                         ?>
                         <?
-                        /* if ($FIELD == "AUTO_TIME_ZONE" && $arResult["TIME_ZONE_ENABLED"] == true): ?>
-                          <tr>
-                          <td><? echo GetMessage("main_profile_time_zones_auto") ?><? if ($arResult["REQUIRED_FIELDS_FLAGS"][$FIELD] == "Y"): ?><span class="starrequired">*</span><? endif ?></td>
-                          <td>
-                          <select name="REGISTER[AUTO_TIME_ZONE]" onchange="this.form.elements['REGISTER[TIME_ZONE]'].disabled = (this.value != 'N')">
-                          <option value=""><? echo GetMessage("main_profile_time_zones_auto_def") ?></option>
-                          <option value="Y"<?= $arResult["VALUES"][$FIELD] == "Y" ? " selected=\"selected\"" : "" ?>><? echo GetMessage("main_profile_time_zones_auto_yes") ?></option>
-                          <option value="N"<?= $arResult["VALUES"][$FIELD] == "N" ? " selected=\"selected\"" : "" ?>><? echo GetMessage("main_profile_time_zones_auto_no") ?></option>
-                          </select>
-                          </td>
-                          </tr>
-                          <tr>
-                          <td><? echo GetMessage("main_profile_time_zones_zones") ?></td>
-                          <td>
-                          <select name="REGISTER[TIME_ZONE]"<? if (!isset($_REQUEST["REGISTER"]["TIME_ZONE"])) echo 'disabled="disabled"' ?>>
-                          <? foreach ($arResult["TIME_ZONE_LIST"] as $tz => $tz_name): ?>
-                          <option value="<?= htmlspecialcharsbx($tz) ?>"<?= $arResult["VALUES"]["TIME_ZONE"] == $tz ? " selected=\"selected\"" : "" ?>><?= htmlspecialcharsbx($tz_name) ?></option>
-                          <? endforeach ?>
-                          </select>
-                          </td>
-                          </tr>
-                          <? else: */
+                        
                         if ($FIELD == 'LOGIN') {
                             continue;
                         }
