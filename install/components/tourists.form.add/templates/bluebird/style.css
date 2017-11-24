@@ -1,4 +1,3 @@
-
 /* 
     Created on : 09.08.2017, 17:43:21
     Author     : dimabresky
@@ -77,14 +76,15 @@
 #tourists-form .calendar-icon {
 
     position: absolute;
-    top: 36px;
-    right: 10px;
+    top: 40px;
+    right: 20px;
 }
 
 .tourist-title, .add-tourist-title {
     
     text-align: center;
     margin-top: 20px;
+    margin-bottom: 10px;
 }
 
 @media (max-width: 768px) {
@@ -93,3 +93,16 @@
         width: 100%;
     }
 }
+.hr-form-group-2, .hr-form-group-7, .hr-form-group-13, .hr-form-group-9 {    clear: both;
+    border-top: 1px solid #f1f1f1;
+    position: relative;
+    float: left;
+    margin-top: 15px;
+    width: 95%;
+    margin-left: 15px;
+    min-height: 1px;
+    margin-right: 15px;
+    margin-bottom: 5px;}
+label {margin-top: 5px;} 
+.form-group-1 {width:100% !important;}
+.form-group-5 {clear: both;}

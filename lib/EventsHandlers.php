@@ -191,7 +191,8 @@ class EventsHandlers {
      * @param type $arFields
      */
     public static function onAfterUserRegister(&$arFields) {
-
+        
+        
         if ($arFields['USER_ID'] > 0) {
 
             if ($_POST['IS_AGENT'] == 'Y') {
@@ -204,9 +205,18 @@ class EventsHandlers {
                         "USER_ID" => $arFields['USER_ID']
                     ),
                     "DUPLICATE" => 'N',
-                    "MESSAGE_ID" => \Bitrix\Main\Config\Option::get("travelsoft.booking", "MAIL_ID_FOR_ADMIN_NOTIFICATION")
+                    "MESSAGE_ID" => \Bitrix\Main\Config\Option::get(
+                            "travelsoft.booking", "MAIL_ID_FOR_ADMIN_NOTIFICATION")
                 ));
             }
+            
+            stores\Users::update($arFields['USER_ID'], array("UF_AGENT_WAITING" => 1));
+            
+            $arMailFields = $arFields;
+            
+            unset($arMailFields['CONFIRM_PASSWORD']);
+            (new \CEvent)->SendImmediate("USER_INFO", $arFields['LID'], $arFields);
+
         }
     }
 

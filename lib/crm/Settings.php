@@ -36,6 +36,11 @@ class Settings {
     const PAYMENT_HISTORY_HTML_TABLE_ID = 'PAYMENT_HISTORY_TABLE';
     
     /**
+     * ID таблицы клиентов
+     */
+    const CLIENT_LIST_HTML_TABLE_ID = 'CLIENT_LIST_TABLE';
+    
+    /**
      * Url страницы добавления цен
      */
     const ADD_PRICES_URL = 'travelsoft_crm_booking_add_prices.php';

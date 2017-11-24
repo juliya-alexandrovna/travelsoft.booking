@@ -9,7 +9,7 @@ use travelsoft\booking\stores\Users;
 
 require_once 'header.php';
 
-$TABLE_ID = "CLIENTS_LIST";
+$TABLE_ID = \travelsoft\booking\crm\Settings::CLIENT_LIST_HTML_TABLE_ID;
 
 $sort = new CAdminSorting($TABLE_ID, "ID", "DESC");
 $list = new CAdminList($TABLE_ID, $sort);
@@ -46,8 +46,8 @@ if ($_REQUEST["order"]) {
 
 $getParams = array(
     "order" => array($by => $order),
-    'filter' => array('GROUPS_ID' => array(\travelsoft\booking\Settings::clientsUGroup())),
-    'select' => array('ID', 'EMAIL', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'PERSONAL_PHONE')
+    'filter' => \travelsoft\booking\crm\Utils::getClientListFilter(),
+    'select' => array('ID', 'EMAIL', 'NAME', 'LAST_NAME', 'SECOND_NAME', 'PERSONAL_PHONE', 'UF_AGENT_WAITING')
 );
 
 //$dbGroups = CGroup::GetList(($by = "c_sort"), ($order = "desc"));
@@ -162,7 +162,13 @@ $list->AddHeaders(array(
         "content" => "Является агентом",
         "align" => "center",
         "default" => true
-    )
+    ),
+    array(
+        "id" => "UF_AGENT_WAITING",
+        "content" => "Ожидает подтверждения статуса \"агент\"",
+        "align" => "center",
+        "default" => true
+    ),
 ));
 
 while ($arResult = $dbResult->Fetch()) {
@@ -176,7 +182,11 @@ while ($arResult = $dbResult->Fetch()) {
     }
 
     $row->AddViewField("IS_AGENT", $isAgent);
-
+    
+    $uaw = $arResult['UF_AGENT_WAITING'] == 1 ? "Да" : "Нет";
+    
+    $row->AddViewField("UF_AGENT_WAITING", $uaw);
+    
     $row->AddActions(array(
         array(
             "ICON" => "edit",
@@ -215,6 +225,21 @@ $list->CheckListMode();
 $APPLICATION->SetTitle("Список клиентов");
 
 require($_SERVER["DOCUMENT_ROOT"] . "/bitrix/modules/main/include/prolog_admin_after.php");
+
+travelsoft\booking\crm\Utils::showFilterForm(
+    array(
+            'table_id' => $TABLE_ID,
+            'form_elements' => array(array(
+                        'label' => 'Ожидает подтверждения статуса "агент"',
+                        'view' => \InputType("checkbox", "UF_AGENT_WAITING", "1", $_GET['UF_AGENT_WAITING'])
+                        //'view' => \SelectBoxFromArray("UF_AGENT_WAITING", array('REFERENCE' => array("Да", "Нет"), 'REFERENCE_ID' => array(1,0)), $_GET['UF_AGENT_WAITING'], "", 'class="adm-filter-select"', false, "find_form")
+                    ),
+                    array(
+                        'label' => 'Является агентом',
+                        'view' => \InputType("checkbox", "IS_AGENT", "1", $_GET['IS_AGENT'])
+                    ))
+        )
+);
 
 $list->DisplayList();
 

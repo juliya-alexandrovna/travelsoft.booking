@@ -60,7 +60,7 @@ CJSCore::Init();
                             <div class="form-group posrel">
 
                                 <label for="<?= $fieldName ?>">
-            <?= $arFieldData['EDIT_FORM_LABEL'] ?><? if ($arFieldData['required']): ?><span class="starrequired">*</span><? endif ?> <? Utils::showError((array) $arResult['ERRORS'][$key], 'WRONG_' . $fieldName) ?>
+									<?= $arFieldData['EDIT_FORM_LABEL'] ?><? if ($arFieldData['required']): ?><span class="starrequired">*</span><? endif ?> | <a href="/upload/files/oprosnik.doc">Скачать анкету для заполения</a> <? Utils::showError((array) $arResult['ERRORS'][$key], 'WRONG_' . $fieldName) ?>
                                 </label>
                                 <div id="old-file-area-<?= $key ?>">
             <?

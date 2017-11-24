@@ -1477,6 +1477,7 @@ class Utils {
         $arFields['PERSONAL_DATA']['PERSONAL_PHONE'] = array('type' => 'text', 'title' => 'Телефон', 'required' => true, 'validator' => '_checkPhone');
         $arFields['PERSONAL_DATA']['UF_PASS_ADDRESS'] = array('type' => 'text', 'title' => 'Адрес');
         $arFields['PERSONAL_DATA']['IS_AGENT'] = array('type' => 'checkbox', 'def' => 'Y', 'title' => 'Является агентом');
+        $arFields['PERSONAL_DATA']['UF_AGENT_WAITING'] = array('type' => 'checkbox', 'def' => 1, 'title' => 'Ожидает подтверждения статуса "агент"');
         $arFields['PASSPORT_DATA']['UF_PASS_NUMBER'] = array('type' => 'text', 'title' => 'Номер паспорта');
         $arFields['PASSPORT_DATA']['UF_PASS_SERIES'] = array('type' => 'text', 'title' => 'Серия паспорта');
         $arFields['PASSPORT_DATA']['UF_PASS_PERNUM'] = array('type' => 'text', 'title' => 'Личный номер');
@@ -2063,6 +2064,34 @@ class Utils {
     }
     
     /**
+     * Фильтр списка клиентов
+     * @return array
+     */
+    public static function getClientListFilter () : array {
+        
+        if (strlen($_REQUEST['CANCEL']) > 0) {
+            \LocalRedirect($GLOBALS['APPLICATION']->GetCurPageParam("", array(
+                        'UF_AGENT_WAITING',
+                        'IS_AGENT',
+                        'CANCEL'
+            )));
+        }
+        
+        $filter = array('GROUPS_ID' => array(\travelsoft\booking\Settings::clientsUGroup()));
+        if ($_GET['IS_AGENT'] == 1) {
+            
+            $filter = array('GROUPS_ID' => array(\travelsoft\booking\Settings::agentsUGroup()));
+        }
+        
+        if ($_GET['UF_AGENT_WAITING'] == 1) {
+            
+            $filter['UF_AGENT_WAITING'] = $_GET['UF_AGENT_WAITING'];
+        }
+        
+        return $filter;
+    }
+    
+    /**
      * HTML элементы фильтра списка заказов
      * @return type
      */
@@ -2504,8 +2533,9 @@ class Utils {
     }
 
     /**
-     * 
+     * Возвращает HTML просмотра истории платежей на странице редактирования заказа
      * @param int $orderId
+     * @return string
      */
     public static function getPaymentHistoryContent(int $orderId) {
 
