@@ -23,58 +23,58 @@ class EventsHandlers {
         global $USER;
 
         if (crm\Utils::access()) {
-            
+
             $currentUserGroups = $USER->GetUserGroupArray();
-            
+
             $arAllMenuItems = array(
-                    CRMSettings::ADD_PRICES_URL => array(
-                        "text" => "Цены и наличие мест",
-                        "url" => CRMSettings::ADD_PRICES_URL . "?lang=" . LANGUAGE_ID,
-                        "more_url" => array(),
-                        "title" => "Цены и наличие мест",
-                    ),
-                    CRMSettings::ORDERS_LIST_URL => array(
-                        "text" => "Список заказов",
-                        "url" => CRMSettings::ORDERS_LIST_URL . "?lang=" . LANGUAGE_ID,
-                        "more_url" => array(CRMSettings::ORDER_EDIT_URL),
-                        "title" => "Список заказов",
-                    ),
-                    CRMSettings::CLIENTS_LIST_URL => array(
-                        "text" => "Клиенты",
-                        "url" => CRMSettings::CLIENTS_LIST_URL . "?lang=" . LANGUAGE_ID,
-                        "more_url" => array(CRMSettings::CLIENT_EDIT_URL),
-                        "title" => "Клиенты",
-                    ),
-                    CRMSettings::TOURISTS_LIST_URL => array(
-                        "text" => "Туристы",
-                        "url" => CRMSettings::TOURISTS_LIST_URL . "?lang=" . LANGUAGE_ID,
-                        "more_url" => array(CRMSettings::TOURIST_EDIT_URL),
-                        "title" => "Туристы",
-                    ),
-                    CRMSettings::PAYMENT_HISTORY_LIST_URL => array(
-                        "text" => "История платежей",
-                        "url" => CRMSettings::PAYMENT_HISTORY_LIST_URL . "?lang=" . LANGUAGE_ID,
-                        "more_url" => array(CRMSettings::PAYMENT_HISTORY_EDIT_URL),
-                        "title" => "История платежей",
-                    ),
-                    CRMSettings::CASH_DESKS_LIST_URL => array(
-                        "text" => "Кассы",
-                        "url" => CRMSettings::CASH_DESKS_LIST_URL . "?lang=" . LANGUAGE_ID,
-                        "more_url" => array(CRMSettings::CASH_DESK_EDIT_URL),
-                        "title" => "Кассы",
-                    ),
-                    CRMSettings::PAYMENTS_TYPES_LIST_URL => array(
-                        "text" => "Типы оплаты",
-                        "url" => CRMSettings::PAYMENTS_TYPES_LIST_URL . "?lang=" . LANGUAGE_ID,
-                        "more_url" => array(CRMSettings::PAYMENT_TYPE_EDIT_URL),
-                        "title" => "Типы оплаты",
-                    )
-                );
-            
+                CRMSettings::ADD_PRICES_URL => array(
+                    "text" => "Цены и наличие мест",
+                    "url" => CRMSettings::ADD_PRICES_URL . "?lang=" . LANGUAGE_ID,
+                    "more_url" => array(),
+                    "title" => "Цены и наличие мест",
+                ),
+                CRMSettings::ORDERS_LIST_URL => array(
+                    "text" => "Список заказов",
+                    "url" => CRMSettings::ORDERS_LIST_URL . "?lang=" . LANGUAGE_ID,
+                    "more_url" => array(CRMSettings::ORDER_EDIT_URL),
+                    "title" => "Список заказов",
+                ),
+                CRMSettings::CLIENTS_LIST_URL => array(
+                    "text" => "Клиенты",
+                    "url" => CRMSettings::CLIENTS_LIST_URL . "?lang=" . LANGUAGE_ID,
+                    "more_url" => array(CRMSettings::CLIENT_EDIT_URL),
+                    "title" => "Клиенты",
+                ),
+                CRMSettings::TOURISTS_LIST_URL => array(
+                    "text" => "Туристы",
+                    "url" => CRMSettings::TOURISTS_LIST_URL . "?lang=" . LANGUAGE_ID,
+                    "more_url" => array(CRMSettings::TOURIST_EDIT_URL),
+                    "title" => "Туристы",
+                ),
+                CRMSettings::PAYMENT_HISTORY_LIST_URL => array(
+                    "text" => "История платежей",
+                    "url" => CRMSettings::PAYMENT_HISTORY_LIST_URL . "?lang=" . LANGUAGE_ID,
+                    "more_url" => array(CRMSettings::PAYMENT_HISTORY_EDIT_URL),
+                    "title" => "История платежей",
+                ),
+                CRMSettings::CASH_DESKS_LIST_URL => array(
+                    "text" => "Кассы",
+                    "url" => CRMSettings::CASH_DESKS_LIST_URL . "?lang=" . LANGUAGE_ID,
+                    "more_url" => array(CRMSettings::CASH_DESK_EDIT_URL),
+                    "title" => "Кассы",
+                ),
+                CRMSettings::PAYMENTS_TYPES_LIST_URL => array(
+                    "text" => "Типы оплаты",
+                    "url" => CRMSettings::PAYMENTS_TYPES_LIST_URL . "?lang=" . LANGUAGE_ID,
+                    "more_url" => array(CRMSettings::PAYMENT_TYPE_EDIT_URL),
+                    "title" => "Типы оплаты",
+                )
+            );
+
             $arMenuItems = array();
-            
+
             if ($USER->IsAdmin()) {
-                
+
                 $arMenuItems = $arAllMenuItems;
                 $arMenuItems[CRMSettings::DOCUMENTS_URL] = array(
                     "text" => "Документы",
@@ -82,29 +82,24 @@ class EventsHandlers {
                     "more_url" => array(CRMSettings::DOCUMENT_EDIT_URL),
                     "title" => "Документы",
                 );
-                
             } elseif (in_array(Settings::cashersUGroup(), $currentUserGroups)) {
-                
+
                 $arMenuItems = array(
                     CRMSettings::ORDERS_LIST_URL => $arAllMenuItems[CRMSettings::ORDERS_LIST_URL],
-                    CRMSettings::DOCUMENTS_URL => $arAllMenuItems[CRMSettings::DOCUMENTS_URL],
                     CRMSettings::PAYMENT_HISTORY_LIST_URL => $arAllMenuItems[CRMSettings::PAYMENT_HISTORY_LIST_URL],
                     CRMSettings::CASH_DESKS_LIST_URL => $arAllMenuItems[CRMSettings::CASH_DESKS_LIST_URL],
                     CRMSettings::PAYMENTS_TYPES_LIST_URL => $arAllMenuItems[CRMSettings::PAYMENTS_TYPES_LIST_URL]
                 );
             }
-            
+
             if (in_array(Settings::managersUGroup(), $currentUserGroups)) {
-                
-                $arMenuItems = array(
-                    CRMSettings::ADD_PRICES_URL => $arAllMenuItems[CRMSettings::ADD_PRICES_URL],
-                    CRMSettings::ORDERS_LIST_URL => $arAllMenuItems[CRMSettings::ORDERS_LIST_URL],
-                    CRMSettings::CLIENTS_LIST_URL => $arAllMenuItems[CRMSettings::CLIENTS_LIST_URL],
-                    CRMSettings::TOURISTS_LIST_URL => $arAllMenuItems[CRMSettings::TOURISTS_LIST_URL],
-                    CRMSettings::DOCUMENTS_URL => $arAllMenuItems[CRMSettings::DOCUMENTS_URL]
-                );
+
+                $arMenuItems[CRMSettings::ADD_PRICES_URL] = $arAllMenuItems[CRMSettings::ADD_PRICES_URL];
+                $arMenuItems[CRMSettings::ORDERS_LIST_URL] = $arAllMenuItems[CRMSettings::ORDERS_LIST_URL];
+                $arMenuItems[CRMSettings::CLIENTS_LIST_URL] = $arAllMenuItems[CRMSettings::CLIENTS_LIST_URL];
+                $arMenuItems[CRMSettings::TOURISTS_LIST_URL] = $arAllMenuItems[CRMSettings::TOURISTS_LIST_URL];
             }
-            
+
             $arGlobalMenu["global_menu_travelsoft_crm"] = array(
                 "menu_id" => "travelsoft_booking_crm",
                 "text" => "CRM",
@@ -178,7 +173,7 @@ class EventsHandlers {
         }
         unset($GLOBALS['__TRAVELSOFT']['ORDERS_FIELDS_BEFORE_DELETE']);
     }
-    
+
     /**
      * @param type $arFields
      */
@@ -191,8 +186,8 @@ class EventsHandlers {
      * @param type $arFields
      */
     public static function onAfterUserRegister(&$arFields) {
-        
-        
+
+
         if ($arFields['USER_ID'] > 0) {
 
             if ($_POST['IS_AGENT'] == 'Y') {
@@ -209,14 +204,13 @@ class EventsHandlers {
                             "travelsoft.booking", "MAIL_ID_FOR_ADMIN_NOTIFICATION")
                 ));
             }
-            
+
             stores\Users::update($arFields['USER_ID'], array("UF_AGENT_WAITING" => 1));
-            
+
             $arMailFields = $arFields;
-            
+
             unset($arMailFields['CONFIRM_PASSWORD']);
             (new \CEvent)->SendImmediate("USER_INFO", $arFields['LID'], $arFields);
-
         }
     }
 
@@ -227,4 +221,5 @@ class EventsHandlers {
 
         $arFields['LOGIN'] = $arFields['EMAIL'];
     }
+
 }
