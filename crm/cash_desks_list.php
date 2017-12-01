@@ -151,7 +151,7 @@ $list->AddGroupActionTable(Array(
 $list->AddAdminContextMenu(array(array(
         'TEXT' => "Создать кассу",
         'TITLE' => "Создание кассы",
-        'LINK' => Settings::CASH_DESK_EDIT_URL . '.php?lang=' . LANG,
+        'LINK' => Settings::CASH_DESK_EDIT_URL . '?lang=' . LANG,
         'ICON' => 'btn_new'
 )));
 
